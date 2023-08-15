@@ -16,7 +16,6 @@ int main(int argc, char* argv[]) {
     shaders_interpolation si;
     si.run();
 
-
 }
 
 

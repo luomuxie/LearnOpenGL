@@ -89,7 +89,7 @@ void shaders_interpolation::initShaderProgram()
 		"void main()\n"
 		"{\n"
 		"gl_Position = vec4(aPos, 1.0);\n" //see how we directly give a vec3 to vec4's constructor
-		"vertexColor = vec4(0.5, 0.5, 0.0, 1.0);\n" //set the output variable to a dark-red color
+		"vertexColor = vec4(0.5,0.0, 0.0, 1.0);\n" //set the output variable to a dark-red color
 		"}\0";
 
 	//create the fragment shader source
@@ -130,6 +130,26 @@ void shaders_interpolation::initShaderProgram()
 		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
 		std::cout << "ERROR:SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
+
+	// Link the vertex and fragment shader into a shader program
+	
+	shaderProgram = glCreateProgram();
+
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	// Check for linking errors
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+
+	// After linking, we no longer need these shaders
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
 
 }
 
