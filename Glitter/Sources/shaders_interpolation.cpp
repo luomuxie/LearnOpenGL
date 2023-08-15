@@ -1,0 +1,184 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include "shaders_interpolation.h"
+#include <iostream>
+#include "func.h"
+
+void shaders_interpolation::initOpenGL()
+{
+	//initiate the glfw
+	glfwInit();
+	//set the version of the openGL
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	//set the openGL profile
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	
+	//create the window
+	window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+	//if the window is null,then print the error
+	if (window == NULL) {
+		std::cout << "Failed to create GLFW window" << std::endl;
+		glfwTerminate();
+	}
+	//set the current context
+	glfwMakeContextCurrent(window);
+	//set the callback function
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	//initiate the glad
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		std::cout << "Failed to initialize GLAD" << std::endl;
+	}
+
+	//set the viewport
+	glViewport(0, 0, 800, 600);
+
+}
+
+void shaders_interpolation::setVertexData()
+{
+	//create the vertex data
+	float vertices[] = {
+		//first triangle
+		0.5f, 0.5f, 0.0f, //top right
+		0.5f, -0.5f, 0.0f, //bottom right
+		-0.5f, 0.5f, 0.0f, //top left
+		//second triangle
+		-0.5f, -0.5f, 0.0f, //bottom left
+	};
+
+	//create the indices
+	unsigned int indices[] = {
+		0, 1, 2, //first triangle
+		1, 2, 3 //second triangle
+	};
+
+	unsigned int EBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	//bind the VAO
+	glBindVertexArray(VAO);
+	//bind the VBO
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	//set the data of the VBO
+	//bind the EBO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);	
+	//set the data of the EBO
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	//set the vertex attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	//enable the vertex attribute
+	glEnableVertexAttribArray(0);
+	//unbind the VBO
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//unbind the VAO
+	glBindVertexArray(0);
+	//unbind the EBO
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void shaders_interpolation::initShaderProgram()
+{
+	//create the vertex shader source
+	const char* vertexShaderSource = "#version 330 core\n"
+		"layout(location = 0) in vec3 aPos;\n" //the position variable has attribute position 0
+		"out vec4 vertexColor;\n" //specify a color output to the fragment shader
+		"void main()\n"
+		"{\n"
+		"gl_Position = vec4(aPos, 1.0);\n" //see how we directly give a vec3 to vec4's constructor
+		"vertexColor = vec4(0.5, 0.5, 0.0, 1.0);\n" //set the output variable to a dark-red color
+		"}\0";
+
+	//create the fragment shader source
+	const char* fragmentShaderSource = "#version 330 core\n"
+		"out vec4 FragColor;\n"
+		"in vec4 vertexColor;\n" //the input variable from the vertex shader (same name and same type)
+		"void main()\n"
+		"{\n"
+		"FragColor = vertexColor;\n" //set the output variable to a dark-red color
+		"}\n\0";
+
+	//create the vertex shader
+	unsigned int vertexShader;
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	//compile the vertex shader
+	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertexShader);
+	//check the vertex shader
+	int success;
+	char infoLog[512];
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+	//if the vertex shader is not compiled,then print the error
+	if (!success) {
+		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+		std::cout << "ERROR:SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+	//create the fragment shader
+	unsigned int fragmentShader;
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	//compile the fragment shader
+	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragmentShader);
+	//check the fragment shader
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+	//if the fragment shader is not compiled,then print the error
+	if (!success) {
+		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+		std::cout << "ERROR:SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+
+}
+
+
+void shaders_interpolation::run()
+{
+	//initiate the openGL
+	initOpenGL();
+	//set the vertex data
+	setVertexData();
+	//initiate the shader program
+	initShaderProgram();
+
+	//render loop
+	while (!glfwWindowShouldClose(window)) {
+		//process the input
+		processInput(window);
+
+		//render
+		//set the background color
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		//clear the color buffer
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		//draw the triangle
+		//use the shader program
+		glUseProgram(shaderProgram);
+		//bind the VAO
+		glBindVertexArray(VAO);
+		//draw the triangle
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//unbind the VAO
+		glBindVertexArray(0);
+
+		//swap the buffer
+		glfwSwapBuffers(window);
+		//poll the event
+		glfwPollEvents();
+	}
+
+	//delete the shader program
+	glDeleteProgram(shaderProgram);
+	//delete the VAO
+	glDeleteVertexArrays(1, &VAO);
+	//delete the VBO
+	glDeleteBuffers(1, &VBO);
+	//delete the EBO
+	glDeleteBuffers(1, &EBO);
+
+	//terminate the glfw
+	glfwTerminate();
+}

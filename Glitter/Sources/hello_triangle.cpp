@@ -163,7 +163,6 @@ void hello_triangle::initOpenGL() {
 	glViewport(0, 0, 800, 600);
 	//register the callback function
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
 	return;
 
 }
