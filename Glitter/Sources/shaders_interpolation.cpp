@@ -85,6 +85,7 @@ void shaders_interpolation::initShaderProgram()
 	//create the vertex shader source
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout(location = 0) in vec3 aPos;\n" //the position variable has attribute position 0
+		//add the color from Opengl		
 		"out vec4 vertexColor;\n" //specify a color output to the fragment shader
 		"void main()\n"
 		"{\n"
@@ -94,11 +95,12 @@ void shaders_interpolation::initShaderProgram()
 
 	//create the fragment shader source
 	const char* fragmentShaderSource = "#version 330 core\n"
+		"uniform vec4 ourColor;\n"
 		"out vec4 FragColor;\n"
 		"in vec4 vertexColor;\n" //the input variable from the vertex shader (same name and same type)
 		"void main()\n"
 		"{\n"
-		"FragColor = vertexColor;\n" //set the output variable to a dark-red color
+		"FragColor = ourColor ;\n" //set the output variable to a dark-red color
 		"}\n\0";
 
 	//create the vertex shader
@@ -177,6 +179,17 @@ void shaders_interpolation::run()
 		//draw the triangle
 		//use the shader program
 		glUseProgram(shaderProgram);
+		//set the uniform
+		float timeValue = glfwGetTime();
+		float greenValue = sin(timeValue) / 2.0f + 0.5f;
+		float redVal = cos(timeValue) / 2.0f + 0.5f;
+
+		//get the uniform location
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		//set the uniform
+		glUniform4f(vertexColorLocation, redVal, greenValue, redVal, 1.0f);
+
+
 		//bind the VAO
 		glBindVertexArray(VAO);
 		//draw the triangle
