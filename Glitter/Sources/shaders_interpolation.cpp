@@ -37,21 +37,20 @@ void shaders_interpolation::initOpenGL()
 
 void shaders_interpolation::setVertexData()
 {
-	//create the vertex data
+	//create the vertex data and the data of the color
 	float vertices[] = {
-		//first triangle
-		0.5f, 0.5f, 0.0f, //top right
-		0.5f, -0.5f, 0.0f, //bottom right
-		-0.5f, 0.5f, 0.0f, //top left
-		//second triangle
-		-0.5f, -0.5f, 0.0f, //bottom left
+		// 位置              // 颜色
+		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // 右下
+		-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // 左下
+		 0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // 顶部
 	};
 
+
 	//create the indices
-	unsigned int indices[] = {
-		0, 1, 2, //first triangle
-		1, 2, 3 //second triangle
-	};
+	//unsigned int indices[] = {
+	//	0, 1, 2, //first triangle
+	//	1, 2, 3 //second triangle
+	//};
 
 	unsigned int EBO;
 	glGenVertexArrays(1, &VAO);
@@ -63,21 +62,28 @@ void shaders_interpolation::setVertexData()
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//set the data of the VBO
 	//bind the EBO
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);	
 	//set the data of the EBO
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	//set the vertex attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	//enable the vertex attribute
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	// 位置属性
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+	// 颜色属性
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+
+
+	//enable the vertex attribute
+	//glEnableVertexAttribArray(0);
 	//unbind the VBO
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//unbind the VAO
 	glBindVertexArray(0);
 	//unbind the EBO
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void shaders_interpolation::initShaderProgram()
@@ -85,23 +91,25 @@ void shaders_interpolation::initShaderProgram()
 	//create the vertex shader source
 	const char* vertexShaderSource = "#version 330 core\n"
 		"layout(location = 0) in vec3 aPos;\n" //the position variable has attribute position 0
-		//add the color from Opengl		
-		"out vec4 vertexColor;\n" //specify a color output to the fragment shader
+		// the color variable has attribute position 1
+		"layout(location = 1) in vec3 aColor;\n" //the color variable has attribute position 1		
+
+		"out vec3 vertexColor;\n" //specify a color output to the fragment shader
 		"void main()\n"
 		"{\n"
 		"gl_Position = vec4(aPos, 1.0);\n" //see how we directly give a vec3 to vec4's constructor
-		"vertexColor = vec4(0.5,0.0, 0.0, 1.0);\n" //set the output variable to a dark-red color
+		"vertexColor = aColor;" //set the output variable to a dark-red color
 		"}\0";
 
 	//create the fragment shader source
 	const char* fragmentShaderSource = "#version 330 core\n"
-		"uniform vec4 ourColor;\n"
+		//"uniform vec4 ourColor;\n"
 		"out vec4 FragColor;\n"
-		"in vec4 vertexColor;\n" //the input variable from the vertex shader (same name and same type)
+		"in vec3 vertexColor;\n" //the input variable from the vertex shader (same name and same type)
 		"void main()\n"
 		"{\n"
-		"FragColor = ourColor ;\n" //set the output variable to a dark-red color
-		"}\n\0";
+		"FragColor = vec4(vertexColor,1) ;\n" //set the output variable to a dark-red color
+		"}\0";
 
 	//create the vertex shader
 	unsigned int vertexShader;
@@ -180,20 +188,19 @@ void shaders_interpolation::run()
 		//use the shader program
 		glUseProgram(shaderProgram);
 		//set the uniform
-		float timeValue = glfwGetTime();
-		float greenValue = sin(timeValue) / 2.0f + 0.5f;
-		float redVal = cos(timeValue) / 2.0f + 0.5f;
+		//float timeValue = glfwGetTime();
+		//float greenValue = sin(timeValue) / 2.0f + 0.5f;
+		//float redVal = cos(timeValue) / 2.0f + 0.5f;
 
-		//get the uniform location
-		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-		//set the uniform
-		glUniform4f(vertexColorLocation, redVal, greenValue, redVal, 1.0f);
-
+		////get the uniform location
+		//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		////set the uniform
+		//glUniform4f(vertexColorLocation, redVal, greenValue, redVal, 1.0f);
 
 		//bind the VAO
 		glBindVertexArray(VAO);
 		//draw the triangle
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 3);		
 		//unbind the VAO
 		glBindVertexArray(0);
 
