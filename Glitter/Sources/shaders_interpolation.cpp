@@ -75,7 +75,6 @@ void shaders_interpolation::setVertexData()
 	glEnableVertexAttribArray(1);
 
 
-
 	//enable the vertex attribute
 	//glEnableVertexAttribArray(0);
 	//unbind the VBO
