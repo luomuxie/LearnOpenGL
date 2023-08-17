@@ -2,6 +2,8 @@
 #include "shaders_uniform.h"
 #include "shaders_interpolation.h"
 #include "shaders_class.h"
+#include <iostream>
+#include <windows.h>
 
 int main(int argc, char* argv[]) {
         
@@ -16,6 +18,14 @@ int main(int argc, char* argv[]) {
 
     //shaders_interpolation si;
     //si.run();
+
+    char buffer[MAX_PATH];
+    if (GetCurrentDirectory(MAX_PATH, buffer)) {
+        std::cout << "Current working directory: " << buffer << std::endl;
+    }
+    else {
+        std::cerr << "Error getting current directory" << std::endl;
+    }
 
     shaderClass sc;
     sc.run();
