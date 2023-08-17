@@ -5,6 +5,7 @@
 #include "func.h"
 #include <shader_s.h>
 
+
 void shaderClass::run()
 {
 	initOpenGL();
