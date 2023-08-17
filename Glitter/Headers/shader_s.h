@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+
 //create a class name shader
 class Shader
 {
@@ -17,7 +18,7 @@ class Shader
 		// the program ID
 		unsigned int ID;
 		// constructor generates the shader on the fly
-		Shader(const char* vertexPath, const char* fragmentPath) {
+		Shader(const char* vertexPath, const char* fragmentPath) {			
 			// 1. retrieve the vertex/fragment source code from filePath
 			std::string vertexCode;
 			std::string fragmentCode;
@@ -29,8 +30,21 @@ class Shader
 			try
 			{
 				// open files
-				vShaderFile.open(vertexPath);
-				fShaderFile.open(fragmentPath);
+				//vShaderFile.open(vertexPath);
+				//fShaderFile.open(fragmentPath);
+				try
+				{
+					// open files
+					vShaderFile.open(vertexPath);
+					fShaderFile.open(fragmentPath);
+					// Add this line to indicate that files were successfully read
+					std::cout << "Successfully read shader files: " << vertexPath << " and " << fragmentPath << std::endl;
+				}
+				catch (std::ifstream::failure& e)
+				{
+					std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+				}
+
 				std::stringstream vShaderStream, fShaderStream;
 				// read file's buffer contents into streams
 				vShaderStream << vShaderFile.rdbuf();

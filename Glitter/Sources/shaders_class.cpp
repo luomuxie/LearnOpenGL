@@ -9,7 +9,7 @@ void shaderClass::run()
 {
 	initOpenGL();
 	//init shader use shader_s class
-	Shader myshader("shaders/vertex_shader.vs", "shaders/fragment_shader.fs");
+	Shader myshader("E:/OpenGL/GlitterGL/LearnOpenGL/Glitter/Shaders/shader.vs", "E:/OpenGL/GlitterGL/LearnOpenGL/Glitter/Shaders/shader.fs");
 	myshader.use();
 	//set the vertex data
 	setVertexData();
