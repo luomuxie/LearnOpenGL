@@ -46,13 +46,12 @@ void shaderClass::run()
 
 void shaderClass::initOpenGL()
 {
-	//initiate the glfw
 	glfwInit();
-	//set the version of the openGL
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	//set the openGL profile
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	//create the window
 	window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);

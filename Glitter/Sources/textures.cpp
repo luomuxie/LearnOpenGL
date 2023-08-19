@@ -1,10 +1,10 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <stb_image.h>
 #include "textures.h"
 #include <iostream>
 #include "func.h"
 #include <shader_s.h>
-#include <stb_image.h>
 
 void textures::initOpenGL()
 {

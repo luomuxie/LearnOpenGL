@@ -4,8 +4,9 @@
 #include "shaders_class.h"
 #include <iostream>
 #include <windows.h>
+#include "textures.h"
 
-int main(int argc, char* argv[]) {
+int main() {
         
 /*    hello_triangle hw;
     hw.hello_triangleOpenGL(); */   
@@ -19,16 +20,12 @@ int main(int argc, char* argv[]) {
     //shaders_interpolation si;
     //si.run();
 
-    char buffer[MAX_PATH];
-    if (GetCurrentDirectory(MAX_PATH, buffer)) {
-        std::cout << "Current working directory: " << buffer << std::endl;
-    }
-    else {
-        std::cerr << "Error getting current directory" << std::endl;
-    }
+    //shaderClass sc;
+    //sc.run();
 
-    shaderClass sc;
-    sc.run();
+    textures tx;
+    tx.run();
+    
 
 }
 
