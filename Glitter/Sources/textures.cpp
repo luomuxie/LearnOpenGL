@@ -97,22 +97,10 @@ void textures::setVertexData()
 
 }
 
-
-void textures::run()
+void textures::loadTexture()
 {
-	//initiate the openGL
-	initOpenGL();
-	//set the vertex data
-	setVertexData();
-	//set the shader program
-	//create shader program from the shader
-	Shader myshader("..\\Glitter\\Shaders\\texture.vs", "..\\Glitter\\Shaders\\texture.fs");
-	//use the shader program
-	myshader.use();
-	//set the uniform
-
 	//set the texture
-	unsigned int texture;
+	//unsigned int texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	//set the texture wrapping/filtering options (on the currently bound texture object)
@@ -136,6 +124,22 @@ void textures::run()
 	}
 	//free the image memory
 	stbi_image_free(data);
+}
+
+
+void textures::run()
+{
+	//initiate the openGL
+	initOpenGL();
+	//set the vertex data
+	setVertexData();
+	//set the shader program
+	//create shader program from the shader
+	Shader myshader("..\\Glitter\\Shaders\\texture.vs", "..\\Glitter\\Shaders\\texture.fs");
+	//use the shader program
+	myshader.use();
+	//set the uniform
+	loadTexture();
 
 	//render loop
 	while (!glfwWindowShouldClose(window)) {
