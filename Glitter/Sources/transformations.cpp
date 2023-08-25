@@ -13,10 +13,12 @@ void transformations::initOpenGL()
 	//initiate the glfw
 	glfwInit();
 	//set the version of the openGL
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	//set the openGL profile
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	//set the openGL not resizable
+	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	//create the window
 	window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
@@ -55,7 +57,6 @@ void transformations::setVertexData()
 		1, 2, 3
 	};
 
-
 	//create the VAO, VBO, EBO
 	VAO, VBO, EBO;
 	//generate the VAO, VBO, EBO
@@ -72,18 +73,12 @@ void transformations::setVertexData()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	//set the EBO's data
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	//set the vertex attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	//enable the vertex attribute
+	//²½³¤ºÍÆ«ÒÆ
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	//set the color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	//enable the color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-
-	//set the texture attribute
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	//enable the texture attribute
 	glEnableVertexAttribArray(2);
 
 	//unbind the VAO, VBO, EBO
@@ -93,8 +88,7 @@ void transformations::setVertexData()
 }
 
 void transformations::setTextureData()
-{
-	
+{	
 	//generate the texture
 	glGenTextures(1, &texture1);
 	//bind the texture
@@ -169,6 +163,7 @@ void transformations::run()
 		//set the transform matrix
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 		//draw the rect
+		glUseProgram(shaderID);
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		//swap the buffer
