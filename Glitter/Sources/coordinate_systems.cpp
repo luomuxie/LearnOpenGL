@@ -177,7 +177,7 @@ void coordinate_systems::run()
 		//create projection matrix
 		glm::mat4 projection = glm::mat4(1.0f);
 		//set the projection matrix
-		projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 		//get the model matrix's location
 		unsigned int modelLoc = glGetUniformLocation(shaderID, "model");
 		//set the model matrix
