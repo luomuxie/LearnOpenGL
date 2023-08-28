@@ -5,6 +5,11 @@
 #include "func.h"
 #include <shader_s.h>
 #include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/ext/quaternion_transform.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 void coordinate_systems::initOpenGL()
 {
@@ -150,10 +155,54 @@ void coordinate_systems::run()
 		//clear the color buffer and the depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		////create the transform matrix
+		//glm::mat4 transform = glm::mat4(1.0f);
+		////set the transform matrix
+		//transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+		//transform = glm::rotate(transform, glm::radians(90.0f), glm::vec3(0.0f,0.0f,1.0f));
+		////get the transform matrix's location
+		//unsigned int transformLoc = glGetUniformLocation(shaderID, "transform");
+		////set the transform matrix
+		//glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+
+		//create model matrix
+		glm::mat4 model = glm::mat4(1.0f);
+		//set the model matrix
+		model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f,0.0f,0.0f));
+
+		//create view matrix
+		glm::mat4 view = glm::mat4(1.0f);
+		//set the view matrix
+		view = glm::translate(view, glm::vec3(0.0f,0.0f,-3.0f));
+		//create projection matrix
+		glm::mat4 projection = glm::mat4(1.0f);
+		//set the projection matrix
+		projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH/(float)SCR_HEIGHT, 0.1f, 100.0f);
+		//get the model matrix's location
+		unsigned int modelLoc = glGetUniformLocation(shaderID, "model");
+		//set the model matrix
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		//get the view matrix's location
+		unsigned int viewLoc = glGetUniformLocation(shaderID, "view");
+		//set the view matrix
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		//get the projection matrix's location
+		unsigned int projectionLoc = glGetUniformLocation(shaderID, "projection");
+		//set the projection matrix
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+
+
+
+
+
+
+
+
 		//bind the texture
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
-
 		//use the shader
 		glUseProgram(shaderID);						
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
