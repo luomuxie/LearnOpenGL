@@ -4,6 +4,7 @@ class coordinate_systems
 {
 	//create a func to init the openGL
 	void initOpenGL();
+
 	//create window
 	GLFWwindow* window;
 

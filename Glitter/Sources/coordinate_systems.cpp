@@ -1,6 +1,6 @@
-#include "coordinate_systems.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include "coordinate_systems.h"
 #include <iostream>
 #include "func.h"
 #include <shader_s.h>
@@ -65,7 +65,7 @@ void coordinate_systems::setVertexData()
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 
-	//bing the VAO
+	
 	glBindVertexArray(VAO);
 	//bind the VBO
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -101,7 +101,7 @@ void coordinate_systems::setVertexData()
 void coordinate_systems::initShader()
 {
 	//init the shader with SmpleVertexShader.vert and SampleFragmentShader.frag
-	Shader myshader = Shader("SampleVertexShader.vert", "SampleFragmentShader.frag");
+	Shader myshader("..\\Glitter\\Shaders\\coordinate.vs", "..\\Glitter\\Shaders\\coordinate.fs");
 	//use the shader
 	myshader.use();
 	//set the shaderID
@@ -120,7 +120,7 @@ void coordinate_systems::loadTexture()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	
 	//load the texture1's image
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("..\\Glitter\\Img\\container.jpg", &width, &height, &nrChannels, 0);
 	//if the data is not null,then set the texture1's image
 	if (data) {
 		//set the texture1's image
@@ -138,6 +138,8 @@ void coordinate_systems::loadTexture()
 
 void coordinate_systems::run()
 {
+	//initial OpenGL 
+	initOpenGL();
 	//set the vertex data
 	setVertexData();
 	//init the shader
@@ -190,14 +192,6 @@ void coordinate_systems::run()
 		unsigned int projectionLoc = glGetUniformLocation(shaderID, "projection");
 		//set the projection matrix
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-
-
-
-
-
-
-
 
 
 		//bind the texture

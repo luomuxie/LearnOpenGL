@@ -8,6 +8,7 @@
 #include <glm/fwd.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include "transformations.h"
+#include "coordinate_systems.h"
 
 int main() {
         
@@ -38,8 +39,10 @@ int main() {
     //vec = trans * vec;
     //std::cout << vec.x << vec.y << vec.z << std::endl;
 
-    transformations ts;
-    ts.run();
+    //transformations ts;
+    //ts.run();
+    coordinate_systems cs;
+    cs.run();
 
     
 }
