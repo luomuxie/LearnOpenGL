@@ -181,7 +181,11 @@ void coordinate_systems::run()
 	while (!glfwWindowShouldClose(window)) {
 		//process the input
 		processInput(window);
-
+		//open the depth test
+		glEnable(GL_DEPTH_TEST);
+		//clear the color buffer and the depth buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		
+		// 
 		//set the background color
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		//clear the color buffer and the depth buffer
@@ -199,7 +203,10 @@ void coordinate_systems::run()
 
 		//create model matrix
 		glm::mat4 model = glm::mat4(1.0f);
-		//set the model matrix
+		//set the model matrix 
+		// 
+		// 
+		// 
 		//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f,0.0f,0.0f));
 		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
