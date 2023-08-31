@@ -93,10 +93,10 @@ void coordinate_systems::setVertexData()
 	//create the VAO, VBO, EBO
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
-
-	
+	glGenBuffers(1, &EBO);	
 	glBindVertexArray(VAO);
+
+
 	//bind the VBO
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	//set the VBO's data
@@ -203,17 +203,14 @@ void coordinate_systems::run()
 
 		//create model matrix
 		glm::mat4 model = glm::mat4(1.0f);
-		//set the model matrix 
-		// 
-		// 
-		// 
+		//set the model matrix 		
 		//model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f,0.0f,0.0f));
 		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
 		//create view matrix
 		glm::mat4 view = glm::mat4(1.0f);
 		//set the view matrix
 		view = glm::translate(view, glm::vec3(0.0f,0.0f,-3.0f));
+
 		//create projection matrix
 		glm::mat4 projection = glm::mat4(1.0f);
 		//set the projection matrix
@@ -235,6 +232,37 @@ void coordinate_systems::run()
 		//bind the texture
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
+
+		glm::vec3 cubePositions[] = {
+			glm::vec3(0.0f,  0.0f,  0.0f),
+			glm::vec3(2.0f,  5.0f, -15.0f),
+			glm::vec3(-1.5f, -2.2f, -2.5f),
+			glm::vec3(-3.8f, -2.0f, -12.3f),
+			glm::vec3(2.4f, -0.4f, -3.5f),
+			glm::vec3(-1.7f,  3.0f, -7.5f),
+			glm::vec3(1.3f, -2.0f, -2.5f),
+			glm::vec3(1.5f,  2.0f, -2.5f),
+			glm::vec3(1.5f,  0.2f, -1.5f),
+			glm::vec3(-1.3f,  1.0f, -1.5f)
+		};
+
+		//create 10 time the cube
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			//create the model matrix
+			glm::mat4 model = glm::mat4(1.0f);
+			//translate the model matrix
+			model = glm::translate(model, cubePositions[i]);
+			//rotate the model matrix
+			float angle = 20.0f * i;
+			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle+10), glm::vec3(0.5f, 1.0f, 0.0f));
+			//set the model matrix
+			unsigned int modelLoc = glGetUniformLocation(shaderID, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			//draw the cube
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 		//use the shader
 		glUseProgram(shaderID);				
 
