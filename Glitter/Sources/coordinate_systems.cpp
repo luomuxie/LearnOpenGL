@@ -210,11 +210,12 @@ void coordinate_systems::run()
 		glm::mat4 view = glm::mat4(1.0f);
 		//set the view matrix
 		view = glm::translate(view, glm::vec3(0.0f,0.0f,-3.0f));
-
 		//create projection matrix
 		glm::mat4 projection = glm::mat4(1.0f);
 		//set the projection matrix
 		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
+
 		//get the model matrix's location
 		unsigned int modelLoc = glGetUniformLocation(shaderID, "model");
 		//set the model matrix
@@ -227,7 +228,6 @@ void coordinate_systems::run()
 		unsigned int projectionLoc = glGetUniformLocation(shaderID, "projection");
 		//set the projection matrix
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
 
 		//bind the texture
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -267,7 +267,7 @@ void coordinate_systems::run()
 		glUseProgram(shaderID);				
 
 		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		//swap the buffer
 		glfwSwapBuffers(window);
 		//poll the event

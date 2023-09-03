@@ -9,6 +9,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include "transformations.h"
 #include "coordinate_systems.h"
+#include "camera.h"
 
 int main() {
         
@@ -41,8 +42,11 @@ int main() {
 
     //transformations ts;
     //ts.run();
-    coordinate_systems cs;
-    cs.run();
+    //coordinate_systems cs;
+    //cs.run();
+
+    camera cm;
+    cm.run();
 
     
 }

@@ -5,9 +5,6 @@ layout (location = 1) in vec2 aTexCoord;
 out vec2 texCoord;
 
 uniform mat4 transform;
-//create model matrix
-//create view matrix
-//create projection matrix
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
