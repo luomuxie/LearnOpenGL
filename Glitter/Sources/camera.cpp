@@ -216,9 +216,7 @@ void camera::run()
 
 		//set the projection matrix
 		glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		//set the view matrix
-		glUniformMatrix4fv(glGetUniformLocation(shaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		
+
 		//bind the vertex array object
 		glBindVertexArray(VAO);
 
@@ -236,6 +234,14 @@ void camera::run()
 			glm::vec3(-1.3f,1.0f,-1.5f)
 		};
 
+		//create camera position
+		//glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+		//create camera target
+		glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+		//create camera up vector
+		glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+		
+
 		//create a for loop to draw the cubes
 		for (unsigned int i = 0; i < 10; i++)
 		{
@@ -244,12 +250,23 @@ void camera::run()
 			//set the model matrix
 			model = glm::translate(model, cubePositions[i]);
 			//set the model matrix
-			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
+			//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 			//set the model matrix			
 			glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			
+			//set the view matrix
+			//make the camera rotate around the cube
+			float radius = 10.0f;
+			float camX = sin(glfwGetTime()) * radius;
+			float camZ = cos(glfwGetTime()) * radius;
+			//set the view matrix
+			view = glm::lookAt(glm::vec3(camX, 0.0f, camZ), cameraTarget, cameraUp);
+			//set the view matrix
+			glUniformMatrix4fv(glGetUniformLocation(shaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));						
+
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
+
 
 		//draw the triangles
 		//glDrawArrays(GL_TRIANGLES, 0, 36);
