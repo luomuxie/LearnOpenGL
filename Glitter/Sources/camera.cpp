@@ -205,6 +205,8 @@ void camera::run()
 		//use the shader
 		glUseProgram(shaderID);
 
+
+
 		//create view matrix
 		glm::mat4 view = glm::mat4(1.0f);
 		//set the view matrix
@@ -276,8 +278,8 @@ void camera::run()
 		glfwSwapBuffers(window);
 		//poll the events
 		glfwPollEvents();
-	}
-	
-	
+	}		
 }
+
+
 
