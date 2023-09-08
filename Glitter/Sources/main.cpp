@@ -10,6 +10,7 @@
 #include "transformations.h"
 #include "coordinate_systems.h"
 #include "camera.h"
+#include "Colors.h"
 
 int main() {
         
@@ -45,9 +46,11 @@ int main() {
     //coordinate_systems cs;
     //cs.run();
 
-    camera cm;
-    cm.run();
+    //camera cm;
+    //cm.run();
 
+    Colors col;
+    col.run();
     
 }
 

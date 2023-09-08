@@ -204,17 +204,7 @@ void camera::run()
 		glBindTexture(GL_TEXTURE_2D, texture);
 		//use the shader
 		glUseProgram(shaderID);
-
-
-
-		//create view matrix
-		glm::mat4 view = glm::mat4(1.0f);
-		//set the view matrix
-		view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-		//create projection matrix
-		glm::mat4 projection = glm::mat4(1.0f);
-		//set the projection matrix
-		projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+		
 
 		//set the projection matrix
 		glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));

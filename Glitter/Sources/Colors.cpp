@@ -1,9 +1,14 @@
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include "Colors.h"
 #include <iostream>
-#include <GLFW/glfw3.h>
 #include "func.h"
 #include <shader_s.h>
+#include <glm/ext/matrix_float4x4.hpp>
+#include <glm/trigonometric.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
 void Colors::initOpenGL()
@@ -83,45 +88,71 @@ void Colors::setVertexData()
 	};
 
 	//create a VAO
-	glGenVertexArrays(1, &VAO);
-	//create a VBO
-	glGenBuffers(1, &VBO);
-	//bind the VAO
-	glBindVertexArray(VAO);
-	//bind the VBO
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	//set the VBO data
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);	
-	//set the vertex attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	//glGenVertexArrays(1, &VAO);
+	////create a VBO
+	//glGenBuffers(1, &VBO);
+	////bind the VAO
+	//glBindVertexArray(VAO);
+	////bind the VBO
+	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	////set the VBO data
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);	
+	////set the vertex attribute
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-	//create light VAO
-	glGenVertexArrays(1, &lightVAO);
-	//bind the light VAO
-	glBindVertexArray(lightVAO);
-	//bind the VBO
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	//set the vertex attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	////create light VAO
+	//glGenVertexArrays(1, &lightVAO);
+	////bind the light VAO
+	//glBindVertexArray(lightVAO);
+	////bind the VBO
+	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	////set the vertex attribute
+	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	//
+
+	////enable the vertex attribute
+	//glEnableVertexAttribArray(0);
 	
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
 
-	//enable the vertex attribute
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+	glBindVertexArray(VAO);
+
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	//unbind the VBO
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//unbind the VAO
-	glBindVertexArray(0);	
+
+	// second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
+	
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
+	// we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	
 }
 
 
 void Colors::initShader()
 {
 	//create shader frome shader class
-	Shader ourShader("shader.vs", "shader.fs");
+	Shader ourShader("..\\Glitter\\Shaders\\colors.vs", "..\\Glitter\\Shaders\\colors.fs");
 	//use the shader
 	ourShader.use();
 	//set shaderID
 	shaderID = ourShader.ID;
+
+	//create light shader frome shader class
+	Shader lightShader("..\\Glitter\\Shaders\\light.vs", "..\\Glitter\\Shaders\\light.fs");
+	//use the shader
+	lightShader.use();
+	//set lightShaderID
+	lightShaderID = lightShader.ID;
 }
 
 void Colors::run()
@@ -132,6 +163,16 @@ void Colors::run()
 	setVertexData();
 	//init the shader
 	initShader();
+
+	//create view matrix
+	glm::mat4 view = glm::mat4(1.0f);
+	//set the view matrix
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	//create projection matrix
+	glm::mat4 projection = glm::mat4(1.0f);
+	//set the projection matrix
+	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+
 	//render loop
 	while (!glfwWindowShouldClose(window)) {
 		//process the input
@@ -141,16 +182,50 @@ void Colors::run()
 		//clear the color buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		  		
+		
+		
 
-		//draw the cube
-		glUseProgram(shaderID);
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		//draw the light
-		glUseProgram(shaderID);
+		//create a light position
+		glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+		//create model matrix
+		glm::mat4 model = glm::mat4(1.0f);
+		
+		//move the mmodel to lightPos
+		model = glm::translate(model, lightPos);
+		//scale the model
+		model = glm::scale(model, glm::vec3(0.2f));
+		
+		glUseProgram(lightShaderID);
+		//set the model matrix for light
+		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		//set the view matrix for light
+		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		//set the projection matrix for light
+		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+
+		glUseProgram(shaderID);
+		//set the object color fo
+		glUniform3f(glGetUniformLocation(shaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
+		//set the light color
+		glUniform3f(glGetUniformLocation(shaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
+		//set the model matrix for cube
+		glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		//set the view matrix for cube
+		glUniformMatrix4fv(glGetUniformLocation(shaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		//set the projection matrix for cube
+		glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));				
+
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//draw the light
+		
+		
+		
 		//swap the buffer
 		glfwSwapBuffers(window);
 		//poll the event
@@ -158,10 +233,11 @@ void Colors::run()
 	}
 	//delete the VAO
 	glDeleteVertexArrays(1, &VAO);
+	//delete the VAO
+	glDeleteVertexArrays(1, &lightVAO);
 	//delete the VBO
 	glDeleteBuffers(1, &VBO);
-	//delete the shader program
-	glDeleteProgram(shaderID);
+	
 	//delete the window
 	glfwTerminate();
 }

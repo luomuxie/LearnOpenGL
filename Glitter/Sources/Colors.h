@@ -22,6 +22,10 @@ class Colors
 	//create the shaderID
 	unsigned int shaderID;
 
+	//create a lightshaderID
+	unsigned int lightShaderID;
+
+
 
 	public:
 		void run();
