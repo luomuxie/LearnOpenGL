@@ -9,7 +9,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include "transformations.h"
 #include "coordinate_systems.h"
-#include "camera.h"
+#include "hello_camera.h"
 #include "Colors.h"
 
 int main() {

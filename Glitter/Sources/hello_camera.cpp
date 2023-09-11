@@ -1,6 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include "camera.h"
+#include "hello_camera.h"
 #include <iostream>
 #include "func.h"
 #include <shader_s.h>
@@ -11,7 +11,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void camera::initOpenGL()
+void hello_camera::initOpenGL()
 {
 	//init the GLFW
 	glfwInit();
@@ -45,7 +45,7 @@ void camera::initOpenGL()
 	
 }
 
-void camera::setVertexData()
+void hello_camera::setVertexData()
 {
 	//create a cube vertex data array 
 	float vertices[] = {
@@ -128,7 +128,7 @@ void camera::setVertexData()
 	glUseProgram(0);
 }
 
-void camera::setTextureData()
+void hello_camera::setTextureData()
 {	
 	//generate the texture
 	glGenTextures(1, &texture);
@@ -160,7 +160,7 @@ void camera::setTextureData()
 	stbi_image_free(data);	
 }
 
-void camera::setShaderData()
+void hello_camera::setShaderData()
 {
 	//create the shader
 	Shader ourShader("..\\Glitter\\Shaders\\coordinate.vs", "..\\Glitter\\Shaders\\coordinate.fs");
@@ -169,7 +169,7 @@ void camera::setShaderData()
 	shaderID = ourShader.ID;
 }
 
-void camera::run()
+void hello_camera::run()
 {
 	//initialize opengl
 	initOpenGL();

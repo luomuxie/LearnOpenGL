@@ -1,6 +1,7 @@
 #pragma once
+#include <GLFW/glfw3.h>
 //create a class name camera
-class camera
+class hello_camera
 {
 	//create a func to init the openGL
 	void initOpenGL();

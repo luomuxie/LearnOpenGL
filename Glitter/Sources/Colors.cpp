@@ -9,7 +9,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+//include the camera header file
+#include <camera.h>
 
 void Colors::initOpenGL()
 {
@@ -24,7 +25,7 @@ void Colors::initOpenGL()
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	//create the window
-	window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 	//if the window is null,then print the error
 	if (window == NULL) {
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -164,15 +165,14 @@ void Colors::run()
 	//init the shader
 	initShader();
 
-	//create view matrix
-	glm::mat4 view = glm::mat4(1.0f);
-	//set the view matrix
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	////create view matrix
+	//glm::mat4 view = glm::mat4(1.0f);
+	////set the view matrix
+	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 	//create projection matrix
-	glm::mat4 projection = glm::mat4(1.0f);
-	//set the projection matrix
-	projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-
+	
+	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	glm::vec3 lightPos = glm::vec3(1.0f, 0.5f, 2.0f);
 	//render loop
 	while (!glfwWindowShouldClose(window)) {
 		//process the input
@@ -180,20 +180,19 @@ void Colors::run()
 		//set the background color
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		//clear the color buffer
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		  		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		  								
 		
-		
-
-		//create a light position
-		glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+		glm::mat4 projection = glm::mat4(1.0f);
+		//set the projection matrix
+		projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+		//create view matrix
+		glm::mat4 view = camera.GetViewMatrix();
 
 		//create model matrix
 		glm::mat4 model = glm::mat4(1.0f);
-		
 		//move the mmodel to lightPos
-		model = glm::translate(model, lightPos);
+		//model = glm::translate(model, lightPos);
 		//scale the model
 		model = glm::scale(model, glm::vec3(0.2f));
 		
@@ -208,24 +207,22 @@ void Colors::run()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
-		glUseProgram(shaderID);
-		//set the object color fo
-		glUniform3f(glGetUniformLocation(shaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
-		//set the light color
-		glUniform3f(glGetUniformLocation(shaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
-		//set the model matrix for cube
-		glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-		//set the view matrix for cube
-		glUniformMatrix4fv(glGetUniformLocation(shaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//set the projection matrix for cube
-		glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));				
+		//glUseProgram(shaderID);
+		////set the object color fo
+		//glUniform3f(glGetUniformLocation(shaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
+		////set the light color
+		//glUniform3f(glGetUniformLocation(shaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
+		////set the model matrix for cube
+		//glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		////set the view matrix for cube
+		//glUniformMatrix4fv(glGetUniformLocation(shaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		////set the projection matrix for cube
+		//glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));				
 
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(VAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 		//draw the light
-		
-		
-		
+						
 		//swap the buffer
 		glfwSwapBuffers(window);
 		//poll the event
