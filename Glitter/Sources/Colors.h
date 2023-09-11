@@ -16,6 +16,7 @@ class Colors
 	//create a func to init the shader
 	void initShader();
 
+	void processInputColor(GLFWwindow* window);
 	//create vao vbo lightvao
 	unsigned int VAO, VBO, lightVAO;
 	
@@ -25,12 +26,25 @@ class Colors
 	//create a lightshaderID
 	unsigned int lightShaderID;
 
+
+	// timing
+	float deltaTime = 0.0f;
+	float lastFrame = 0.0f;
+
 	const unsigned int SCR_WIDTH = 1024;
 	const unsigned int SCR_HEIGHT = 720;
 	float lastX = SCR_WIDTH / 2.0f;
 	float lastY = SCR_HEIGHT / 2.0f;
+	Camera camera = Camera(
+		glm::vec3(3.7342, 2.0652f, -1.6181f),
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		144.3973f,
+		-26.8f
+		);
+	glm::vec3 lightPos = glm::vec3(0.8f, 0.5f, 2.0f);
 	
 
 	public:
 		void run();
+		
 };

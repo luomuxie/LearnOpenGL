@@ -87,41 +87,13 @@ void Colors::setVertexData()
 		-0.5f,  0.5f,  0.5f,  
 		-0.5f,  0.5f, -0.5f,  
 	};
-
-	//create a VAO
-	//glGenVertexArrays(1, &VAO);
-	////create a VBO
-	//glGenBuffers(1, &VBO);
-	////bind the VAO
-	//glBindVertexArray(VAO);
-	////bind the VBO
-	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	////set the VBO data
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);	
-	////set the vertex attribute
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-	////create light VAO
-	//glGenVertexArrays(1, &lightVAO);
-	////bind the light VAO
-	//glBindVertexArray(lightVAO);
-	////bind the VBO
-	//glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	////set the vertex attribute
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	//
-
-	////enable the vertex attribute
-	//glEnableVertexAttribArray(0);
 	
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
 	glBindVertexArray(VAO);
-
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -171,12 +143,19 @@ void Colors::run()
 	//view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 	//create projection matrix
 	
-	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
-	glm::vec3 lightPos = glm::vec3(1.0f, 0.5f, 2.0f);
+	
+	
 	//render loop
 	while (!glfwWindowShouldClose(window)) {
+		
+		// per-frame time logic
+		// --------------------
+		float currentFrame = static_cast<float>(glfwGetTime());
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		//process the input
-		processInput(window);
+		processInputColor(window);
 		//set the background color
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		//clear the color buffer
@@ -185,14 +164,14 @@ void Colors::run()
 		
 		glm::mat4 projection = glm::mat4(1.0f);
 		//set the projection matrix
-		projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.0f);
 		//create view matrix
 		glm::mat4 view = camera.GetViewMatrix();
 
 		//create model matrix
 		glm::mat4 model = glm::mat4(1.0f);
 		//move the mmodel to lightPos
-		//model = glm::translate(model, lightPos);
+		model = glm::translate(model, lightPos);
 		//scale the model
 		model = glm::scale(model, glm::vec3(0.2f));
 		
@@ -207,20 +186,20 @@ void Colors::run()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
-		//glUseProgram(shaderID);
-		////set the object color fo
-		//glUniform3f(glGetUniformLocation(shaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
-		////set the light color
-		//glUniform3f(glGetUniformLocation(shaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
-		////set the model matrix for cube
-		//glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-		////set the view matrix for cube
-		//glUniformMatrix4fv(glGetUniformLocation(shaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		////set the projection matrix for cube
-		//glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));				
+		glUseProgram(shaderID);
+		//set the object color fo
+		glUniform3f(glGetUniformLocation(shaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
+		//set the light color
+		glUniform3f(glGetUniformLocation(shaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
+		//set the model matrix for cube
+		glUniformMatrix4fv(glGetUniformLocation(shaderID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		//set the view matrix for cube
+		glUniformMatrix4fv(glGetUniformLocation(shaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		//set the projection matrix for cube
+		glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));				
 
-		//glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		//draw the light
 						
 		//swap the buffer
@@ -237,4 +216,22 @@ void Colors::run()
 	
 	//delete the window
 	glfwTerminate();
+}
+
+void Colors:: processInputColor(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.ProcessKeyboard(FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.ProcessKeyboard(LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.ProcessKeyboard(RIGHT, deltaTime);
+
+	//print the camera position
+	//std::cout << "camera position: " << camera.Position.x << " " << camera.Position.y << " " << camera.Position.z << std::endl;
 }
