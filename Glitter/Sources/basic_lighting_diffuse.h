@@ -37,4 +37,8 @@ class basic_lighting_diffuse
 	// timing
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
+
+	//reate a public func to run the program
+	public:
+		void run();
 };

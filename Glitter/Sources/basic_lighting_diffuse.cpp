@@ -5,6 +5,7 @@
 #include "func.h"
 #include <shader_s.h>
 #include <camera.h>
+#include <glm/gtc/type_ptr.hpp>
 
 void basic_lighting_diffuse::initOpenGL()
 {
@@ -148,4 +149,78 @@ void basic_lighting_diffuse::processInputColor(GLFWwindow* window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+}
+
+void basic_lighting_diffuse::run()
+{
+    //init the openGL
+    initOpenGL();
+    //set the vertex data
+    setVertexData();
+    //init the shader
+    initShader();
+
+    //set the render loop
+    while (!glfwWindowShouldClose(window)) {
+		//set the frame time
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+		//process the input
+		processInputColor(window);
+
+		//set the background color
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		//clear the color buffer and depth buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        //create light cube data
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f));
+        //create view matrix
+        glm::mat4 view = camera.GetViewMatrix();
+        //create projection matrix
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.f);
+        //use the light shader
+        glUseProgram(lightShaderID);
+        //set the model matrix
+        glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        //set the view matrix
+        glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        //set the projection matrix
+        glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        //bind the vertex array object
+        glBindVertexArray(lightVAO);
+        //draw the light cube
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        //create cube data
+        model = glm::mat4(1.0f);        
+        //use the cube shader
+        glUseProgram(cubeShaderID);
+        //set the model matrix
+        glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        //set the view matrix
+        glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        //set the projection matrix
+        glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        //set light color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
+        //set object color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);                
+
+
+
+		
+
+        //swap the buffer
+		glfwSwapBuffers(window);
+		//poll the event
+		glfwPollEvents();
+    }
+
+
+
 }
