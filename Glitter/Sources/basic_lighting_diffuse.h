@@ -1,4 +1,6 @@
 #pragma once
+#include <GLFW/glfw3.h>
+#include <camera.h>
 //create a class name basic_lighting_diffuse
 class basic_lighting_diffuse
 {

@@ -211,8 +211,10 @@ void basic_lighting_diffuse::run()
         //set object color
         glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);                
 
-
-
+        //bing the vertex array object
+        glBindVertexArray(cubeVAO);
+        //draw the cube
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 		
 
         //swap the buffer
@@ -220,6 +222,17 @@ void basic_lighting_diffuse::run()
 		//poll the event
 		glfwPollEvents();
     }
+
+    //delete the VAO
+    glDeleteVertexArrays(1, &cubeVAO);
+    //delete the VAO
+    glDeleteVertexArrays(1, &lightVAO);
+    //delete the VBO
+    glDeleteBuffers(1, &VBO);
+
+    //delete the window
+    glfwTerminate();
+
 
 
 

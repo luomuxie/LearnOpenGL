@@ -11,6 +11,7 @@
 #include "coordinate_systems.h"
 #include "hello_camera.h"
 #include "Colors.h"
+#include "basic_lighting_diffuse.h"
 
 int main() {
         
@@ -49,8 +50,12 @@ int main() {
     //camera cm;
     //cm.run();
 
-    Colors col;
-    col.run();
+    //Colors col;
+    //col.run();
+
+    basic_lighting_diffuse bld;
+    bld.run();
+
     
 }
 
