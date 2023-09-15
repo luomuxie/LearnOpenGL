@@ -102,6 +102,7 @@ void basic_lighting_diffuse::setVertexData()
     glEnableVertexAttribArray(0);
     //normal attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
 
 
     //create the light cube
@@ -209,13 +210,17 @@ void basic_lighting_diffuse::run()
         //set light color
         glUniform3f(glGetUniformLocation(cubeShaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
         //set object color
-        glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);                
+        glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);    
+        //set light position
+        glUniform3f(glGetUniformLocation(cubeShaderID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
         //bing the vertex array object
         glBindVertexArray(cubeVAO);
         //draw the cube
         glDrawArrays(GL_TRIANGLES, 0, 36);
 		
+        //open the depth test
+        glEnable(GL_DEPTH_TEST);
 
         //swap the buffer
 		glfwSwapBuffers(window);
