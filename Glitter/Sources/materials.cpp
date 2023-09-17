@@ -186,22 +186,28 @@ void materials::run()
 		glm::mat4 view = camera.GetViewMatrix();
 		//set the projection matrix
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH/(float)SCR_HEIGHT, 0.1f, 100.0f);
-		
-
+		        
         //create a model matrix
         glm::mat4 model = glm::mat4(1.0f);
         //set the model position to the lightPos
         model = glm::translate(model, lightPos);
         //set the model scale
         model = glm::scale(model, glm::vec3(0.2f));
+
+        float radius = 5.0f;
+        float angle = glfwGetTime();
+        lightPos.x = radius * cos(angle);
+        lightPos.z = radius * sin(angle);
+
+        //use the light shader
+        glUseProgram(lightShaderID);
         //set the model matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
         //set the view matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
         //set the projection matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        //use the light shader
-        glUseProgram(lightShaderID);        
+                
         //draw the light
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -222,8 +228,26 @@ void materials::run()
         glUniform3fv(glGetUniformLocation(cubeShaderID, "lightPos"), 1, glm::value_ptr(lightPos));
         //set light color
         glUniform3f(glGetUniformLocation(cubeShaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
-        //set object color
-        glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
+        ////set object color
+        //glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
+        //set the material's diffuse color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "material.diffuse"), 1.0f, 0.5f, 0.31f);
+        //set the material's specular color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "material.specular"), 0.5f, 0.5f, 0.5f);        
+        //set the material's ambient color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "material.ambient"), 1.0f, 0.5f, 0.31f);
+        //set the material's shininess
+        glUniform1f(glGetUniformLocation(cubeShaderID, "material.shininess"), 32.0f);
+
+        //set the light's ambient color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "light.ambient"), 0.2f, 0.2f, 0.2f);
+        //set the light's diffuse color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "light.diffuse"), 0.5f, 0.5f, 0.5f);
+        //set the light's specular color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "light.specular"), 1.0f, 1.0f, 1.0f);
+        //set the light's position
+        glUniform3fv(glGetUniformLocation(cubeShaderID, "light.position"), 1, glm::value_ptr(lightPos));
+        
         
         //darw the cube
         glBindVertexArray(cubeVAO);
