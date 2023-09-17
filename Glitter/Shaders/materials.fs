@@ -16,9 +16,23 @@ in vec3 Normal;
 //create FragPos variable
 in vec3 FragPos;
 
+//create a Material struct
+struct Material
+{
+    //create a vec3 for the ambient color
+    vec3 ambient;
+    //create a vec3 for the diffuse color
+    vec3 diffuse;
+    //create a vec3 for the specular color
+    vec3 specular;
+    //create a float for the shininess
+    float shininess;
+};
+
 
 void main()
-{            
+{        
+    
     //FragColor = vec4(lightColor * objectColor, 1.0); 
     float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * lightColor;

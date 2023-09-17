@@ -1,15 +1,13 @@
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include "basic_lighting_diffuse.h"
+#include "materials.h"
 #include <iostream>
 #include "func.h"
 #include <shader_s.h>
-#include <camera.h>
 #include <glm/gtc/type_ptr.hpp>
 
-void basic_lighting_diffuse::initOpenGL()
+void materials::initOpenGL()
 {
-	//init glfw
+	//init the glfw
 	glfwInit();
 	//set the version of the openGL
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -19,27 +17,31 @@ void basic_lighting_diffuse::initOpenGL()
 	//set the window not resizable
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 
-	//create a window
+	//create4 a window
 	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-
 	//if the window is null,then print the error
-	if (window == NULL) {
+	if (window == NULL)
+	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
+		//return -1;
 	}
-	//set the current context
+	//set the window to the current context
 	glfwMakeContextCurrent(window);
-	//set the callback function
+	//set the callback func if the window resize
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
 	//init the glad
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		std::cout << "Failed to initialize GLAD" << std::endl;
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to init GLAD" << std::endl;
+		//return -1;
 	}
-	//set the view port
+	//set the openGL viewport position and size
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 }
 
-void basic_lighting_diffuse::setVertexData()
+void materials::setVertexData()
 {
     //create a cube vertex data array and the normal vector array
     float vertices[] = {
@@ -85,87 +87,90 @@ void basic_lighting_diffuse::setVertexData()
     -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
-    //create a vertex buffer object
+
+    //create a vertex buffer object and copy the vertex data to it
+    unsigned int VBO;
     glGenBuffers(1, &VBO);
 
-    //create a vertex array object
-    glGenVertexArrays(1, &cubeVAO);
-    //bind the vertex array object
-    glBindVertexArray(cubeVAO);
-    //bind the vertex buffer object
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    //copy the vertices data into the vertex buffer object
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    //create the cubeVAO array object    
+    glGenVertexArrays(1, &cubeVAO);
+    glBindVertexArray(cubeVAO);
+
     //set the vertex attribute pointers
-    //position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    //normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    //set the normal attribute pointers
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
 
-
-    //create the light cube
+    //create the lightVAO array object
     glGenVertexArrays(1, &lightVAO);
-    //bind the vertex array object
     glBindVertexArray(lightVAO);
-    //bind the vertex buffer object
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
     //set the vertex attribute pointers
-    //position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-
-    //unbind the vertex array object
+    //unbind the VAO
     glBindVertexArray(0);
-    //unbind the vertex buffer object
-    glBindBuffer(GL_ARRAY_BUFFER, 0);   
-
+    //unbind the VBO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+   
 }
 
-void basic_lighting_diffuse::initShader()
+void materials::initShader()
 {
-    //create the shader program
-    Shader lightingShader("..\\Glitter\\Shaders\\light.vs", "..\\Glitter\\Shaders\\light.fs");
-    lightingShader.use();
-    lightShaderID = lightingShader.ID;
+	////create the shader program
+	//Shader shader = new Shader("shaders/materials.vs", "shaders/materials.fs");
+	//lightShader = new Shader("shaders/light.vs", "shaders/light.fs");
 
-    //create the cubeshader
-    Shader cubeShader("..\\Glitter\\Shaders\\colors_2.vs", "..\\Glitter\\Shaders\\colors_2.fs");
+    Shader cubeShader("..\\Glitter\\Shaders\\materials.vs", "..\\Glitter\\Shaders\\materials.fs");
+    Shader lightShader("..\\Glitter\\Shaders\\light.vs", "..\\Glitter\\Shaders\\light.fs");
+    
     cubeShader.use();
-    cubeShaderID = cubeShader.ID;    
+    lightShader.use();
+
+    //set ID
+    cubeShaderID = cubeShader.ID;
+    lightShaderID = lightShader.ID;    
 }
 
-void basic_lighting_diffuse::processInputColor(GLFWwindow* window)
+void materials::processInputColor(GLFWwindow* window)
 {
+    //if the escape key is pressed, then close the window
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+		glfwSetWindowShouldClose(window, true);
 
+    //if the w key is pressed, then move the camera forward
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+    //if the s key is pressed, then move the camera backward
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         camera.ProcessKeyboard(BACKWARD, deltaTime);
+	//if the a key is pressed, then move the camera left
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+		camera.ProcessKeyboard(LEFT, deltaTime);
+    //if the d key is pressed, then move the camera right
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
-void basic_lighting_diffuse::run()
+void materials::run()
 {
-    //init the openGL
+    //init the opengl
     initOpenGL();
-
-
-    //set the vertex data
-    setVertexData();
     //init the shader
     initShader();
+    //init the vertex data
+    setVertexData();
 
-    //set the render loop
-    while (!glfwWindowShouldClose(window)) {
-		//set the frame time
+    //render loop
+    while (!glfwWindowShouldClose(window))
+    {
+		//calculate the delta time
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
@@ -173,84 +178,73 @@ void basic_lighting_diffuse::run()
 		//process the input
 		processInputColor(window);
 
-		//set the background color
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		//clear the color buffer and depth buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-        //create light cube data
+		//set the view matrix
+		glm::mat4 view = camera.GetViewMatrix();
+		//set the projection matrix
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH/(float)SCR_HEIGHT, 0.1f, 100.0f);
+		
+
+        //create a model matrix
         glm::mat4 model = glm::mat4(1.0f);
+        //set the model position to the lightPos
         model = glm::translate(model, lightPos);
+        //set the model scale
         model = glm::scale(model, glm::vec3(0.2f));
-
-        float radius = 5.0f;
-        float angle = glfwGetTime();
-        lightPos.x = radius * cos(angle);
-        lightPos.z = radius * sin(angle);
-        
-        
-        //use the light shader
-        glUseProgram(lightShaderID);
-        //set the model matrix
+        //set the model matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-
-        //create view matrix
-        glm::mat4 view = camera.GetViewMatrix();
-        //create projection matrix
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / SCR_HEIGHT, 0.1f, 100.f);
-        //set the view matrix
+        //set the view matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        //set the projection matrix
+        //set the projection matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        //bind the vertex array object
+        //use the light shader
+        glUseProgram(lightShaderID);        
+        //draw the light
         glBindVertexArray(lightVAO);
-        //draw the light cube
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        //create cube data
-        model = glm::mat4(1.0f);        
         //use the cube shader
         glUseProgram(cubeShaderID);
-        //set the model matrix
+        //create a model matrix
+        model = glm::mat4(1.0f);
+        //set the model matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        //set the view matrix
+        //set the view matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-        //set the projection matrix
+        //set the projection matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        //set the view position to the shader
+        glUniform3fv(glGetUniformLocation(cubeShaderID, "viewPos"), 1, glm::value_ptr(camera.Position));
+        //set the light position to the shader
+        glUniform3fv(glGetUniformLocation(cubeShaderID, "lightPos"), 1, glm::value_ptr(lightPos));
         //set light color
         glUniform3f(glGetUniformLocation(cubeShaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
         //set object color
-        glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);    
-        //set light position
-        glUniform3f(glGetUniformLocation(cubeShaderID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-        //set view position
-        glUniform3f(glGetUniformLocation(cubeShaderID, "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-
-        //bing the vertex array object
+        glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
+        
+        //darw the cube
         glBindVertexArray(cubeVAO);
-        //draw the cube
         glDrawArrays(GL_TRIANGLES, 0, 36);
-		
+
         //open the depth test
         glEnable(GL_DEPTH_TEST);
 
         //swap the buffer
-		glfwSwapBuffers(window);
-		//poll the event
-		glfwPollEvents();
+        glfwSwapBuffers(window);
+        //poll the event
+        glfwPollEvents();
     }
 
-    //delete the VAO
+    //delete the vbo and vao
     glDeleteVertexArrays(1, &cubeVAO);
-    //delete the VAO
     glDeleteVertexArrays(1, &lightVAO);
-    //delete the VBO
-    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &VBO);   
 
-    //delete the window
-    glfwTerminate();
-
-
-
-
+    //delete the window 
+    glfwDestroyWindow(window);
 }
+
+

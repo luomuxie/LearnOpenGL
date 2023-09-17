@@ -12,6 +12,7 @@
 #include "hello_camera.h"
 #include "Colors.h"
 #include "basic_lighting_diffuse.h"
+#include "materials.h"
 
 int main() {
         
@@ -53,10 +54,11 @@ int main() {
     //Colors col;
     //col.run();
 
-    basic_lighting_diffuse bld;
-    bld.run();
+    //basic_lighting_diffuse bld;
+    //bld.run();
 
-    
+    materials mat;
+    mat.run();    
 }
 
 
