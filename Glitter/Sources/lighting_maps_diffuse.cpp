@@ -5,8 +5,7 @@
 #include "func.h"
 #include <shader_s.h>
 #include <camera.h>
-#include <glm/gtc/type_ptr.hpp>
-
+#include <glm/gtc/matrix_transform.hpp>
 
 void lighting_maps_diffuse::initOpenGL()
 {
@@ -195,8 +194,7 @@ void lighting_maps_diffuse::run()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        //process the input
-        processInputColor(window);
+        
         //set the background color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         //clear the color buffer and depth buffer
@@ -207,7 +205,6 @@ void lighting_maps_diffuse::run()
         glUseProgram(lightShaderID);
         //bind the vao
         glBindVertexArray(lightVAO);
-
         //set the view matrix
         glm::mat4 view = camera.GetViewMatrix();
         //set the projection matrix
