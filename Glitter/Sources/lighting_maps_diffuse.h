@@ -1,4 +1,5 @@
 #pragma once
+#include <camera.h>
 //create a class for the diffuse map
 class lighting_maps_diffuse
 {

@@ -13,6 +13,7 @@
 #include "Colors.h"
 #include "basic_lighting_diffuse.h"
 #include "materials.h"
+#include "lighting_maps_diffuse.h"
 
 int main() {
         
@@ -57,8 +58,12 @@ int main() {
     //basic_lighting_diffuse bld;
     //bld.run();
 
-    materials mat;
-    mat.run();    
+    //materials mat;
+    //mat.run();
+
+    lighting_maps_diffuse lmd;
+    lmd.run();
+
 }
 
 
