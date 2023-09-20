@@ -37,6 +37,13 @@ class lighting_maps_diffuse
 
 	//create lightPos
 	glm::vec3 lightPos = glm::vec3(0.8f, 0.5f, 2.0f);
+
+	//create a func to load the texture
+	void LoaddiffuseMap();
+	//create diffuseMap
+	unsigned int diffuseMap;
+
+
 	//create a public func to run the program
 	public:
 		void run();

@@ -6,6 +6,8 @@
 #include <shader_s.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "stb_image.h"
+
 
 void lighting_maps_diffuse::initOpenGL()
 {
@@ -178,6 +180,12 @@ void lighting_maps_diffuse::processInputColor(GLFWwindow* window)
 
 }
 
+void lighting_maps_diffuse::LoaddiffuseMap()
+{
+    // load textures (we now use a utility function to keep the code more organized)
+    diffuseMap = loadTexture("..\\Glitter\\Img\\container2.jpg");        
+}
+
 void lighting_maps_diffuse::run()
 {
     //init the openGL
@@ -249,16 +257,17 @@ void lighting_maps_diffuse::run()
         glUniform3fv(glGetUniformLocation(cubeShaderID, "lightPos"), 1, glm::value_ptr(lightPos));
         //set light color
         glUniform3f(glGetUniformLocation(cubeShaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
-        ////set object color
-        //glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
+        //set object color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
         //set the material's diffuse color
         glUniform3f(glGetUniformLocation(cubeShaderID, "material.diffuse"), 1.0f, 0.5f, 0.31f);
-        //set the material's specular color
-        glUniform3f(glGetUniformLocation(cubeShaderID, "material.specular"), 0.5f, 0.5f, 0.5f);
         //set the material's ambient color
         glUniform3f(glGetUniformLocation(cubeShaderID, "material.ambient"), 1.0f, 0.5f, 0.31f);
+        //set the material's specular color
+        glUniform3f(glGetUniformLocation(cubeShaderID, "material.specular"), 0.5f, 0.5f, 0.5f);        
         //set the material's shininess
-        glUniform1f(glGetUniformLocation(cubeShaderID, "material.shininess"), 32.0f);
+        glUniform1f(glGetUniformLocation(cubeShaderID, "material.shininess"), 32.0f);        
+
 
         //set the light's ambient color
         glUniform3f(glGetUniformLocation(cubeShaderID, "light.ambient"), 0.2f, 0.2f, 0.2f);
@@ -269,6 +278,9 @@ void lighting_maps_diffuse::run()
         //set the light's position
         glUniform3fv(glGetUniformLocation(cubeShaderID, "light.position"), 1, glm::value_ptr(lightPos));
 
+        //set the diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMap);        
 
         //darw the cube
         glBindVertexArray(cubeVAO);

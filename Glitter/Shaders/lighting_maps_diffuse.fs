@@ -2,14 +2,16 @@
 //create a Material struct
 struct Material
 {
-    //create a vec3 for the ambient color
-    vec3 ambient;
-    //create a vec3 for the diffuse color
-    vec3 diffuse;
+    ////create a vec3 for the ambient color
+    //vec3 ambient;
+    ////create a vec3 for the diffuse color
+    //vec3 diffuse;
     //create a vec3 for the specular color
     vec3 specular;
     //create a float for the shininess
     float shininess;
+    //create a sampler2D for the diffuse map
+    sampler2D diffuseMap;
 };
 
 //create a Light struct
@@ -45,9 +47,15 @@ uniform vec3 viewPos;
 
 
 void main()
-{            
+{
+    //use the texture
+    vec3 objectColor = texture(material.diffuseMap, TexCoords).rgb;
+
     //FragColor = vec4(lightColor * objectColor, 1.0);     
-    vec3 ambient =  material.ambient * light.ambient;   
+    //vec3 ambient =  material.ambient * light.ambient;
+    //set the ambient with the objectColor
+    vec3 ambient =  objectColor * light.ambient;
+
     //cal the lightDir
     vec3 lightDir = normalize(light.position - FragPos);
     //normalize the norm
@@ -55,7 +63,8 @@ void main()
     //cal the diffuse
     float diff = max(dot(norm, lightDir), 0.0);
     //cal the diffuse color
-    vec3 diffuse = (diff * material.diffuse)*light.diffuse;    
+    //vec3 diffuse = (diff * material.diffuse)*light.diffuse;
+    vec3 diffuse = (diff * objectColor)*light.diffuse;
 
     //create specularStrength variable
     float specularStrength = 0.5;
