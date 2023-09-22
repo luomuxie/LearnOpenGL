@@ -41,8 +41,7 @@ in vec2 TexCoords;
 uniform Material material;
 //create light
 uniform Light light;
-
-
+//create viewPos(camera's position)
 uniform vec3 viewPos;
 
 
@@ -50,6 +49,7 @@ void main()
 {
     //use the texture
     vec3 objectColor = texture(material.diffuseMap, TexCoords).rgb;
+    //vec3 objectColor = vec3(1.0, 0.5, 0.31);
 
     //FragColor = vec4(lightColor * objectColor, 1.0);     
     //vec3 ambient =  material.ambient * light.ambient;
@@ -79,5 +79,6 @@ void main()
 
     //update the result
     vec3 result = diffuse + ambient + specular ;    
-    FragColor = vec4(result, 1.0);
+
+    FragColor = vec4(result,1.0);
 }   

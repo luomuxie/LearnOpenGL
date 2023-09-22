@@ -183,7 +183,7 @@ void lighting_maps_diffuse::processInputColor(GLFWwindow* window)
 void lighting_maps_diffuse::LoaddiffuseMap()
 {
     // load textures (we now use a utility function to keep the code more organized)
-    diffuseMap = loadTexture("..\\Glitter\\Img\\container2.jpg");        
+    diffuseMap = loadTexture("..\\Glitter\\Img\\container2.png");        
 }
 
 void lighting_maps_diffuse::run()
@@ -192,8 +192,11 @@ void lighting_maps_diffuse::run()
     initOpenGL();
     //set the vertex data
     setVertexData();
+    //load the diffuse map
+    LoaddiffuseMap();
     //init the shader
     initShader();
+    
     
     //render loop
     //judge if the window is closed
@@ -241,8 +244,8 @@ void lighting_maps_diffuse::run()
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        //use the cube shader       
-        glBindVertexArray(cubeVAO);
+        //use the cube shader
+        glUseProgram(cubeShaderID);
         //create a model matrix
         model = glm::mat4(1.0f);
         //set the model matrix to the shader
@@ -251,14 +254,10 @@ void lighting_maps_diffuse::run()
         glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
         //set the projection matrix to the shader
         glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
         //set the view position to the shader
         glUniform3fv(glGetUniformLocation(cubeShaderID, "viewPos"), 1, glm::value_ptr(camera.Position));
-        //set the light position to the shader
-        glUniform3fv(glGetUniformLocation(cubeShaderID, "lightPos"), 1, glm::value_ptr(lightPos));
-        //set light color
-        glUniform3f(glGetUniformLocation(cubeShaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
-        //set object color
-        glUniform3f(glGetUniformLocation(cubeShaderID, "objectColor"), 1.0f, 0.5f, 0.31f);
+
         //set the material's diffuse color
         glUniform3f(glGetUniformLocation(cubeShaderID, "material.diffuse"), 1.0f, 0.5f, 0.31f);
         //set the material's ambient color
