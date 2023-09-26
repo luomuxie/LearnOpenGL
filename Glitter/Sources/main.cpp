@@ -14,6 +14,9 @@
 #include "basic_lighting_diffuse.h"
 #include "materials.h"
 #include "lighting_maps_diffuse.h"
+#include "lighting_maps_specular_map.h"
+
+
 
 int main() {
         
@@ -61,8 +64,13 @@ int main() {
     //materials mat;
     //mat.run();
 
-    lighting_maps_diffuse lmd;
-    lmd.run();
+    //lighting_maps_diffuse lmd;
+    //lmd.run();
+    
+    lighting_maps_specular_map lmsm;
+    lmsm.run();
+	
+
 
 }
 

@@ -259,9 +259,9 @@ void lighting_maps_diffuse::run()
         glUniform3fv(glGetUniformLocation(cubeShaderID, "viewPos"), 1, glm::value_ptr(camera.Position));
 
         //set the material's diffuse color
-        glUniform3f(glGetUniformLocation(cubeShaderID, "material.diffuse"), 1.0f, 0.5f, 0.31f);
+        //glUniform3f(glGetUniformLocation(cubeShaderID, "material.diffuse"), 1.0f, 0.5f, 0.31f);
         //set the material's ambient color
-        glUniform3f(glGetUniformLocation(cubeShaderID, "material.ambient"), 1.0f, 0.5f, 0.31f);
+        //glUniform3f(glGetUniformLocation(cubeShaderID, "material.ambient"), 1.0f, 0.5f, 0.31f);
         //set the material's specular color
         glUniform3f(glGetUniformLocation(cubeShaderID, "material.specular"), 0.5f, 0.5f, 0.5f);        
         //set the material's shininess
@@ -299,4 +299,9 @@ void lighting_maps_diffuse::run()
     //delete the window
     glfwDestroyWindow(window);
 
+}
+
+void lighting_maps_diffuse::test()
+{
+    initOpenGL();
 }

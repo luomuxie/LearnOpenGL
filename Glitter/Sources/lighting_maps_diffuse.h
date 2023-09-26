@@ -47,6 +47,7 @@ class lighting_maps_diffuse
 	//create a public func to run the program
 	public:
 		void run();
+		void test();
 
 	
 

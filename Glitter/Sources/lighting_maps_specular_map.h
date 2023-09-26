@@ -36,7 +36,21 @@ class lighting_maps_specular_map
 	);
 
 	//create a func to load the texture
-	void loadTexture();
+	void loadMap();
+	//create the diffuseMapID
+	unsigned int diffuseMapID;
+
+	//create the specularMapID
+	unsigned int specularMapID;
+	
+	//create the lightPos
+	glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+	//create public a func to run
+	public:
+		void run();
+
+		
+
 
 };
 
