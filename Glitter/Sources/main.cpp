@@ -69,9 +69,6 @@ int main() {
     
     lighting_maps_specular_map lmsm;
     lmsm.run();
-	
-
-
 }
 
 

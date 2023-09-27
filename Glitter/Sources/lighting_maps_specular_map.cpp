@@ -185,12 +185,11 @@ void lighting_maps_specular_map::loadMap()
     // load textures (we now use a utility function to keep the code more organized)
     diffuseMapID = loadTexture("..\\Glitter\\Img\\container2.png");
     //load specular map
-    //specularMapID = loadTexture("..\\Glitter\\Img\\container2_specular.png");
+    specularMapID = loadTexture("..\\Glitter\\Img\\container2.png");
 }
 
 void lighting_maps_specular_map::run()
 {
-    //init the openGL
     initOpenGL();
     //set the vertex data
     setVertexData();
@@ -199,25 +198,22 @@ void lighting_maps_specular_map::run()
     //load the map
     loadMap();
 
-    //set the render loop
-    //judge if the window should close
-    if (!glfwWindowShouldClose(window)) {
-        //record the time of last frame
+    //render loop
+    while (!glfwWindowShouldClose(window))
+    {
+		//input
+		processInputColor(window);
+
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        //set the rendering commands here
-        //set the background color
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        //clear the color buffer and depth buffer
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //process the input
-        processInputColor(window);        
+		//rendering commands here
+		//clear the color buffer
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		//clear the color buffer and depth buffer
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //set the shader to use
-        glUseProgram(lightShaderID);
-        //set the model matrix
         glm::mat4 model = glm::mat4(1.0f);
         //scale the model matrix
         model = glm::scale(model, glm::vec3(0.2f));
@@ -229,101 +225,71 @@ void lighting_maps_specular_map::run()
         lightPos.x = radius * cos(angle);
         lightPos.z = radius * sin(angle);
 
+        //set the shader to use
+        glUseProgram(lightShaderID);
         //set the model matrix uniform
         glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		//set the view matrix
-		glm::mat4 view = camera.GetViewMatrix();
-		//set the projection matrix
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 
-			0.1f, 100.0f);
-		//set the view matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//set the projection matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));		
+
+        //set the view matrix
+        glm::mat4 view = camera.GetViewMatrix();
+        //set the projection matrix
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
+            0.1f, 100.0f);
+
+        //set the view matrix uniform
+        glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        //set the projection matrix uniform
+        glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         //draw the light
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
+
+        //cube--------------------------------------------------------------------
         //set the cube shader to use
         glUseProgram(cubeShaderID);
-        //set the model matrix uniform
-        glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		//set the view matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//set the projection matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		//set the viewPos uniform
-		glUniform3f(glGetUniformLocation(cubeShaderID, "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-		//set the lightPos uniform
-		glUniform3f(glGetUniformLocation(cubeShaderID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-		//set the lightColor uniform
-		glUniform3f(glGetUniformLocation(cubeShaderID, "lightColor"), 1.0f, 1.0f, 1.0f);
-		//set the material uniform
-		glUniform1i(glGetUniformLocation(cubeShaderID, "material.diffuse"), 0);
-		glUniform1i(glGetUniformLocation(cubeShaderID, "material.specular"), 1);
-		glUniform1f(glGetUniformLocation(cubeShaderID, "material.shininess"), 32.0f);
-		//set the diffuse map
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffuseMapID);
-		//set the specular map
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, specularMapID);
-		//draw the cube
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+        //create cube model matrix
+        glm::mat4 cubeModel = glm::mat4(1.0f);
+        //set the cube model matrix uniform
+        glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "model"), 1, GL_FALSE, glm::value_ptr(cubeModel));
+        //set the view matrix uniform
+        glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        //set the projection matrix uniform
+        glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-		//draw the cube------------------------------------------------------
-		//set the view matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//set the projection matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		//set the viewPos uniform
-		glUniform3f(glGetUniformLocation(cubeShaderID, "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
-		
+        //set the viewPos uniform
+        glUniform3f(glGetUniformLocation(cubeShaderID, "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+
         //set the light's attributes
         //set the light's position
         glUniform3f(glGetUniformLocation(cubeShaderID, "light.position"), lightPos.x, lightPos.y, lightPos.z);
-		//set the light's ambient
-		glUniform3f(glGetUniformLocation(cubeShaderID, "light.ambient"), 0.2f, 0.2f, 0.2f);
+        //set the light's ambient
+        glUniform3f(glGetUniformLocation(cubeShaderID, "light.ambient"), 0.2f, 0.2f, 0.2f);
         //set the light's diffuse
         glUniform3f(glGetUniformLocation(cubeShaderID, "light.diffuse"), 0.5f, 0.5f, 0.5f);
-		//set the light's specular
-		glUniform3f(glGetUniformLocation(cubeShaderID, "light.specular"), 1.0f, 1.0f, 1.0f);
+        //set the light's specular
+        glUniform3f(glGetUniformLocation(cubeShaderID, "light.specular"), 1.0f, 1.0f, 1.0f);
 
         //set the material's attributes
         //set the material's shininess
         glUniform1f(glGetUniformLocation(cubeShaderID, "material.shininess"), 32.0f);
         //set the material's specular
         glUniform3f(glGetUniformLocation(cubeShaderID, "material.specular"), 0.5f, 0.5f, 0.5f);
+        
+        //set the diffuse map
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuseMapID);
+        //draw the cube
+        glBindVertexArray(cubeVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
-		
-		//set the diffuse map
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, diffuseMapID);
-		//set the specular map
-/*		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, specularMapID); */       
-		//draw the cube
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //----------------------------------------------------------------
         //enable the depth test
-        glEnable(GL_DEPTH_TEST);                
-		
-
+        glEnable(GL_DEPTH_TEST);
 		//swap the buffer
 		glfwSwapBuffers(window);
 		//poll the event
 		glfwPollEvents();
-					
-    }
-    //delete the vbo and vao
-    glDeleteVertexArrays(1, &cubeVAO);
-    glDeleteVertexArrays(1, &lightVAO);
-
-    //delete the window
-    glfwDestroyWindow(window);
+	}
 }
 

@@ -298,10 +298,5 @@ void lighting_maps_diffuse::run()
 
     //delete the window
     glfwDestroyWindow(window);
-
 }
 
-void lighting_maps_diffuse::test()
-{
-    initOpenGL();
-}

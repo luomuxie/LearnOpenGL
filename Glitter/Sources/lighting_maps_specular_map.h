@@ -48,9 +48,5 @@ class lighting_maps_specular_map
 	//create public a func to run
 	public:
 		void run();
-
-		
-
-
 };
 
