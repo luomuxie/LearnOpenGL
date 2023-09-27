@@ -140,9 +140,12 @@ void lighting_maps_specular_map::initShader()
     lightShader.use();
     lightShaderID = lightShader.ID;
 
-    Shader cubeShader("..\\Glitter\\Shaders\\lighting_maps_diffuse.vs", "..\\Glitter\\Shaders\\lighting_maps_diffuse.fs");
+    Shader cubeShader("..\\Glitter\\Shaders\\lighting_maps_specular.vs", "..\\Glitter\\Shaders\\lighting_maps_specular.fs");
     cubeShader.use();
     cubeShaderID = cubeShader.ID;
+    // Add the two lines here
+    cubeShader.setInt("material.diffuse", 0);
+    cubeShader.setInt("material.specular", 1);
 }
 
 void lighting_maps_specular_map::processInputColor(GLFWwindow* window)
@@ -185,7 +188,7 @@ void lighting_maps_specular_map::loadMap()
     // load textures (we now use a utility function to keep the code more organized)
     diffuseMapID = loadTexture("..\\Glitter\\Img\\container2.png");
     //load specular map
-    specularMapID = loadTexture("..\\Glitter\\Img\\container2.png");
+    specularMapID = loadTexture("..\\Glitter\\Img\\container2_specular.png");
 }
 
 void lighting_maps_specular_map::run()
@@ -193,10 +196,11 @@ void lighting_maps_specular_map::run()
     initOpenGL();
     //set the vertex data
     setVertexData();
-    //init the shader
-    initShader();
     //load the map
     loadMap();
+    //init the shader
+    initShader();
+    
 
     //render loop
     while (!glfwWindowShouldClose(window))
@@ -274,11 +278,15 @@ void lighting_maps_specular_map::run()
         //set the material's shininess
         glUniform1f(glGetUniformLocation(cubeShaderID, "material.shininess"), 32.0f);
         //set the material's specular
-        glUniform3f(glGetUniformLocation(cubeShaderID, "material.specular"), 0.5f, 0.5f, 0.5f);
+        //glUniform3f(glGetUniformLocation(cubeShaderID, "material.specular"), 0.5f, 0.5f, 0.5f);
         
         //set the diffuse map
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, diffuseMapID);
+        //set the specular map
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularMapID);
+
         //draw the cube
         glBindVertexArray(cubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
