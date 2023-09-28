@@ -49,43 +49,6 @@ uniform vec3 viewPos;
 
 void main()
 {
-    ////use the texture
-    //vec3 objectColor = texture(material.diffuseMap, TexCoords).rgb;    
-    //vec3 specularColor = texture(material.specularMap, TexCoords).rgb;
-    ////vec3 objectColor = vec3(1.0, 0.5, 0.31);
-
-    ////FragColor = vec4(lightColor * objectColor, 1.0);     
-    ////vec3 ambient =  material.ambient * light.ambient;
-    ////set the ambient with the objectColor
-    //vec3 ambient =  objectColor * light.ambient;
-
-    ////cal the lightDir
-    //vec3 lightDir = normalize(light.position - FragPos);
-    ////normalize the norm
-    //vec3 norm = normalize(Normal);
-    ////cal the diffuse
-    //float diff = max(dot(norm, lightDir), 0.0);
-    ////cal the diffuse color
-    ////vec3 diffuse = (diff * material.diffuse)*light.diffuse;
-    //vec3 diffuse = (diff * objectColor)*light.diffuse;
-
-    ////create specularStrength variable
-    //float specularStrength = 0.5;
-    ////create viewDir variable
-    //vec3 viewDir = normalize(viewPos - FragPos);
-    ////create reflectDir variable
-    //vec3 reflectDir = reflect(-lightDir, norm);
-    ////create spec variable
-    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    ////create specular variable
-    //vec3 specular = spec*specularColor * light.specular;
-
-    ////update the result
-    ////vec3 result = diffuse + ambient + specular ;    
-    //vec3 result =  specularColor ;    
-
-    //FragColor = vec4(result,1.0);
-
     // ambient
     vec3 ambient = light.ambient * texture(material.diffuse, TexCoords).rgb;
     // diffuse 

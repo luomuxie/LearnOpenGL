@@ -15,6 +15,7 @@
 #include "materials.h"
 #include "lighting_maps_diffuse.h"
 #include "lighting_maps_specular_map.h"
+#include "light_casters_directional.h"
 
 
 
@@ -67,8 +68,10 @@ int main() {
     //lighting_maps_diffuse lmd;
     //lmd.run();
     
-    lighting_maps_specular_map lmsm;
-    lmsm.run();
+    //lighting_maps_specular_map lmsm;
+    //lmsm.run();
+    light_casters_directional lcd;
+    lcd.run();
 }
 
 

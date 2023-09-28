@@ -291,7 +291,6 @@ void lighting_maps_specular_map::run()
         glBindVertexArray(cubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-
         //enable the depth test
         glEnable(GL_DEPTH_TEST);
 		//swap the buffer
