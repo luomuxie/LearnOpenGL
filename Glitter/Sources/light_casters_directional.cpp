@@ -3,6 +3,9 @@
 #include <glad/glad.h>
 #include <iostream>
 #include "func.h"
+#include <shader_s.h>
+#include <stb_image.h>
+#include <glm/gtc/type_ptr.hpp>
 
 void light_casters_directional::initOpenGL()
 {
@@ -130,23 +133,92 @@ void light_casters_directional::setVertexData()
 	glBindVertexArray(0);	
 }
 
+void light_casters_directional::initShader()
+{
+	//create the shader object by using the shader source code
+	Shader lightShader("..\\Glitter\\Shaders\\light.vs", "..\\Glitter\\Shaders\\light.fs");
+	//active the shader program
+	lightShader.use();
+	//set the shader program
+	lightShaderID = lightShader.ID;
+
+	//create the cube shader object by using the shader source code
+	Shader cubeShader("..\\Glitter\\Shaders\\lighting_maps_specular.vs", "..\\Glitter\\Shaders\\lighting_maps_specular.fs");
+	//active the shader program
+	cubeShader.use();
+	//set the shader program
+	cubeShaderID = cubeShader.ID;
+
+	//set the texture
+	//set the diffuse map
+	cubeShader.setInt("material.diffuse", 0);
+	//set the specular map
+	cubeShader.setInt("material.specular", 1);
+	
+}
+
+void light_casters_directional::loadMap()
+{
+	//load the diffuse map
+	unsigned int diffuseMap = loadTexture("..\\Glitter\\Img\\container2.png");
+	//load the specular map
+	unsigned int specularMap = loadTexture("..\\Glitter\\Img\\container2_specular.png");
+
+	//set the texture unit
+	glActiveTexture(GL_TEXTURE0);
+	//bind the texture
+	glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	//set the texture unit
+
+	glActiveTexture(GL_TEXTURE1);
+	//bind the texture
+	glBindTexture(GL_TEXTURE_2D, specularMap);
+}
+
 void light_casters_directional::run()
 {
 	//init the openGL
 	initOpenGL();
+	setVertexData();
+	initShader();
+	loadMap();
 
 	//main render loop
 	//judge if the window should close
 	while (!glfwWindowShouldClose(window))
 	{
+		//calculate the delta time
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 		//process the input
 		processInputColor(window);
-
 		//set the background color
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		//clear the color buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//active the light shader program
+		glUseProgram(lightShaderID);
+		//set the model matrix
+		glm::mat4 model = glm::mat4(1.0f);
+		//scale the model matrix
+		//model = glm::scale(model, glm::vec3(0.2f));
+		//move the light position
+		//model = glm::translate(model, lightPos);
+
+		//set the view matrix
+		glm::mat4 view = camera.GetViewMatrix();
+		//set the projection matrix
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
+						0.1f, 100.0f);
+		//set the model matrix uniform
+		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		//set the view matrix uniform
+		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		//set the projection matrix uniform
+		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		
 
 		//open the depth test
 		glEnable(GL_DEPTH_TEST);		
@@ -166,6 +238,31 @@ void light_casters_directional::processInputColor(GLFWwindow* window)
 		//tell the window to close
 		glfwSetWindowShouldClose(window, true);
 	}
+	//judge if the user press the w
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		//move the camera forward
+		camera.ProcessKeyboard(FORWARD, deltaTime);		
+	}
+	//judge if the user press the s
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		//move the camera backward
+		camera.ProcessKeyboard(BACKWARD, deltaTime);		
+	}
+	//judge if the user press the a
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		//move the camera left
+		camera.ProcessKeyboard(LEFT, deltaTime);		
+	}
+	//judge if the user press the d
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		//move the camera right
+		camera.ProcessKeyboard(RIGHT, deltaTime);		
+	}
+
 }
 
 
