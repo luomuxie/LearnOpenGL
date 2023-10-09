@@ -40,6 +40,11 @@ class light_casters_directional
 	//create the lightPos
 	//glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
 
+	//create the diffuseMapID
+	unsigned int diffuseMapID;
+	//create the specularMapID
+	unsigned int specularMapID;
+
 	//create a public func to run
 	public:
 		void run();

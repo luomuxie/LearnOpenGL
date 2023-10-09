@@ -151,28 +151,28 @@ void light_casters_directional::initShader()
 
 	//set the texture
 	//set the diffuse map
-	cubeShader.setInt("material.diffuse", 0);
-	//set the specular map
-	cubeShader.setInt("material.specular", 1);
+	//cubeShader.setInt("material.diffuse", 0);
+	////set the specular map
+	//cubeShader.setInt("material.specular", 1);
 	
 }
 
 void light_casters_directional::loadMap()
 {
 	//load the diffuse map
-	unsigned int diffuseMap = loadTexture("..\\Glitter\\Img\\container2.png");
+	diffuseMapID = loadTexture("..\\Glitter\\Img\\container2.png");
 	//load the specular map
-	unsigned int specularMap = loadTexture("..\\Glitter\\Img\\container2_specular.png");
+	specularMapID = loadTexture("..\\Glitter\\Img\\container2_specular.png");
 
 	//set the texture unit
-	glActiveTexture(GL_TEXTURE0);
-	//bind the texture
-	glBindTexture(GL_TEXTURE_2D, diffuseMap);
-	//set the texture unit
+	//glActiveTexture(GL_TEXTURE0);
+	////bind the texture
+	//glBindTexture(GL_TEXTURE_2D, diffuseMap);
+	////set the texture unit
 
-	glActiveTexture(GL_TEXTURE1);
-	//bind the texture
-	glBindTexture(GL_TEXTURE_2D, specularMap);
+	//glActiveTexture(GL_TEXTURE1);
+	////bind the texture
+	//glBindTexture(GL_TEXTURE_2D, specularMap);
 }
 
 void light_casters_directional::run()
@@ -203,9 +203,15 @@ void light_casters_directional::run()
 		//set the model matrix
 		glm::mat4 model = glm::mat4(1.0f);
 		//scale the model matrix
-		//model = glm::scale(model, glm::vec3(0.2f));
+		model = glm::scale(model, glm::vec3(0.2f));
 		//move the light position
-		//model = glm::translate(model, lightPos);
+		model = glm::translate(model, lightPos);
+
+		//rotate the zero point
+		float radius = 5.0f;
+		float angle = glfwGetTime();
+		lightPos.x = radius * cos(angle);
+		lightPos.z = radius * sin(angle);
 
 		//set the view matrix
 		glm::mat4 view = camera.GetViewMatrix();
@@ -218,8 +224,53 @@ void light_casters_directional::run()
 		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		//set the projection matrix uniform
 		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		
+		//draw the light
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		//cube---------------------------------------------------------------------------------
+		//active the cube shader program
+		glUseProgram(cubeShaderID);
+		//set the model matrix
+		model = glm::mat4(1.0f);
+		//set the model matrix uniform
+		glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		//set the view matrix uniform
+		glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		//set the projection matrix uniform
+		glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		//set the view position
+		glUniform3fv(glGetUniformLocation(cubeShaderID, "viewPos"), 1, glm::value_ptr(camera.Position));
+		
+		//set the light properties
+		//set the light position
+		glUniform3fv(glGetUniformLocation(cubeShaderID, "light.position"), 1, glm::value_ptr(lightPos));
+		//set the light ambient
+		glUniform3f(glGetUniformLocation(cubeShaderID, "light.ambient"), 0.2f, 0.2f, 0.2f);
+		//set the light diffuse
+		glUniform3f(glGetUniformLocation(cubeShaderID, "light.diffuse"), 0.5f, 0.5f, 0.5f);
+		//set the light specular
+		glUniform3f(glGetUniformLocation(cubeShaderID, "light.specular"), 1.0f, 1.0f, 1.0f);
+
+		//set the material properties
+		//set the material shininess
+		glUniform1f(glGetUniformLocation(cubeShaderID, "material.shininess"), 32.0f);
+		//set the diffuse map
+		glUniform1i(glGetUniformLocation(cubeShaderID, "material.diffuse"), 0);
+		//set the specular map
+		glUniform1i(glGetUniformLocation(cubeShaderID, "material.specular"), 1);
+		//bind the diffuse map
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, diffuseMapID);
+		//bind the specular map
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, specularMapID);
+
+		//draw the cube
+		glBindVertexArray(cubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+				
 		//open the depth test
 		glEnable(GL_DEPTH_TEST);		
 		//swap the buffer
