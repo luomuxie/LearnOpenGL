@@ -143,7 +143,7 @@ void light_casters_directional::initShader()
 	lightShaderID = lightShader.ID;
 
 	//create the cube shader object by using the shader source code
-	Shader cubeShader("..\\Glitter\\Shaders\\lighting_maps_specular.vs", "..\\Glitter\\Shaders\\lighting_maps_specular.fs");
+	Shader cubeShader("..\\Glitter\\Shaders\\light_casters.vs", "..\\Glitter\\Shaders\\light_casters.fs");
 	//active the shader program
 	cubeShader.use();
 	//set the shader program
@@ -182,6 +182,19 @@ void light_casters_directional::run()
 	setVertexData();
 	initShader();
 	loadMap();
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f)
+	};
+
 
 	//main render loop
 	//judge if the window should close
@@ -208,10 +221,10 @@ void light_casters_directional::run()
 		model = glm::translate(model, lightPos);
 
 		//rotate the zero point
-		float radius = 5.0f;
-		float angle = glfwGetTime();
-		lightPos.x = radius * cos(angle);
-		lightPos.z = radius * sin(angle);
+		//float radius = 5.0f;
+		//float angle = glfwGetTime();
+		//lightPos.x = radius * cos(angle);
+		//lightPos.z = radius * sin(angle);
 
 		//set the view matrix
 		glm::mat4 view = camera.GetViewMatrix();
@@ -243,8 +256,8 @@ void light_casters_directional::run()
 		glUniform3fv(glGetUniformLocation(cubeShaderID, "viewPos"), 1, glm::value_ptr(camera.Position));
 		
 		//set the light properties
-		//set the light position
-		glUniform3fv(glGetUniformLocation(cubeShaderID, "light.position"), 1, glm::value_ptr(lightPos));
+		//set the light direction
+		glUniform3f(glGetUniformLocation(cubeShaderID, "light.direction"), -0.2f, -1.0f, -0.3f);		
 		//set the light ambient
 		glUniform3f(glGetUniformLocation(cubeShaderID, "light.ambient"), 0.2f, 0.2f, 0.2f);
 		//set the light diffuse
@@ -270,6 +283,18 @@ void light_casters_directional::run()
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		//glBindVertexArray(cubeVAO);
+		//for (unsigned int i = 0; i < 10; i++)
+		//{
+		//	glm::mat4 model;
+		//	model = glm::translate(model, cubePositions[i]);
+		//	float angle = 20.0f * i;
+		//	model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+		//	glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+		//	glDrawArrays(GL_TRIANGLES, 0, 36);
+		//}
+		
 				
 		//open the depth test
 		glEnable(GL_DEPTH_TEST);		
