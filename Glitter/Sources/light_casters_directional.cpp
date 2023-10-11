@@ -151,9 +151,9 @@ void light_casters_directional::initShader()
 
 	//set the texture
 	//set the diffuse map
-	//cubeShader.setInt("material.diffuse", 0);
-	////set the specular map
-	//cubeShader.setInt("material.specular", 1);
+	cubeShader.setInt("material.diffuse", 0);
+	//set the specular map
+	cubeShader.setInt("material.specular", 1);
 	
 }
 
@@ -221,10 +221,13 @@ void light_casters_directional::run()
 		model = glm::translate(model, lightPos);
 
 		//rotate the zero point
-		//float radius = 5.0f;
+		//float radius = 10.0f;
 		//float angle = glfwGetTime();
 		//lightPos.x = radius * cos(angle);
 		//lightPos.z = radius * sin(angle);
+
+		//print the light position
+		//std::cout << "light position: " << lightPos.x << " " << lightPos.y << " " << lightPos.z << std::endl;
 
 		//set the view matrix
 		glm::mat4 view = camera.GetViewMatrix();
@@ -257,21 +260,23 @@ void light_casters_directional::run()
 		
 		//set the light properties
 		//set the light direction
-		glUniform3f(glGetUniformLocation(cubeShaderID, "light.direction"), -0.2f, -1.0f, -0.3f);		
+		glUniform3f(glGetUniformLocation(cubeShaderID, "light.direction"), 1.2f, 1.0f, -9.77811f);
 		//set the light ambient
 		glUniform3f(glGetUniformLocation(cubeShaderID, "light.ambient"), 0.2f, 0.2f, 0.2f);
 		//set the light diffuse
 		glUniform3f(glGetUniformLocation(cubeShaderID, "light.diffuse"), 0.5f, 0.5f, 0.5f);
 		//set the light specular
 		glUniform3f(glGetUniformLocation(cubeShaderID, "light.specular"), 1.0f, 1.0f, 1.0f);
+		//set the light position
+		glUniform3fv(glGetUniformLocation(cubeShaderID, "light.position"), 1, glm::value_ptr(lightPos));
 
 		//set the material properties
 		//set the material shininess
 		glUniform1f(glGetUniformLocation(cubeShaderID, "material.shininess"), 32.0f);
-		//set the diffuse map
-		glUniform1i(glGetUniformLocation(cubeShaderID, "material.diffuse"), 0);
-		//set the specular map
-		glUniform1i(glGetUniformLocation(cubeShaderID, "material.specular"), 1);
+		////set the diffuse map
+		//glUniform1i(glGetUniformLocation(cubeShaderID, "material.diffuse"), 0);
+		////set the specular map
+		//glUniform1i(glGetUniformLocation(cubeShaderID, "material.specular"), 1);
 		//bind the diffuse map
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, diffuseMapID);
@@ -280,20 +285,20 @@ void light_casters_directional::run()
 		glBindTexture(GL_TEXTURE_2D, specularMapID);
 
 		//draw the cube
-		glBindVertexArray(cubeVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
 		//glBindVertexArray(cubeVAO);
-		//for (unsigned int i = 0; i < 10; i++)
-		//{
-		//	glm::mat4 model;
-		//	model = glm::translate(model, cubePositions[i]);
-		//	float angle = 20.0f * i;
-		//	model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		//	glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
 
-		//	glDrawArrays(GL_TRIANGLES, 0, 36);
-		//}
+		glBindVertexArray(cubeVAO);
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		
 				
 		//open the depth test

@@ -20,7 +20,7 @@ struct Material
 struct Light
 {
     //create a vec3 for the position
-    //vec3 position;    
+    //vec3 position;
     //create a vec3 for the ambient color
     vec3 ambient;
     //create a vec3 for the diffuse color
@@ -67,6 +67,6 @@ void main()
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 specular = light.specular * spec * texture(material.specular, TexCoords).rgb;  
         
-    vec3 result = ambient + diffuse + specular;
-    FragColor = vec4(result, 1.0);
+    vec3 result = ambient + diffuse+specular;
+    FragColor = vec4(result, 1);
 }   

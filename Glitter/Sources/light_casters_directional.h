@@ -25,20 +25,21 @@ class light_casters_directional
 	//create a func to load the Map
 	void loadMap();
 	//create a camera
-	Camera camera = Camera(
-		glm::vec3(3.7342, 2.0652f, -1.6181f),
-		glm::vec3(0.0f, 1.0f, 0.0f),
-		144.3973f,
-		-26.8f
-	);
+	//Camera camera = Camera(
+	//	glm::vec3(3.7342, 2.0652f, -1.6181f),
+	//	glm::vec3(0.0f, 1.0f, 0.0f),
+	//	144.3973f,
+	//	-26.8f
+	//);
+	 Camera camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 	//create a deltaTime
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
 
 	//create the lightPos
-	glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+	//glm::vec3 lightPos = glm::vec3(0.219188f, 8.9f, 3.0f);
 	//create the lightPos
-	//glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, 2.0f);
+	glm::vec3 lightPos = glm::vec3(1.2f, 1.0f, -9.77811f);
 
 	//create the diffuseMapID
 	unsigned int diffuseMapID;

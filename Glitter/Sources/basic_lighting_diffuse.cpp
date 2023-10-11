@@ -208,7 +208,7 @@ void basic_lighting_diffuse::run()
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //create cube data
-        model = glm::mat4(1.0f);        
+        model = glm::mat4(1.0f);  
         //use the cube shader
         glUseProgram(cubeShaderID);
         //set the model matrix
