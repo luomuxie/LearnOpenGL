@@ -16,6 +16,7 @@
 #include "lighting_maps_diffuse.h"
 #include "lighting_maps_specular_map.h"
 #include "light_casters_directional.h"
+#include "light_casters_point.h"
 
 
 
@@ -70,8 +71,12 @@ int main() {
     
     //lighting_maps_specular_map lmsm;
     //lmsm.run();
-    light_casters_directional lcd;
-    lcd.run();
+    
+    //light_casters_directional lcd;
+    //lcd.run();
+
+    light_casters_point lcp;
+    lcp.run();
 }
 
 

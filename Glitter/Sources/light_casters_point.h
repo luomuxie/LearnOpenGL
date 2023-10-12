@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <camera.h>
 //create a class for the directional light
-class light_casters_directional
+class light_casters_point
 {
 	//create a func to init the OpenGL
 	void initOpenGL();
@@ -31,7 +31,7 @@ class light_casters_directional
 	//	144.3973f,
 	//	-26.8f
 	//);
-	 Camera camera = Camera(glm::vec3(0.0f, 0.0f, 6.0f));
+	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 6.0f));
 	//create a deltaTime
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
@@ -47,7 +47,7 @@ class light_casters_directional
 	unsigned int specularMapID;
 
 	//create a public func to run
-	public:
-		void run();
+public:
+	void run();
 
 };

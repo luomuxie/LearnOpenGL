@@ -1,4 +1,4 @@
-#include "light_casters_directional.h"
+#include "light_casters_point.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <stb_image.h>
 #include <glm/gtc/type_ptr.hpp>
 
-void light_casters_directional::initOpenGL()
+void light_casters_point::initOpenGL()
 {
 	//init the openGL
 	glfwInit();
@@ -40,10 +40,12 @@ void light_casters_directional::initOpenGL()
 		//return -1;
 	}
 	//set the openGL viewport position and size
-	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);	
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 }
 
-void light_casters_directional::setVertexData()
+
+
+void light_casters_point::setVertexData()
 {
 	float vertices[] = {
 		// positions          // normals           // texture coords
@@ -123,17 +125,17 @@ void light_casters_directional::setVertexData()
 	//set the vertex position
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	//enable the vertex position
-	glEnableVertexAttribArray(0);	
+	glEnableVertexAttribArray(0);
 
 	//unbind the VBO
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//unbind the cubeVAO
 	glBindVertexArray(0);
 	//unbind the lightVAO
-	glBindVertexArray(0);	
+	glBindVertexArray(0);
 }
 
-void light_casters_directional::initShader()
+void light_casters_point::initShader()
 {
 	//create the shader object by using the shader source code
 	Shader lightShader("..\\Glitter\\Shaders\\light.vs", "..\\Glitter\\Shaders\\light.fs");
@@ -143,25 +145,22 @@ void light_casters_directional::initShader()
 	lightShaderID = lightShader.ID;
 
 	//create the cube shader object by using the shader source code
-	Shader cubeShader("..\\Glitter\\Shaders\\light_casters.vs", "..\\Glitter\\Shaders\\light_casters.fs");
+	Shader cubeShader("..\\Glitter\\Shaders\\light_casters_point.vs", "..\\Glitter\\Shaders\\light_casters_point.fs");
 	//active the shader program
 	cubeShader.use();
 	//set the shader program
 	cubeShaderID = cubeShader.ID;
-	
-	
 }
 
-void light_casters_directional::loadMap()
+void light_casters_point::loadMap()
 {
 	//load the diffuse map
 	diffuseMapID = loadTexture("..\\Glitter\\Img\\container2.png");
 	//load the specular map
 	specularMapID = loadTexture("..\\Glitter\\Img\\container2_specular.png");
-	
 }
 
-void light_casters_directional::run()
+void light_casters_point::run()
 {
 	//init the openGL
 	initOpenGL();
@@ -181,9 +180,8 @@ void light_casters_directional::run()
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-
 	//main render loop
-	//judge if the window should close
+//judge if the window should close
 	while (!glfwWindowShouldClose(window))
 	{
 		//calculate the delta time
@@ -205,13 +203,13 @@ void light_casters_directional::run()
 		model = glm::scale(model, glm::vec3(0.2f));
 		//move the light position
 		model = glm::translate(model, lightPos);
-		
+
 
 		//set the view matrix
 		glm::mat4 view = camera.GetViewMatrix();
 		//set the projection matrix
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
-						0.1f, 100.0f);
+			0.1f, 100.0f);
 		//set the model matrix uniform
 		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		//set the view matrix uniform
@@ -235,7 +233,7 @@ void light_casters_directional::run()
 		glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		//set the view position
 		glUniform3fv(glGetUniformLocation(cubeShaderID, "viewPos"), 1, glm::value_ptr(camera.Position));
-		
+
 		//set the light properties
 		//set the light direction
 		glUniform3f(glGetUniformLocation(cubeShaderID, "light.direction"), 1.2f, 1.0f, -9.77811f);
@@ -277,19 +275,18 @@ void light_casters_directional::run()
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-		
-				
+
+
 		//open the depth test
-		glEnable(GL_DEPTH_TEST);		
+		glEnable(GL_DEPTH_TEST);
 		//swap the buffer
 		glfwSwapBuffers(window);
 		//poll the event
 		glfwPollEvents();
 	}
-
 }
 
-void light_casters_directional::processInputColor(GLFWwindow* window)
+void light_casters_point::processInputColor(GLFWwindow* window)
 {
 	//judge if the user press the esc
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -301,27 +298,24 @@ void light_casters_directional::processInputColor(GLFWwindow* window)
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		//move the camera forward
-		camera.ProcessKeyboard(FORWARD, deltaTime);		
+		camera.ProcessKeyboard(FORWARD, deltaTime);
 	}
 	//judge if the user press the s
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		//move the camera backward
-		camera.ProcessKeyboard(BACKWARD, deltaTime);		
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	}
 	//judge if the user press the a
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
 		//move the camera left
-		camera.ProcessKeyboard(LEFT, deltaTime);		
+		camera.ProcessKeyboard(LEFT, deltaTime);
 	}
 	//judge if the user press the d
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
 		//move the camera right
-		camera.ProcessKeyboard(RIGHT, deltaTime);		
+		camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
-
 }
-
-
