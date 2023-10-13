@@ -204,7 +204,12 @@ void light_casters_point::run()
 		//move the light position
 		model = glm::translate(model, lightPos);
 
+		float radius = 5.0f;
+		float angle = glfwGetTime();
+		lightPos.x = radius * cos(angle);
+		lightPos.z = radius * sin(angle);
 
+		
 		//set the view matrix
 		glm::mat4 view = camera.GetViewMatrix();
 		//set the projection matrix
@@ -234,9 +239,7 @@ void light_casters_point::run()
 		//set the view position
 		glUniform3fv(glGetUniformLocation(cubeShaderID, "viewPos"), 1, glm::value_ptr(camera.Position));
 
-		//set the light properties
-		//set the light direction
-		glUniform3f(glGetUniformLocation(cubeShaderID, "light.direction"), 1.2f, 1.0f, -9.77811f);
+		//set the light properties		
 		//set the light ambient
 		glUniform3f(glGetUniformLocation(cubeShaderID, "light.ambient"), 0.2f, 0.2f, 0.2f);
 		//set the light diffuse
@@ -245,6 +248,14 @@ void light_casters_point::run()
 		glUniform3f(glGetUniformLocation(cubeShaderID, "light.specular"), 1.0f, 1.0f, 1.0f);
 		//set the light position
 		glUniform3fv(glGetUniformLocation(cubeShaderID, "light.position"), 1, glm::value_ptr(lightPos));
+
+		//set the light attenuation---------------------------------------------------------------
+		//set the light constant
+		glUniform1f(glGetUniformLocation(cubeShaderID, "light.constant"), 1.0f);
+		//set the light linear
+		glUniform1f(glGetUniformLocation(cubeShaderID, "light.linear"), 0.09f);
+		//set the light quadratic
+		glUniform1f(glGetUniformLocation(cubeShaderID, "light.quadratic"), 0.032f);
 
 		//set the material properties
 		//set the material shininess
@@ -275,7 +286,6 @@ void light_casters_point::run()
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
 
 		//open the depth test
 		glEnable(GL_DEPTH_TEST);
