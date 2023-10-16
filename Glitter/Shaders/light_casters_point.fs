@@ -1,13 +1,7 @@
 #version 330 core
 //create a Material struct
 struct Material
-{
-    ////create a vec3 for the ambient color
-    //vec3 ambient;
-    ////create a vec3 for the diffuse color
-    //vec3 diffuse;
-    //create a vec3 for the specular color
-    //vec3 specular;
+{    
     //create a float for the shininess
     float shininess;
     //create a sampler2D for the diffuse map

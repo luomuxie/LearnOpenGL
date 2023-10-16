@@ -17,6 +17,7 @@
 #include "lighting_maps_specular_map.h"
 #include "light_casters_directional.h"
 #include "light_casters_point.h"
+#include "light_casters_spot.h"
 
 
 
@@ -75,8 +76,12 @@ int main() {
     //light_casters_directional lcd;
     //lcd.run();
 
-    light_casters_point lcp;
-    lcp.run();
+    //light_casters_point lcp;
+    //lcp.run();
+
+    light_casters_spot lcs;
+    lcs.run();
+
 }
 
 
