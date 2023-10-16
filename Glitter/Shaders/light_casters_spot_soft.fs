@@ -23,15 +23,12 @@ struct Light
     //create a vec3 for the specular color
     vec3 specular;
 
-    ////create a float for the constant attenuation
-    //float constant;
-    ////create a float for the linear attenuation
-    //float linear;
-    ////create a float for the quadratic attenuation
-    //float quadratic;
-
+    
     //create a float for the cutOff
     float cutOff;
+    //create a float for the outerCutOff
+    float outerCutOff;
+
     //create a vec3 for the direction
     vec3 direction;
     
@@ -69,7 +66,7 @@ void main()
         // diffuse 
         vec3 norm = normalize(Normal);        
         float diff = max(dot(norm, lightDir), 0.0);
-        vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;  
+        vec3 diffuse = light.diffuse * diff * texture(material.diffuse, TexCoords).rgb;
     
         // specular
         vec3 viewDir = normalize(viewPos - FragPos);

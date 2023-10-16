@@ -1,4 +1,4 @@
-#include "light_casters_spot.h"
+#include "light_casters_spot_soft.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <iostream>
@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void light_casters_spot::initOpenGL()
+void light_casters_spot_soft::initOpenGL()
 {
 	//init the GLFW
 	glfwInit();
@@ -44,7 +44,7 @@ void light_casters_spot::initOpenGL()
 }
 
 
-void light_casters_spot::setVertexData()
+void light_casters_spot_soft::setVertexData()
 {
 	float vertices[] = {
 		// positions          // normals           // texture coords
@@ -134,7 +134,7 @@ void light_casters_spot::setVertexData()
 	glBindVertexArray(0);
 }
 
-void light_casters_spot::initShader()
+void light_casters_spot_soft::initShader()
 {
 	//create the shader object by using the shader source code
 	Shader lightShader("..\\Glitter\\Shaders\\light.vs", "..\\Glitter\\Shaders\\light.fs");
@@ -144,14 +144,14 @@ void light_casters_spot::initShader()
 	lightShaderID = lightShader.ID;
 
 	//create the cube shader object by using the shader source code
-	Shader cubeShader("..\\Glitter\\Shaders\\light_casters_spot.vs", "..\\Glitter\\Shaders\\light_casters_spot.fs");
+	Shader cubeShader("..\\Glitter\\Shaders\\light_casters_spot_soft.vs", "..\\Glitter\\Shaders\\light_casters_spot_soft.fs");
 	//active the shader program
 	cubeShader.use();
 	//set the shader program
 	cubeShaderID = cubeShader.ID;
 }
 
-void light_casters_spot::loadMap()
+void light_casters_spot_soft::loadMap()
 {
 	//load the diffuse map
 	diffuseMapID = loadTexture("..\\Glitter\\Img\\container2.png");
@@ -159,7 +159,7 @@ void light_casters_spot::loadMap()
 	specularMapID = loadTexture("..\\Glitter\\Img\\container2_specular.png");
 }
 
-void light_casters_spot::run()
+void light_casters_spot_soft::run()
 {
 	//init the openGL
 	initOpenGL();
@@ -296,7 +296,7 @@ void light_casters_spot::run()
 	}
 }
 
-void light_casters_spot::processInputColor(GLFWwindow* window)
+void light_casters_spot_soft::processInputColor(GLFWwindow* window)
 {
 	//if the user press the esc
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -329,3 +329,5 @@ void light_casters_spot::processInputColor(GLFWwindow* window)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
 }
+
+
