@@ -255,6 +255,8 @@ void light_casters_spot_soft::run()
 		glUniform3fv(glGetUniformLocation(cubeShaderID, "light.direction"), 1, glm::value_ptr(camera.Front));
 		//set the light position
 		glUniform3fv(glGetUniformLocation(cubeShaderID, "light.position"), 1, glm::value_ptr(camera.Position));
+		//set the light outerCutOff
+		glUniform1f(glGetUniformLocation(cubeShaderID, "light.outerCutOff"), glm::cos(glm::radians(17.5f)));
 		
 
 
