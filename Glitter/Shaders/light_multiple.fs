@@ -73,7 +73,7 @@ uniform DirLight light;
 void main()
 {
     //normalize the normal    
-    normal = normalize(Normal);
+    vec3 normal = normalize(Normal);
     //create viewDir
     vec3 viewDir = normalize(viewPos - FragPos);
 
