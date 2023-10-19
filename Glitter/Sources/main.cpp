@@ -19,6 +19,7 @@
 #include "light_casters_point.h"
 #include "light_casters_spot.h"
 #include "light_casters_spot_soft.h"
+#include "light_multiple.h"
 
 
 
@@ -83,8 +84,11 @@ int main() {
     //light_casters_spot lcs;
     //lcs.run();
 
-    light_casters_spot_soft lcss;
-    lcss.run();
+    //light_casters_spot_soft lcss;
+    //lcss.run();
+
+    light_multiple lm;
+    lm.run();
 
 }
 

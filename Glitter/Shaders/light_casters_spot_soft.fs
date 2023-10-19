@@ -75,7 +75,7 @@ void main()
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 
     diffuse *= intensity;
-    specular *= intensity;    
+    specular *= intensity; 
     
 
     vec3 result = ambient + diffuse+specular;
