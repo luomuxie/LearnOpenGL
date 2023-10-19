@@ -186,7 +186,7 @@ void light_multiple::initShader()
 	lightShaderID = lightShader.ID;
 
 	//create the cube shader object by using the shader source code
-	Shader cubeShader("..\\Glitter\\Shaders\\light_casters_spot_soft.vs", "..\\Glitter\\Shaders\\light_casters_spot_soft.fs");
+	Shader cubeShader("..\\Glitter\\Shaders\\light_multiple.vs", "..\\Glitter\\Shaders\\light_multiple.fs");
 	//active the shader program
 	cubeShader.use();
 	//set the shader program
@@ -224,6 +224,17 @@ void light_multiple::run()
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
+
+	//create a array for the light's position
+	glm::vec3 pointLightPositions[] = {
+		glm::vec3(0.7f,  0.2f,  2.0f),
+		glm::vec3(2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f,  2.0f, -12.0f),
+		glm::vec3(0.0f,  0.0f, -3.0f)
+	};
+
+
+
 	//set the render loop if the window should not close
 	while (!glfwWindowShouldClose(window)){
 		//calculate the delta time
@@ -241,27 +252,44 @@ void light_multiple::run()
 		//draw the light cube---------------------------------------------------
 		//active the lightShader program
 		glUseProgram(lightShaderID);
-		//set the model matrix
-		glm::mat4 model = glm::mat4(1.0f);
-		//set the scale matrix
-		model = glm::scale(model, glm::vec3(0.2f));
-		//set the translate matrix
-		model = glm::translate(model, lightPos);
+		////set the model matrix
+		//glm::mat4 model = glm::mat4(1.0f);
+		////set the scale matrix
+		//model = glm::scale(model, glm::vec3(0.2f));
+		////set the translate matrix
+		//model = glm::translate(model, lightPos);
 
 		//set the view matrix
 		glm::mat4 view = camera.GetViewMatrix();
 		//set the projection matrix
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 
 						0.1f, 100.0f);
-		//set the model matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		////set the model matrix uniform
+		//glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 		//set the view matrix uniform
 		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		//set the projection matrix uniform
 		glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 		//draw the light cube
-		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(lightVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		//set model matrix in the draw loop
+		for (unsigned int i = 0; i < 4; i++)
+		{
+			//set the model matrix
+			glm::mat4 model = glm::mat4(1.0f);
+			//set the translate matrix
+			model = glm::translate(model, pointLightPositions[i]);
+			//set the scale matrix
+			model = glm::scale(model, glm::vec3(0.2f));
+			//set the model matrix uniform
+			glUniformMatrix4fv(glGetUniformLocation(lightShaderID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+			//draw the light cube
+			glBindVertexArray(lightVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 
 		//draw the cube--------------------------------------------------------
 		//active the cubeShader program
@@ -271,20 +299,38 @@ void light_multiple::run()
 		//set the projection matrix uniform
 		glUniformMatrix4fv(glGetUniformLocation(cubeShaderID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-		//set the light's attributes
-		glUniform3fv(glGetUniformLocation(cubeShaderID, "light.position"), 1, glm::value_ptr(camera.Position));
-		glUniform3f(glGetUniformLocation(cubeShaderID, "light.direction"), camera.Front.x, camera.Front.y, camera.Front.z);
-		//set the light's ambient
-		glUniform3f(glGetUniformLocation(cubeShaderID, "light.ambient"), 0.2f, 0.2f, 0.2f);
-		//set the light's diffuse
-		glUniform3f(glGetUniformLocation(cubeShaderID, "light.diffuse"), 0.5f, 0.5f, 0.5f);
-		//set the light's specular
-		glUniform3f(glGetUniformLocation(cubeShaderID, "light.specular"), 1.0f, 1.0f, 1.0f);
-		//set the light's cutOff
-		glUniform1f(glGetUniformLocation(cubeShaderID, "light.cutOff"), glm::cos(glm::radians(12.5f)));
-		//set the light's outerCutOff
-		glUniform1f(glGetUniformLocation(cubeShaderID, "light.outerCutOff"), glm::cos(glm::radians(17.5f)));
+		//set the dirLight's attributes----------------------------------------------
+		//set the dirLight's direction
+		glUniform3f(glGetUniformLocation(cubeShaderID, "dirLight.direction"), -0.2f, -1.0f, -0.3f);
+		//set the dirLight's ambient
+		glUniform3f(glGetUniformLocation(cubeShaderID, "dirLight.ambient"), 0.05f, 0.05f, 0.05f);
+		//set the dirLight's diffuse
+		glUniform3f(glGetUniformLocation(cubeShaderID, "dirLight.diffuse"), 0.4f, 0.4f, 0.4f);
+		//set the dirLight's specular
+		glUniform3f(glGetUniformLocation(cubeShaderID, "dirLight.specular"), 0.5f, 0.5f, 0.5f);
 
+
+		//set the pointLights's attributes on loop --------------------------------------------
+		for (unsigned int i = 0; i < 4; i++)
+		{
+			//set the pointLight's position
+			glUniform3f(glGetUniformLocation(cubeShaderID, ("pointLights[" + std::to_string(i) + "].position").c_str()), pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
+			//set the pointLight's ambient
+			glUniform3f(glGetUniformLocation(cubeShaderID, ("pointLights[" + std::to_string(i) + "].ambient").c_str()), 0.05f, 0.05f, 0.05f);
+			//set the pointLight's diffuse
+			glUniform3f(glGetUniformLocation(cubeShaderID, ("pointLights[" + std::to_string(i) + "].diffuse").c_str()), 0.8f, 0.8f, 0.8f);
+			//set the pointLight's specular
+			glUniform3f(glGetUniformLocation(cubeShaderID, ("pointLights[" + std::to_string(i) + "].specular").c_str()), 1.0f, 1.0f, 1.0f);
+			//set the pointLight's constant
+			glUniform1f(glGetUniformLocation(cubeShaderID, ("pointLights[" + std::to_string(i) + "].constant").c_str()), 1.0f);
+			//set the pointLight's linear
+			glUniform1f(glGetUniformLocation(cubeShaderID, ("pointLights[" + std::to_string(i) + "].linear").c_str()), 0.09f);
+			//set the pointLight's quadratic
+			glUniform1f(glGetUniformLocation(cubeShaderID, ("pointLights[" + std::to_string(i) + "].quadratic").c_str()), 0.032f);
+		}
+		
+
+		//set the material's attributes------------------------------------------------------------------
 		//set the material's shininess
 		glUniform1f(glGetUniformLocation(cubeShaderID, "material.shininess"), 32.0f);
 		//set the material's diffuse
@@ -319,7 +365,6 @@ void light_multiple::run()
 			glBindVertexArray(cubeVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
 							
 		//enable the depth test
 		glEnable(GL_DEPTH_TEST);
