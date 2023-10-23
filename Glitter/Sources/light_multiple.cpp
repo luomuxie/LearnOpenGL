@@ -199,7 +199,7 @@ void light_multiple::loadMap()
 	//load the diffuse map
 	diffuseMapID = loadTexture("..\\Glitter\\Img\\container2.png");
 	//load the specular map
-	specularMapID = loadTexture("..\\Glitter\\Img\\container2_specular.png");	
+	specularMapID = loadTexture("..\\Glitter\\Img\\container2_specular.png");
 }
 
 void light_multiple::run()
