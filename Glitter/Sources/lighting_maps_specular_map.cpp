@@ -199,7 +199,7 @@ void lighting_maps_specular_map::run()
     //load the map
     loadMap();
     //init the shader
-    initShader();
+    initShader();    
     
 
     //render loop

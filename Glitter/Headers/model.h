@@ -58,8 +58,9 @@ private:
             cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
             return;
         }
-        // retrieve the directory path of the filepath
-        directory = path.substr(0, path.find_last_of('/'));
+                       
+        // retrieve the directory path of the filepath       
+        directory = path.substr(0, path.find_last_of('\\'));        
 
         // process ASSIMP's root node recursively
         processNode(scene->mRootNode, scene);
@@ -211,7 +212,7 @@ unsigned int TextureFromFile(const char* path, const string& directory, bool gam
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
-    int width, height, nrComponents;
+    int width, height, nrComponents;    
     unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
     if (data)
     {
