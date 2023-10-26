@@ -52,10 +52,9 @@ void ModelLoading::initOpenGL()
 		});
 
 	// tell GLFW to capture our mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 	
-
 	//init the glad
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
