@@ -44,8 +44,7 @@ void ModelLoading::initOpenGL()
 		ModelLoading* instance = static_cast<ModelLoading*>(glfwGetWindowUserPointer(window));
 		instance->mouse_callback(xpos, ypos);
 		});
-
-	//glfwSetScrollCallback(window, scroll_callback);
+	
 	glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
 		ModelLoading* instance = static_cast<ModelLoading*>(glfwGetWindowUserPointer(window));
 		instance->scroll_callback(xoffset, yoffset);
@@ -105,23 +104,28 @@ void ModelLoading::processInput(GLFWwindow* window)
 
 void ModelLoading::mouse_callback( double xposIn, double yposIn)
 {
-	float xpos = static_cast<float>(xposIn);
-	float ypos = static_cast<float>(yposIn);
 
-	if (firstMouse)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
+		//print the x and y
+		float xpos = static_cast<float>(xposIn);
+		float ypos = static_cast<float>(yposIn);
+
+		if (firstMouse)
+		{
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
+
+		float xoffset = xpos - lastX;
+		float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
 		lastX = xpos;
 		lastY = ypos;
-		firstMouse = false;
+
+		camera.ProcessMouseMovement(xoffset, yoffset);
 	}
-
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-	lastX = xpos;
-	lastY = ypos;
-
-	camera.ProcessMouseMovement(xoffset, yoffset);	
 }
 
 void ModelLoading::scroll_callback(double xoffset, double yoffset)
@@ -149,13 +153,12 @@ void ModelLoading::run()
 		lastFrame = currentFrame;
 
 		//process the input
-		processInput(window);
-		//print the camera position
-
-		//set the color of the screen
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		processInput(window);		
+		glClearColor(0.11f, 0.11f, 0.11f, 1.0f);
 		//clear the color buffer and the depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//enable the depth test
+		glEnable(GL_DEPTH_TEST);
 
 		//set the shader
 		ourShader.use();
