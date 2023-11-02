@@ -19,7 +19,7 @@ void stencil_testing::initOpenGL()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	//enble the resize
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 	//create a window
 	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Stencil Testing", NULL, NULL);
@@ -32,18 +32,11 @@ void stencil_testing::initOpenGL()
 		glfwTerminate();
 		return;
 	}
+
 	// set the window to the current context
 	glfwMakeContextCurrent(window);
-	//init the glad
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		//print the error
-		std::cout << "Failed to initialize GLAD" << std::endl;
-		//end the program
-		return;
-	}
-	//set the size of the viewport
-	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+
+	glfwSetWindowUserPointer(window, this);
 	//set the callback function for the resize
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	//set the callback function for the mouse with the lamd expression
@@ -60,9 +53,21 @@ void stencil_testing::initOpenGL()
 		});
 
 	// tell GLFW to capture our mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	//enable the depth test
-	glEnable(GL_DEPTH_TEST);	
+	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+
+	
+	//init the glad
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		//print the error
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		//end the program
+		return;
+	}
+		
+	//set the size of the viewport
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 }
 
 void stencil_testing::initVertices()
@@ -185,11 +190,13 @@ void stencil_testing::run()
 
 	//load the texture
 	unsigned int cubeTexture = loadTexture("..\\Glitter\\Resources\\Textures\\marble.jpg");
-	unsigned int floorTexture = loadTexture("..\\Glitter\\Resources\\Textures\\metal.png");
+	//print the texture number
+	 std::cout << "cubeTexture: " << cubeTexture << std::endl;
+	//unsigned int floorTexture = loadTexture("..\\Glitter\\Resources\\Textures\\metal.png");
 	//set the shader
 	shader.use();
 	//set the shader for the texture the same as the texture number
-	shader.setInt("texture1", 0);
+	shader.setInt("ourTexture", 0);
 	//set the render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -201,10 +208,10 @@ void stencil_testing::run()
 		//process the input
 		processInput(window);
 		//clear the color buffer and the depth buffer
-		glClearColor(0.11f, 0.11f, 0.11f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//enable the depth test
 		glEnable(GL_DEPTH_TEST);
+		glClearColor(0.11f, 0.11f, 0.11f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		
 		//set the shader
 		shader.use();
 		//set the view matrix
@@ -221,22 +228,24 @@ void stencil_testing::run()
 		glm::mat4 model = glm::mat4(1.0f);		
 		//set the model matrix uniform
 		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
-		
+
+		//draw the cube
+		glBindVertexArray(cubeVAO);
 		//set the cube texture
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		//set the floor texture
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, floorTexture);
-		//draw the cube
-		glBindVertexArray(cubeVAO);
+		//set the texture uniform
+		//glUniform1i(glGetUniformLocation(shader.ID, "ourTexture"), 0);		
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		//draw the floor
+
+		//swap the buffer
+		glfwSwapBuffers(window);
+		//process the event
+		glfwPollEvents();
+				
 	}
-
-
-
-
+	//end the program
+	glfwTerminate();
 }
 
 

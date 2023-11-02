@@ -21,6 +21,7 @@
 #include "light_casters_spot_soft.h"
 #include "light_multiple.h"
 #include "model_loading.h"
+#include "stencil_testing.h"
 
 
 
@@ -91,8 +92,10 @@ int main() {
     //light_multiple lm;
     //lm.run();
 
-    ModelLoading ml;
-    ml.run();
+    //ModelLoading ml;
+    //ml.run();
+    stencil_testing st;
+    st.run();
 
 }
 
