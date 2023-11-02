@@ -186,17 +186,18 @@ void stencil_testing::run()
 	//load the shader
 	Shader shader("..\\Glitter\\Shaders\\stencil_testing.vs", "..\\Glitter\\Shaders\\stencil_testing.fs");
 	//load the shader for plane
-	//Shader shaderSingleColor("..\\Glitter\\Shaders\\stencil_testing.vs", "..\\Glitter\\Shaders\\stencil_single_color.fs");
+	Shader shaderSingleColor("..\\Glitter\\Shaders\\stencil_testing.vs", "..\\Glitter\\Shaders\\stencil_single_color.fs");
 
 	//load the texture
-	unsigned int cubeTexture = loadTexture("..\\Glitter\\Resources\\Textures\\marble.jpg");
-	//print the texture number
-	 std::cout << "cubeTexture: " << cubeTexture << std::endl;
-	//unsigned int floorTexture = loadTexture("..\\Glitter\\Resources\\Textures\\metal.png");
+	unsigned int cubeTexture = loadTexture("..\\Glitter\\Resources\\Textures\\container2.jpg");	
+	unsigned int floorTexture = loadTexture("..\\Glitter\\Resources\\Textures\\metal.png");
 	//set the shader
 	shader.use();
 	//set the shader for the texture the same as the texture number
 	shader.setInt("ourTexture", 0);
+
+	//open the depth test
+	glEnable(GL_DEPTH_TEST);
 	//set the render loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -209,7 +210,7 @@ void stencil_testing::run()
 		processInput(window);
 		//clear the color buffer and the depth buffer
 		//enable the depth test
-		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_DEPTH_TEST);
 		glClearColor(0.11f, 0.11f, 0.11f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		
 		//set the shader
@@ -234,9 +235,21 @@ void stencil_testing::run()
 		//set the cube texture
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		//set the texture uniform
-		//glUniform1i(glGetUniformLocation(shader.ID, "ourTexture"), 0);		
+				
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		//draw the floor with the same shader
+		//set the model matrix
+		model = glm::mat4(2.0f);
+		//move the floor down
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+		//set the model matrix uniform
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		//draw the plane
+		glBindVertexArray(planeVAO);
+		//set the floor texture
+		glBindTexture(GL_TEXTURE_2D, floorTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		//swap the buffer
 		glfwSwapBuffers(window);

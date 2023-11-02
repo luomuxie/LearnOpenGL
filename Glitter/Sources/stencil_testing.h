@@ -7,9 +7,10 @@ class stencil_testing
 	//create a func to initOpenGL
 	void initOpenGL();
 	//create a window and the window size
-	GLFWwindow* window;
-	const unsigned int SCR_WIDTH = 800*2;
-	const unsigned int SCR_HEIGHT = 600*2;
+	GLFWwindow* window; 
+	int scale = 1;
+	const unsigned int SCR_WIDTH = 800*scale;
+	const unsigned int SCR_HEIGHT = 600*scale;
 
 	//create a func to callback for mouse
 	void mouse_callback(double xposIn, double yposIn);
