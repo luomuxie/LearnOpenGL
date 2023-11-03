@@ -189,16 +189,17 @@ void stencil_testing::run()
 	Shader shaderSingleColor("..\\Glitter\\Shaders\\stencil_testing.vs", "..\\Glitter\\Shaders\\stencil_single_color.fs");
 
 	//load the texture
-	unsigned int cubeTexture = loadTexture("..\\Glitter\\Resources\\Textures\\container2.jpg");	
+	unsigned int cubeTexture = loadTexture("..\\Glitter\\Resources\\Textures\\container2.png");	
 	unsigned int floorTexture = loadTexture("..\\Glitter\\Resources\\Textures\\metal.png");
 	//set the shader
 	shader.use();
 	//set the shader for the texture the same as the texture number
 	shader.setInt("ourTexture", 0);
 
-	//open the depth test
+	//configure  global opengl state
+	
 	glEnable(GL_DEPTH_TEST);
-	//set the render loop
+
 	while (!glfwWindowShouldClose(window))
 	{
 		//set the time
@@ -212,45 +213,41 @@ void stencil_testing::run()
 		//enable the depth test
 		//glEnable(GL_DEPTH_TEST);
 		glClearColor(0.11f, 0.11f, 0.11f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		//set the shader
-		shader.use();
-		//set the view matrix
+		shader.use();		
 		glm::mat4 view = camera.GetViewMatrix();		
-		//set the view matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//set the projection matrix
+		shader.setMat4(shader.VIEW, view);		
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
 						0.1f, 100.0f);		
-		//set the projection matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		
-		//set the model matrix
-		glm::mat4 model = glm::mat4(1.0f);		
-		//set the model matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		shader.setMat4(shader.PROJECTION, projection);
 
-		//draw the cube
-		glBindVertexArray(cubeVAO);
-		//set the cube texture
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cubeTexture);
-				
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		//draw the floor with the same shader
 		//set the model matrix
-		model = glm::mat4(2.0f);
-		//move the floor down
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-		//set the model matrix uniform
-		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		glm::mat4 model = glm::mat4(2.0f);		
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));		
+		shader.setMat4(shader.MODEL, model);
+
+		
 		//draw the plane
 		glBindVertexArray(planeVAO);
 		//set the floor texture
 		glBindTexture(GL_TEXTURE_2D, floorTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
+
+		
+		//set the model matrix
+		model = glm::mat4(1.0f);		
+		shader.setMat4(shader.MODEL, model);
+		glBindVertexArray(cubeVAO);
+		//set the cube texture
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cubeTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
 		//swap the buffer
 		glfwSwapBuffers(window);
 		//process the event

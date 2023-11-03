@@ -3,7 +3,8 @@
 #define SHADER_H
 
 #include <glad/glad.h>
-
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -17,6 +18,12 @@ class Shader
 	public:
 		// the program ID
 		unsigned int ID;
+		//create a const string val
+		const std::string MODEL = "model";
+		const std::string VIEW = "view";
+		const std::string PROJECTION = "projection";
+		
+		
 		// constructor generates the shader on the fly
 		Shader(const char* vertexPath, const char* fragmentPath) {			
 			// 1. retrieve the vertex/fragment source code from filePath
@@ -99,6 +106,12 @@ class Shader
 		void setFloat(const std::string& name, float value) const {
 			glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 		}
+		//create a function to set a matrix4
+		void setMat4(const std::string& name, glm::mat4 value) const {
+			glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+		}
+
+
 
 
 		//create checkCompileErrors function

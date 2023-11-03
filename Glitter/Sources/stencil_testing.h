@@ -8,7 +8,7 @@ class stencil_testing
 	void initOpenGL();
 	//create a window and the window size
 	GLFWwindow* window; 
-	int scale = 1;
+	int scale = 2;
 	const unsigned int SCR_WIDTH = 800*scale;
 	const unsigned int SCR_HEIGHT = 600*scale;
 
@@ -22,7 +22,7 @@ class stencil_testing
 	//create a func to callback for scroll
 	void scroll_callback(double xoffset, double yoffset);
 	//create a camera
-	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	Camera camera = Camera(glm::vec3(2.0f, 0.0f, 8.0f));
 
 	//create a func to process the input
 	void processInput(GLFWwindow* window);
