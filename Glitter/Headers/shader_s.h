@@ -110,9 +110,10 @@ class Shader
 		void setMat4(const std::string& name, glm::mat4 value) const {
 			glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 		}
-
-
-
+		//create a function to set a 2f vector
+		void setVec2(const std::string& name, glm::vec2 value) const {
+			glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
+		}
 
 		//create checkCompileErrors function
 		private:
