@@ -22,6 +22,7 @@
 #include "light_multiple.h"
 #include "model_loading.h"
 #include "stencil_testing.h"
+#include "DynamicSpreadEffect.h"
 
 
 
@@ -94,8 +95,12 @@ int main() {
 
     //ModelLoading ml;
     //ml.run();
-    stencil_testing st;
-    st.run();
+    //stencil_testing st;
+    //st.run();
+
+    // DynamicSpreadEffect
+    DynamicSpreadEffect dse;
+    dse.run();
 
 }
 
