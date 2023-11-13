@@ -5,9 +5,16 @@
 #include <shader_s.h>
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
+#include "Constants.h"
 
 void blending_sorted::initOpenGL()
 {
+	//creat a str to store the opengl version
+	std::string glsl_version = WELCOME_MESSAGE;
+	//print the glsl_version with printf
+	printf("%s\n", glsl_version.c_str());
+
+
 	//glwf init
 	glfwInit();
 	//set opengl version

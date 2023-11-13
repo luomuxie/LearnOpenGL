@@ -1,10 +1,10 @@
-#pragma once
-#include <glm/glm.hpp>
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+#include <string>
 
-namespace Constants {
-    inline const glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f,  0.0f,  0.0f),
-        glm::vec3(2.0f,  5.0f, -15.0f),        
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
-}
+const int MAX_USERS = 100;
+const double PI = 3.14159;
+
+const std::string WELCOME_MESSAGE = "Welcome to the program!";
+
+#endif // CONSTANTS_H
