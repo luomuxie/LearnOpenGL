@@ -23,7 +23,11 @@
 #include "model_loading.h"
 #include "stencil_testing.h"
 #include "DynamicSpreadEffect.h"
+<<<<<<< HEAD
 #include "CircleSpreadEff.h"
+=======
+#include "blending_sorted.h"
+>>>>>>> 609c03ecf2f2616fef0631ab8be84de65cbca47b
 
 
 
@@ -103,9 +107,15 @@ int main() {
     //DynamicSpreadEffect dse;
     //dse.run();
 
+
     // CircleSpreadEff
-    CircleSpreadEff cse;
-    cse.run();
+    //CircleSpreadEff cse;
+    //cse.run();
+
+     //blending_sorted 
+    blending_sorted bs;
+    bs.run();
+
 
 
 }
