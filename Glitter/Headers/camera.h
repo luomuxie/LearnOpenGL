@@ -105,6 +105,9 @@ public:
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset)
     {
+        // print the zoom and yoffset with printf
+        printf("zoom: %f, yoffset: %f\n", Zoom, yoffset);
+        
         Zoom -= (float)yoffset;
         if (Zoom < 1.0f)
             Zoom = 1.0f;

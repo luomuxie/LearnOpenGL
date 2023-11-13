@@ -23,6 +23,7 @@
 #include "model_loading.h"
 #include "stencil_testing.h"
 #include "DynamicSpreadEffect.h"
+#include "blending_sorted.h"
 
 
 
@@ -99,8 +100,13 @@ int main() {
     //st.run();
 
     // DynamicSpreadEffect
-    DynamicSpreadEffect dse;
-    dse.run();
+    //DynamicSpreadEffect dse;
+    //dse.run();
+
+     //blending_sorted 
+    blending_sorted bs;
+    bs.run();
+
 
 }
 
