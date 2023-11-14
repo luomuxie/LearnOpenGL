@@ -5,6 +5,7 @@
 const int MAX_USERS = 100;
 const double PI = 3.14159;
 
-const std::string WELCOME_MESSAGE = "Welcome to the program!";
+const std::string SHADER_PATH = "..\\Glitter\\Shaders\\";
+const std::string TEXTURE_PATH = "..\\Glitter\\resources\\textures\\";
 
 #endif // CONSTANTS_H

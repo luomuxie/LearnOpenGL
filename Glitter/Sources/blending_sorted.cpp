@@ -10,9 +10,9 @@
 void blending_sorted::initOpenGL()
 {
 	//creat a str to store the opengl version
-	std::string glsl_version = WELCOME_MESSAGE;
-	//print the glsl_version with printf
-	printf("%s\n", glsl_version.c_str());
+	//std::string glsl_version = WELCOME_MESSAGE;
+	////print the glsl_version with printf
+	//printf("%s\n", glsl_version.c_str());
 
 
 	//glwf init
@@ -121,6 +121,18 @@ void blending_sorted::initVertexs()
 		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 	};
 
+	//set up vertex data and configure vertex attributes
+	float transparentVertices[] = {
+		// positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+
+		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
+		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
+		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
+	};
+
 	//cube vao
 	glGenVertexArrays(1, &cubeVAO);
 	glBindVertexArray(cubeVAO);
@@ -155,23 +167,53 @@ void blending_sorted::initVertexs()
 
 	//unbind vao
 	glBindVertexArray(0);
+
+	//transparent vao
+	glGenVertexArrays(1, &transparentVAO);
+	glBindVertexArray(transparentVAO);
+	//transparent vbo
+	glGenBuffers(1, &transparentVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, transparentVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
+	//set vertex attribute
+	//position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	//texture coordinate
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 }
 
 void blending_sorted::run()
 {
 	initOpenGL();
 	initVertexs();
-	
+
+	//create a vec3 array to store the positions of the cubes
+	glm::vec3 vegetationPos[] = {
+		glm::vec3(-1.5f, 0.0f, -0.48f),
+		glm::vec3(1.5f, 0.0f, 0.51f),
+		glm::vec3(0.0f, 0.0f, 0.7f),
+		glm::vec3(-0.3f, 0.0f, -2.3f),
+		glm::vec3(0.5f, 0.0f, -0.6f)
+	};
+
+	 
 	//load the shader
-	Shader shader("..\\Glitter\\Shaders\\stencil_testing.vs", "..\\Glitter\\Shaders\\stencil_testing.fs");
+	Shader shader((SHADER_PATH + "stencil_testing.vs").c_str(), (SHADER_PATH + "stencil_testing.fs").c_str());
 
 	//load the texture
-	unsigned int cubeTexture = loadTexture("..\\Glitter\\resources\\textures\\marble.jpg");
-	unsigned int floorTexture = loadTexture("..\\Glitter\\resources\\textures\\metal.png");
+	unsigned int cubeTexture = loadTexture((TEXTURE_PATH + "marble.jpg").c_str());
+	unsigned int floorTexture = loadTexture((TEXTURE_PATH+ "metal.png").c_str());
+	unsigned int transparentTexture = loadTexture((TEXTURE_PATH + "blending_transparent_window.png").c_str());
+
 
 	//set texture unit
 	shader.use();
-	shader.setInt("texture1", 0);		
+	shader.setInt("texture1", 0);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	//render loop
 	while (!glfwWindowShouldClose(window))
@@ -220,6 +262,19 @@ void blending_sorted::run()
 		shader.setMat4(shader.MODEL, model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		//draw the transparent
+		glBindVertexArray(transparentVAO);
+		glBindTexture(GL_TEXTURE_2D, transparentTexture);	
+		//set the model matrix with a for
+		for (unsigned int i = 0; i < 5; i++)
+		{
+			//set the model matrix
+			model = glm::mat4(2.0f);
+			model = glm::translate(model, vegetationPos[i]);
+			shader.setMat4(shader.MODEL, model);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+
 		//swap buffer and poll the event
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -253,10 +308,7 @@ void blending_sorted::mouse_callback(double xposIn, double yposIn)
 }
 
 void blending_sorted::scroll_callback(double xoffset, double yoffset)
-{
-	//print the scroll offset
-	std::cout << "xoffset: " << xoffset << " yoffset: " << yoffset << std::endl;
-
+{	
 	//process the scroll
 	camera.ProcessMouseScroll(yoffset);
 }
