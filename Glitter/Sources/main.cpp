@@ -25,6 +25,7 @@
 #include "DynamicSpreadEffect.h"
 #include "CircleSpreadEff.h"
 #include "blending_sorted.h"
+#include "framebuffers.h"
 
 int main() {
         
@@ -108,8 +109,11 @@ int main() {
     //cse.run();
 
      //blending_sorted 
-    blending_sorted bs;
-    bs.run();
+    //blending_sorted bs;
+    //bs.run();
+
+    framebuffers fb;
+    fb.run();
 
 
 

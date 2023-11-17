@@ -98,6 +98,18 @@ void framebuffers::initVertexs()
 		 5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 	};
 
+	//set the screen quad vertex attributes
+	float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+			// positions   // texCoords
+			-1.0f,  1.0f,   0.0f, 1.0f,
+			-1.0f, -1.0f,   0.0f, 0.0f,
+			 1.0f, -1.0f,   1.0f, 0.0f,
+	
+			-1.0f,  1.0f,   0.0f, 1.0f,
+			 1.0f, -1.0f,   1.0f, 0.0f,
+			 1.0f,  1.0f,   1.0f, 1.0f
+	};
+
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
 	//set the vertex data
@@ -142,6 +154,31 @@ void framebuffers::initVertexs()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+	//set the screen quad vertex data
+	//set the vao and vbo
+	glGenVertexArrays(1, &quadVAO);
+	glGenBuffers(1, &quadVBO);
+	//bind the vao and vbo
+	glBindVertexArray(quadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	//set the data of vbo
+	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+	//set the vertex attribute
+	//set the position attribute
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	//enable the vertex attribute
+	glEnableVertexAttribArray(0);
+	//set the texture attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	//enable the vertex attribute
+	glEnableVertexAttribArray(1);
+	//unbind the vao and vbo
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+}
+
+void framebuffers::initFramebuffers()
+{
 }
 
 void framebuffers::run()
@@ -150,11 +187,17 @@ void framebuffers::run()
 	initVertexs();
 
 	//init the shader
-	Shader shader((SHADER_PATH + "framebuffers.vs").c_str(), (SHADER_PATH + "framebuffers.fs").c_str());
+	Shader shader((SHADER_PATH + "frame_buffers.vs").c_str(), (SHADER_PATH + "frame_buffers.fs").c_str());
+	Shader screenShader((SHADER_PATH + "frame_buffers_screen.vs").c_str(), (SHADER_PATH + "frame_buffers_screen.fs").c_str());
 
 	//set the texture
 	unsigned int cubeTexture = loadTexture((TEXTURE_PATH + "marble.jpg").c_str());
 	unsigned int floorTexture = loadTexture((TEXTURE_PATH + "metal.png").c_str());
+
+	//open depth test
+	 glEnable(GL_DEPTH_TEST);
+
+	 
 
 	//main loop
 	while (!glfwWindowShouldClose(window))
@@ -209,6 +252,7 @@ void framebuffers::run()
 		//set the texture
 		glBindTexture(GL_TEXTURE_2D, floorTexture);
 		//draw the floor
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 
 		//swap the buffer

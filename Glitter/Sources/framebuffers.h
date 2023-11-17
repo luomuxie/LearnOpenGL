@@ -19,11 +19,15 @@ class framebuffers
 	unsigned int cubeVAO, cubeVBO;
 	//create plane vao,vbo
 	unsigned int planeVAO, planeVBO;
-	////create transparent vao,vbo
-	//unsigned int transparentVAO, transparentVBO;
+
+	//create screen quad VAO and screen quad VBO
+	unsigned int quadVAO, quadVBO;
 
 	//create a camera
 	Camera camera = Camera(glm::vec3(2.0f, 0.0f, 8.0f));
+
+	//create a func to initFramebuffers
+	void initFramebuffers();
 
 	//create public func to run
 	public:

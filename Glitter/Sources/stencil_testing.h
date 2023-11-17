@@ -35,6 +35,8 @@ class stencil_testing
 	unsigned int cubeVAO, cubeVBO;
 	//create plane VAO and plane VBO
 	unsigned int planeVAO, planeVBO;
+
+
 	
 	//create a float
 	float lastFrame = 0;

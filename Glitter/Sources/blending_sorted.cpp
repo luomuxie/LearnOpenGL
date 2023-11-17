@@ -6,6 +6,7 @@
 #include <glm/ext/matrix_float4x4.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include "Constants.h"
+#include <map>
 
 void blending_sorted::initOpenGL()
 {
@@ -198,6 +199,14 @@ void blending_sorted::run()
 		glm::vec3(0.5f, 0.0f, -0.6f)
 	};
 
+	//create a map to store the distance of the cubes
+	std::map<float, glm::vec3> sorted;
+	for (unsigned int i = 0; i < 5; i++)
+	{
+		float distance = glm::length(camera.Position - vegetationPos[i]);
+		sorted[distance] = vegetationPos[i];
+	}
+
 	 
 	//load the shader
 	Shader shader((SHADER_PATH + "stencil_testing.vs").c_str(), (SHADER_PATH + "stencil_testing.fs").c_str());
@@ -266,11 +275,21 @@ void blending_sorted::run()
 		glBindVertexArray(transparentVAO);
 		glBindTexture(GL_TEXTURE_2D, transparentTexture);	
 		//set the model matrix with a for
-		for (unsigned int i = 0; i < 5; i++)
+		//for (unsigned int i = 0; i < 5; i++)
+		//{
+		//	//set the model matrix
+		//	model = glm::mat4(2.0f);
+		//	model = glm::translate(model, vegetationPos[i]);
+		//	shader.setMat4(shader.MODEL, model);
+		//	glDrawArrays(GL_TRIANGLES, 0, 6);
+		//}
+
+		//draw the vegetation with the map's reverse iterator
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); it++)
 		{
 			//set the model matrix
 			model = glm::mat4(2.0f);
-			model = glm::translate(model, vegetationPos[i]);
+			model = glm::translate(model, it->second);
 			shader.setMat4(shader.MODEL, model);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}

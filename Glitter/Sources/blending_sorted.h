@@ -9,7 +9,7 @@ class blending_sorted
 	//create a window
 	GLFWwindow* window;
 	//set the window size
-	int scale = 2;
+	int scale = 1;
 	const unsigned int SCR_WIDTH = 800 * scale;
 	const unsigned int SCR_HEIGHT = 600 * scale;
 
