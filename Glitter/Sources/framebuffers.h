@@ -28,6 +28,13 @@ class framebuffers
 
 	//create a func to initFramebuffers
 	void initFramebuffers();
+	//create framebuffer object
+	unsigned int framebuffer;
+	//create texture color buffer
+	unsigned int textureColorbuffer;
+	//create renderbuffer object
+	unsigned int rbo;
+
 
 	//create public func to run
 	public:

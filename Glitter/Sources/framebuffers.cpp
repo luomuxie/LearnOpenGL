@@ -179,12 +179,48 @@ void framebuffers::initVertexs()
 
 void framebuffers::initFramebuffers()
 {
+	//create the framebuffer object
+	
+	glGenFramebuffers(1, &framebuffer);
+	//bind the framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+	//create a texture	
+	glGenTextures(1, &textureColorbuffer); 
+	//bind the texture
+	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+	//set the texture
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB,GL_UNSIGNED_BYTE, NULL);
+	//set the texture parameter
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//attach the texture to the framebuffer
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
+
+	//create a renderbuffer object
+	glGenRenderbuffers(1, &rbo);
+	//bind the renderbuffer
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	//set the renderbuffer
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	//attach the renderbuffer to the framebuffer
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	//check the framebuffer is complete
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" 
+					<< std::endl;
+	}
+	//unbind the framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void framebuffers::run()
 {
 	initOpenGL();
 	initVertexs();
+	initFramebuffers();
 
 	//init the shader
 	Shader shader((SHADER_PATH + "frame_buffers.vs").c_str(), (SHADER_PATH + "frame_buffers.fs").c_str());
@@ -194,16 +230,18 @@ void framebuffers::run()
 	unsigned int cubeTexture = loadTexture((TEXTURE_PATH + "marble.jpg").c_str());
 	unsigned int floorTexture = loadTexture((TEXTURE_PATH + "metal.png").c_str());
 
-	//open depth test
-	 glEnable(GL_DEPTH_TEST);
-
-	 
-
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//main loop
 	while (!glfwWindowShouldClose(window))
 	{
 		//process the input
 		processInput(window);
+
+
+		//bind the framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+		//open depth test
+		glEnable(GL_DEPTH_TEST);
 
 		//set the color of the screen
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -254,6 +292,25 @@ void framebuffers::run()
 		//draw the floor
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
+		//unbind the framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//close depth test
+		glDisable(GL_DEPTH_TEST);
+
+		//clear the color
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		//clear the color buffer
+		glClear(GL_COLOR_BUFFER_BIT);
+		
+		//set the screenShader
+		screenShader.use();
+		//set the uniform
+		screenShader.setInt("screenTexture", 0);
+		//bind the texture
+		glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+		//draw the screen
+		glBindVertexArray(quadVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		//swap the buffer
 		glfwSwapBuffers(window);
@@ -262,6 +319,6 @@ void framebuffers::run()
 	}
 
 	//close the window
-	glfwTerminate();
+	glfwTerminate();	
 
 }
