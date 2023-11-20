@@ -224,13 +224,13 @@ void framebuffers::run()
 
 	//init the shader
 	Shader shader((SHADER_PATH + "frame_buffers.vs").c_str(), (SHADER_PATH + "frame_buffers.fs").c_str());
-	Shader screenShader((SHADER_PATH + "frame_buffers_screen.vs").c_str(), (SHADER_PATH + "frame_buffers_screen.fs").c_str());
+	Shader screenShader((SHADER_PATH + "frame_buffers_screen.vs").c_str(), (SHADER_PATH + "frame_buffers_screen_post_processing.fs").c_str());
 
 	//set the texture
 	unsigned int cubeTexture = loadTexture((TEXTURE_PATH + "marble.jpg").c_str());
 	unsigned int floorTexture = loadTexture((TEXTURE_PATH + "metal.png").c_str());
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//main loop
 	while (!glfwWindowShouldClose(window))
 	{
