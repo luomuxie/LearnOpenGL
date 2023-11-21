@@ -30,12 +30,20 @@ void main()
     //    -1, -1, -1
     //);
 
-    //create a blur kernel
-    //float kernel[9] = float[](
-    //    1.0 / 16, 2.0 / 16, 1.0 / 16,
-    //    2.0 / 16, 4.0 / 16, 2.0 / 16,
-    //    1.0 / 16, 2.0 / 16, 1.0 / 16
-    //);
+    //create a gaussian blur kernel
+    float kernel[9] = float[](
+        1.0 / 16, 2.0 / 16, 1.0 / 16,
+        2.0 / 16, 4.0 / 16, 2.0 / 16,
+        1.0 / 16, 2.0 / 16, 1.0 / 16
+    );
+
+    //create a box blur kernel
+    float kernel[9] = float[](
+        1.0/9.0,  1.0/9.0,  1.0/9.0,
+        1.0/9.0,  1.0/9.0,  1.0/9.0,
+        1.0/9.0,  1.0/9.0,  1.0/9.0
+    );
+
 
     //create a sharpen kernel
     //float kernel[9] = float[](
