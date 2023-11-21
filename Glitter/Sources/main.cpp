@@ -26,6 +26,7 @@
 #include "CircleSpreadEff.h"
 #include "blending_sorted.h"
 #include "framebuffers.h"
+#include "cubemaps_skybox.h"
 
 int main() {
         
@@ -112,11 +113,11 @@ int main() {
     //blending_sorted bs;
     //bs.run();
 
-    framebuffers fb;
-    fb.run();
+    //framebuffers fb;
+    //fb.run();
 
-
-
+    cubemaps_skybox cs;
+    cs.run();
 }
 
 

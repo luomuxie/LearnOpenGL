@@ -230,6 +230,18 @@ void framebuffers::run()
 	unsigned int cubeTexture = loadTexture((TEXTURE_PATH + "marble.jpg").c_str());
 	unsigned int floorTexture = loadTexture((TEXTURE_PATH + "metal.png").c_str());
 
+	//create a v3 arr
+	std::vector<glm::vec3> windows
+	{
+		glm::vec3(-1.5f, 0.0f, -0.48f),
+		glm::vec3(1.5f, 0.0f, 0.51f),
+		glm::vec3(0.0f, 0.0f, 0.7f),
+		glm::vec3(-0.3f, 0.0f, -2.3f),
+		glm::vec3(0.5f, 0.0f, -0.6f)
+	};
+
+
+
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	//main loop
 	while (!glfwWindowShouldClose(window))
