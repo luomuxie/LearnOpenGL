@@ -29,6 +29,19 @@ void cubemaps_skybox::initOpenGL()
 
 	//set the window to the current context
 	glfwMakeContextCurrent(window);
+	//set the callback function for the mouse with the window user pointer
+	glfwSetWindowUserPointer(window, this);
+	//set the callback function for the mouse with the lamd expression
+	glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
+		cubemaps_skybox* instance = static_cast<cubemaps_skybox*>(glfwGetWindowUserPointer(window));
+		instance->mouse_callback(xpos, ypos);
+		});
+
+	//set the callback function for the scroll
+	glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
+		cubemaps_skybox* instance = static_cast<cubemaps_skybox*>(glfwGetWindowUserPointer(window));
+		instance->scroll_callback(xoffset, yoffset);
+		});
 
 	//init glad
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -42,6 +55,33 @@ void cubemaps_skybox::initOpenGL()
 	//set the viewport
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
+}
+void cubemaps_skybox::mouse_callback(double xposIn, double yposIn)
+{
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+		//judge if the first mouse
+		if (firstMouse)
+		{
+			//set the last x and y
+			lastX = xposIn;
+			lastY = yposIn;
+			//set the first mouse to false
+			firstMouse = false;
+		}
+		//calculate the offset of x and y	
+		float xoffset = xposIn - lastX;
+		float yoffset = lastY - yposIn;
+		//set the last x and y
+		lastX = xposIn;
+		lastY = yposIn;
+		//process the mouse movement
+		camera.ProcessMouseMovement(xoffset, yoffset);
+	}
+}
+void cubemaps_skybox::scroll_callback(double xoffset, double yoffset)
+{
+	//process the scroll
+	camera.ProcessMouseScroll(yoffset);
 }
 
 void cubemaps_skybox::initVertex()
@@ -142,7 +182,7 @@ void cubemaps_skybox::initVertex()
 	//bind the vbo
 	glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
 	//set the data of vbo
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), &cubeVertices, GL_STATIC_DRAW);
 	//set the position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -162,7 +202,7 @@ void cubemaps_skybox::initVertex()
 	//bind the vbo
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
 	//set the data of vbo
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
 	//set the position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
@@ -181,7 +221,7 @@ void cubemaps_skybox::run()
 	//create cube's shader
 	Shader cubeShader((SHADER_PATH + "frame_buffers.vs").c_str(), (SHADER_PATH + "frame_buffers.fs").c_str());
 	//load the texture
-	unsigned int cubeTexture = loadTexture((TEXTURE_PATH + "marble.jpg").c_str());
+	unsigned int cubeTexture = loadTexture((TEXTURE_PATH + "container2.png").c_str());
 	//create a string to store the path of the texture
 	std::vector<std::string> faces
 	{
@@ -208,72 +248,65 @@ void cubemaps_skybox::run()
 	//open the depth test
 	glEnable(GL_DEPTH_TEST);
 	
-	//main loop
 	while (!glfwWindowShouldClose(window))
 	{
-
-		//calculate the delta time
+		// Calculate the delta time
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		//process input
+		
+		//glDepthFunc(GL_LESS);
+		// Process input
 		processInputs(window);
 
-		//clear the color buffer
+		// Clear the color and depth buffer
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		//clear the depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Set up view and projection matrices
 		glm::mat4 view = camera.GetViewMatrix();
-		//create the projection matrix
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
-			0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
 
-		//draw the cube
+
+		// Draw the cube
 		cubeShader.use();
-		//create the view matrix
 		view = camera.GetViewMatrix();
-		//create the model matrix
 		glm::mat4 model = glm::mat4(1.0f);
-		//set the model matrix
 		cubeShader.setMat4(cubeShader.MODEL, model);
-		//set the view matrix
 		cubeShader.setMat4(cubeShader.VIEW, view);
-		//set the projection matrix
 		cubeShader.setMat4(cubeShader.PROJECTION, projection);
-		//bind the texture
 		glBindTexture(GL_TEXTURE_2D, cubeTexture);
-		//bind the vao
 		glBindVertexArray(cubeVAO);
-		//draw the cube
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		//unbind the vao
 		glBindVertexArray(0);
 
-
+		// Change depth function to GL_LEQUAL for drawing skybox
 		glDepthFunc(GL_LEQUAL);
-		//draw the skybox
 		skyboxShader.use();
-		//create the view matrix
-		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));		
-		skyboxShader.setMat4(skyboxShader.VIEW, view);		
+		view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // Remove translation from the view matrix
+		skyboxShader.setMat4(skyboxShader.VIEW, view);
 		skyboxShader.setMat4(skyboxShader.PROJECTION, projection);
-		//bind the texture
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		//bind the vao
 		glBindVertexArray(skyboxVAO);
-		//draw the skybox
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		//unbind the vao
 		glBindVertexArray(0);
-		//open the depth test
+				
+		// Reset depth function to default
 		glDepthFunc(GL_LESS);
-		
-		//swap the buffer
+
+
+		// Swap the buffer and poll events
 		glfwSwapBuffers(window);
-		//poll the event
 		glfwPollEvents();
 	}
+	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteVertexArrays(1, &skyboxVAO);
+	glDeleteBuffers(1, &cubeVBO);
+	glDeleteBuffers(1, &skyboxVBO);
+
+	glfwTerminate();
+
 }
 
 

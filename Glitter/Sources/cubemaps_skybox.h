@@ -9,7 +9,7 @@ class cubemaps_skybox
 
 	GLFWwindow* window;
 	//set the window size
-	int scale = 1;
+	int scale = 2;
 	const unsigned int SCR_WIDTH = 800 * scale;
 	const unsigned int SCR_HEIGHT = 600 * scale;
 
@@ -28,6 +28,17 @@ class cubemaps_skybox
 	//create deltaTime, lastFrame
 	float deltaTime = 0.0f;
 	float lastFrame = 0.0f;
+
+	//create mouse callback
+	void mouse_callback(double xposIn, double yposIn);
+	//create first mouse
+	bool firstMouse = true;
+	//create lastX, lastY
+	float lastX = 400.0f;
+	float lastY = 300.0f;
+
+	//create scroll callback 
+	void scroll_callback(double xoffset, double yoffset);
 
 	//create a public func to run
 public:
