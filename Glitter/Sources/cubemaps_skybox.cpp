@@ -267,8 +267,18 @@ void cubemaps_skybox::run()
 		glm::mat4 view = camera.GetViewMatrix();
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-
-
+		
+		glDepthMask(GL_FALSE);
+		skyboxShader.use();
+		view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // Remove translation from the view matrix
+		skyboxShader.setMat4(skyboxShader.VIEW, view);
+		skyboxShader.setMat4(skyboxShader.PROJECTION, projection);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glBindVertexArray(skyboxVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);						
+		glDepthMask(GL_TRUE);
+		
 		// Draw the cube
 		cubeShader.use();
 		view = camera.GetViewMatrix();
@@ -281,19 +291,18 @@ void cubemaps_skybox::run()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
-		// Change depth function to GL_LEQUAL for drawing skybox
-		glDepthFunc(GL_LEQUAL);
-		skyboxShader.use();
-		view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // Remove translation from the view matrix
-		skyboxShader.setMat4(skyboxShader.VIEW, view);
-		skyboxShader.setMat4(skyboxShader.PROJECTION, projection);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		glBindVertexArray(skyboxVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-				
-		// Reset depth function to default
-		glDepthFunc(GL_LESS);
+		//// Change depth function to GL_LEQUAL for drawing skybox
+		//glDepthFunc(GL_LEQUAL);
+		//skyboxShader.use();
+		//view = glm::mat4(glm::mat3(camera.GetViewMatrix())); // Remove translation from the view matrix
+		//skyboxShader.setMat4(skyboxShader.VIEW, view);
+		//skyboxShader.setMat4(skyboxShader.PROJECTION, projection);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		//glBindVertexArray(skyboxVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(0);				
+		//// Reset depth function to default
+		//glDepthFunc(GL_LESS);
 
 
 		// Swap the buffer and poll events

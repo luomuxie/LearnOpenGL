@@ -27,6 +27,7 @@
 #include "blending_sorted.h"
 #include "framebuffers.h"
 #include "cubemaps_skybox.h"
+#include "cubemaps_environment_mapping.h"
 
 int main() {
         
@@ -116,8 +117,11 @@ int main() {
     //framebuffers fb;
     //fb.run();
 
-    cubemaps_skybox cs;
-    cs.run();
+    //cubemaps_skybox cs;
+    //cs.run();
+
+    cubemaps_environment_mapping cem;
+    cem.run();
 }
 
 
