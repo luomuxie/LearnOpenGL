@@ -28,6 +28,7 @@
 #include "framebuffers.h"
 #include "cubemaps_skybox.h"
 #include "cubemaps_environment_mapping.h"
+#include "dynamic_star_eff.h"
 
 int main() {
         
@@ -120,8 +121,11 @@ int main() {
     //cubemaps_skybox cs;
     //cs.run();
 
-    cubemaps_environment_mapping cem;
-    cem.run();
+    //cubemaps_environment_mapping cem;
+    //cem.run();
+
+    dynamic_star_eff dse;
+    dse.run();
 }
 
 
