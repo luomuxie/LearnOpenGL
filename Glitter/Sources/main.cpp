@@ -122,6 +122,9 @@ int main() {
 
     cubemaps_environment_mapping cem;
     cem.run();
+
+    //ModelLoading ml;
+    //ml.run();
 }
 
 

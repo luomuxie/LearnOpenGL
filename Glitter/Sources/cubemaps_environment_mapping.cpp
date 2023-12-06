@@ -5,6 +5,7 @@
 #include "func.h"
 #include <shader_s.h>
 #include "Constants.h"
+#include "model.h"
 
 void cubemaps_environment_mapping::init_opengl()
 {
@@ -235,6 +236,9 @@ void cubemaps_environment_mapping::run()
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
 
+	//use the model to load the model
+	Model ourModel((MODEL_PATH + "nanosuit\\nanosuit.obj").c_str());
+
 	//open the depth test
 	glEnable(GL_DEPTH_TEST);
 
@@ -247,7 +251,7 @@ void cubemaps_environment_mapping::run()
 		lastFrame = currentFrame;
 
 		//process input
-		processInput(window);
+		processInputs(window);
 
 		//clear the color buffer
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -268,7 +272,6 @@ void cubemaps_environment_mapping::run()
 		//set the camera position
 		cubeShader.setVec3("cameraPos", camera.Position);
 
-
 		//bind the texture
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
@@ -276,6 +279,10 @@ void cubemaps_environment_mapping::run()
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
+
+		//draw the model
+		ourModel.Draw(cubeShader);
+		
 
 		//draw the skybox
 		glDepthFunc(GL_LEQUAL);

@@ -11,7 +11,7 @@ class cubemaps_environment_mapping
 	GLFWwindow* window;
 	//create the window width and height
 	//create a scale for the window
-	float scale = 1.0f;
+	float scale = 2.0f;
 	int WIDTH = 800*scale;
 	int HEIGHT = 600*scale;
 
@@ -24,7 +24,7 @@ class cubemaps_environment_mapping
 	unsigned int skyboxVAO, skyboxVBO;
 
 	//create a camera
-	Camera camera = Camera(glm::vec3(2.0f, 0.0f, 8.0f));
+	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 	//create a public func to run
 		//create mouse callback

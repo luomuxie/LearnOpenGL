@@ -17,12 +17,23 @@ void main()
 {        
     //calculate the view direction
     vec3 viewDir = normalize(cameraPos - Position);
-    //calculate the reflection direction
-    vec3 reflectDir = reflect(viewDir, normalize(Normal));
-    //reserve the y coordinate
-    reflectDir.y *= -1.0; //flip the y coordinate
 
+
+    ////calculate the reflection direction
+    //vec3 reflectDir = reflect(viewDir, normalize(Normal));
+    ////flip the y coordinate
+    //reflectDir.y *= -1.0; 
+    ////calculate the color from the cubemap texture
+    //FragColor = vec4(texture(skybox, reflectDir).rgb, 1.0);
+
+    //create a ratio
+    float ratio = 1.00 / 1.52;
+    //calculate the refraction direction
+    vec3 refractDir = refract(viewDir, normalize(Normal), ratio);
+    //flip the y coordinate
+    refractDir.y *= -1.0; 
     //calculate the color from the cubemap texture
-    FragColor = vec4(texture(skybox, reflectDir).rgb, 1.0);
+    FragColor = vec4(texture(skybox, refractDir).rgb, 1.0);
+
 
 }   
