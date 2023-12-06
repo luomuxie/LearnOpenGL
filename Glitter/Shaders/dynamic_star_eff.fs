@@ -56,13 +56,15 @@ vec3 palette(float a) {
 void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
     vec2 q = fragCoord/iResolution.xy;
     vec2 p = -1. + 2. * q;
-    p.x *= iResolution.x/iResolution.y;
-    vec3 col = vec3(0.0, 0. ,0.0);
-  
+    p.x *= iResolution.x/iResolution.y; 
+
+    vec3 col = vec3(0.0, 0. ,0.0);  
     for (int i=0; i<5;++i) { 
         vec2 p0 = p;
         float itime = iTime+1.2*float(i);
         p0.x += sin(itime);
+
+
         float b = itime;
         b = fract(b);
         b -= 0.5;
@@ -71,9 +73,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
         p0.y += b;
   
         p0 *= rot(8.0*cos(itime));  
-        float d = star5(p0, 0.5, 0.5);
 
-        float size = 0.5;    
+        float d = star5(p0, 0.5, 0.5);
+    
         float od = abs(d)-0.015;
     
         if (d < 0.0) {
