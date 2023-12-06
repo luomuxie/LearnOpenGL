@@ -7,8 +7,8 @@ uniform float iTime;
 //create mainImage function
 void mainImage( out vec4 fragColor, in vec2 fragCoord);
 
-//create palette function
-vec3 palette( float t ) ;
+    //create palette function
+    vec3 palette( float t ) ;
 
 void main()
 {    
@@ -47,5 +47,4 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
     }
         
     fragColor = vec4(finalColor, 1.0);    
-
 }
