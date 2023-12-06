@@ -244,6 +244,8 @@ void cubemaps_skybox::run()
 	cubeShader.setInt("ourTexture", 0);
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
+
+	
 	
 	//open the depth test
 	glEnable(GL_DEPTH_TEST);
@@ -290,6 +292,7 @@ void cubemaps_skybox::run()
 		glBindVertexArray(cubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
+				
 
 		//// Change depth function to GL_LEQUAL for drawing skybox
 		//glDepthFunc(GL_LEQUAL);

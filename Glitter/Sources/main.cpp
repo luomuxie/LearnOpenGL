@@ -124,8 +124,18 @@ int main() {
     cubemaps_environment_mapping cem;
     cem.run();
 
-    //dynamic_star_eff dse;
-    //dse.run();
+
+    //cubemaps_environment_mapping cem;
+    //cem.run();
+
+    //ModelLoading ml;
+    //ml.run();
+
+    //cubemaps_environment_mapping cem;
+    //cem.run();
+    
+    dynamic_star_eff dse;
+    dse.run();
 }
 
 
