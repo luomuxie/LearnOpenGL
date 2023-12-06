@@ -42,6 +42,9 @@ class cubemaps_environment_mapping
 	float lastFrame = 0.0f;
 	void processInputs(GLFWwindow* window);
 
+	//create a func to load the texture
+	unsigned int loadTextures(char const* path);
+
 public:
 	void run();
 
