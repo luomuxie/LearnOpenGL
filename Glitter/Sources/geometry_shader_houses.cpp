@@ -46,10 +46,10 @@ void geometry_shader_houses::setVertexData()
 {
 	//create a plane vertices with four
 	float vertices[] = {
-		-1.0f, -1.0f,  // 左下角
-		 1.0f, -1.0f,  // 右下角
-		-1.0f,  1.0f,  // 左上角
-		 1.0f,  1.0f   // 右上角
+		-0.5f,  0.5f, // 左上
+		 0.5f,  0.5f, // 右上
+		 0.5f, -0.5f, // 右下
+		-0.5f, -0.5f  // 左下
 	};
 
 	//set the vao and vbo
@@ -80,7 +80,7 @@ void geometry_shader_houses::run()
 	setVertexData();
 
 	//init shader
-	Shader shader((SHADER_PATH + "geometry_shader_houses.vs").c_str(), (SHADER_PATH + "geometry_shader_houses.fs").c_str());
+	Shader shader((SHADER_PATH + "geometry_shader_houses.vs").c_str(), (SHADER_PATH + "geometry_shader_houses.fs").c_str(), (SHADER_PATH + "geometry_shader_houses.gs").c_str());
 
 	//main loop 
 	while (!glfwWindowShouldClose(window))
