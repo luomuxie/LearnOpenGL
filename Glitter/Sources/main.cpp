@@ -30,6 +30,7 @@
 #include "cubemaps_environment_mapping.h"
 #include "dynamic_star_eff.h"
 #include "geometry_shader_houses.h"
+#include "geometry_shader_exploding.h"
 
 
 int main() {
@@ -139,8 +140,11 @@ int main() {
     //dynamic_star_eff dse;
     //dse.run();
 
-	geometry_shader_houses gsh;
-    gsh.run();
+	//geometry_shader_houses gsh;
+    // gsh.run();
+
+    geometry_shader_exploding gse;
+    gse.run();
 
 	//return 0;
 }

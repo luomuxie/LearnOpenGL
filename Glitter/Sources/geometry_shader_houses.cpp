@@ -46,10 +46,10 @@ void geometry_shader_houses::setVertexData()
 {
 	//create a plane vertices with four
 	float vertices[] = {
-		-0.5f,  0.5f, // 左上
-		 0.5f,  0.5f, // 右上
-		 0.5f, -0.5f, // 右下
-		-0.5f, -0.5f  // 左下
+		-0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // 左上
+		 0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // 右上
+		 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // 右下
+		-0.5f, -0.5f, 1.0f, 1.0f, 0.0f  // 左下
 	};
 
 	//set the vao and vbo
@@ -63,13 +63,16 @@ void geometry_shader_houses::setVertexData()
 	//set the data of vbo
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	//set the attribute of vbo
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
+
+	//set the attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	//unbind the vao and vbo
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
 }
 
 void geometry_shader_houses::run()
