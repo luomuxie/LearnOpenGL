@@ -48,7 +48,7 @@ void geometry_shader_exploding::run()
 	init_opengl();
 	
 	//load the shader 
-	Shader shader((SHADER_PATH+"model_loading.vs").c_str(), (SHADER_PATH + "model_loading.fs").c_str());
+	Shader shader((SHADER_PATH+"geometry_shader_exploding.vs").c_str(), (SHADER_PATH + "model_loading.fs").c_str(), (SHADER_PATH + "geometry_shader_exploding.gs").c_str());
 	
 	//use the model to load the model
 	Model ourModel((MODEL_PATH + "nanosuit\\nanosuit.obj").c_str());
@@ -70,9 +70,9 @@ void geometry_shader_exploding::run()
 		shader.use();
 
 		//create a model matrix
-		glm::mat4 model = glm::mat4(1.0f);
+		glm::mat4 model = glm::mat4(0.1f);
 		//scle the model
-		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		//model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 
 		//move the model to far
 		model = glm::translate(model, glm::vec3(0.0f, -12.0f, 0.0f));
@@ -86,6 +86,10 @@ void geometry_shader_exploding::run()
 		shader.setMat4("model", model);
 		shader.setMat4("view", view);
 		shader.setMat4("projection", projection);
+
+		//set the time
+		float time = glfwGetTime();
+		shader.setFloat("time", time);
 
 		ourModel.Draw(shader);
 
