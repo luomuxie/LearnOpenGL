@@ -31,6 +31,8 @@
 #include "dynamic_star_eff.h"
 #include "geometry_shader_houses.h"
 #include "geometry_shader_exploding.h"
+#include "geometry_shader_normals.h"
+#include "star_eff.h"
 
 
 int main() {
@@ -143,8 +145,17 @@ int main() {
 	//geometry_shader_houses gsh;
     // gsh.run();
 
-    geometry_shader_exploding gse;
-    gse.run();
+    //geometry_shader_exploding gse;
+    //gse.run();
+
+	geometry_shader_normals gsn;
+    gsn.run();
+
+	//StarEff se;
+    // se.run();
+
+	//system("pause");
+
 
 	//return 0;
 }

@@ -9,7 +9,7 @@ class dynamic_star_eff
 	GLFWwindow* window;
 	//create the window width and height
 	//create a scale for the window
-	float scale = 1.0f;
+	float scale = 3.0f;
 	int WIDTH = 800 * scale;
 	int HEIGHT = 600 * scale;
 
