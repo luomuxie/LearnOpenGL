@@ -33,6 +33,7 @@
 #include "geometry_shader_exploding.h"
 #include "geometry_shader_normals.h"
 #include "star_eff.h"
+#include "instancing_quads.h""
 
 
 int main() {
@@ -148,13 +149,16 @@ int main() {
     //geometry_shader_exploding gse;
     //gse.run();
 
-	geometry_shader_normals gsn;
-    gsn.run();
+	//geometry_shader_normals gsn;
+ //   gsn.run();
 
 	//StarEff se;
     // se.run();
 
 	//system("pause");
+    
+    instancing_quads iq;
+	iq.run();
 
 
 	//return 0;
