@@ -6,6 +6,7 @@
 #include "Constants.h"
 #include "func.h"
 #include <glm/ext/vector_float2.hpp>
+#include <shader_s.h>
 
 void instancing_quads::initOpenGL()
 {
@@ -116,13 +117,18 @@ void instancing_quads::initVertex()
 	//unbind the vao and vbo
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
 	
 }
 
 void instancing_quads::run()
 {
 	initOpenGL();
+
+	initVertex();
+
+	//init shader by shader class 
+	Shader shader((SHADER_PATH + "instancing.vs").c_str(), (SHADER_PATH + "instancing.fs").c_str());
+
 	
 	//main loop 
 	while (!glfwWindowShouldClose(window))
@@ -136,11 +142,23 @@ void instancing_quads::run()
 		//clear the color buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		shader.use();
+		//set the vao
+		glBindVertexArray(quadVAO);
+		//draw the quad
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+
+		//unbind the vao
+		glBindVertexArray(0);
+
 		//swap the buffer
 		glfwSwapBuffers(window);
 
 		//poll the event
 		glfwPollEvents();
 	}
+
+	//exit the program 
+	glfwTerminate();	
 
 }
