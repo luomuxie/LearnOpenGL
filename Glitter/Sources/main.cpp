@@ -146,8 +146,8 @@ int main() {
 	//geometry_shader_houses gsh;
     // gsh.run();
 
-    //geometry_shader_exploding gse;
-    //gse.run();
+    geometry_shader_exploding gse;
+    gse.run();
 
 	//geometry_shader_normals gsn;
  //   gsn.run();
@@ -157,8 +157,8 @@ int main() {
 
 	//system("pause");
     
-    instancing_quads iq;
-	iq.run();
+    //instancing_quads iq;
+	//iq.run();
 
 
 	//return 0;

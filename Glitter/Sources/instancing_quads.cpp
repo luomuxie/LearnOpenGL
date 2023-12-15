@@ -53,38 +53,30 @@ void instancing_quads::initOpenGL()
 void instancing_quads::initVertex()
 {
 
-	// generate a list of 100 quad locations/translation-vectors
-	// ---------------------------------------------------------
-
-
+	
+	
+	//create translations array
 	glm::vec2 translations[100];
 	int index = 0;
-	float spacing = 0.2f; // spacing between quads
-	int num_quads_per_row = 10;
-	float start_offset = (num_quads_per_row / 2) * spacing - spacing / 2; // to center the grid of quads
-
-	for (int y = 0; y < num_quads_per_row; y++)
+	float offset = 0.1f;
+	for (int y = -10; y < 10; y += 2)
 	{
-		for (int x = 0; x < num_quads_per_row; x++)
+		for (int x = -10; x < 10; x += 2)
 		{
 			glm::vec2 translation;
-			translation.x = (x * spacing) - start_offset;
-			translation.y = (y * spacing) - start_offset;
+			translation.x = (float)x / 10.0f + offset;
+			translation.y = (float)y / 10.0f + offset;
 			translations[index++] = translation;
 		}
 	}
-	
 
-	////print the translations
-	//for (int i = 0; i < 100; i++)
-	//{
-	//	std::cout << translations[i].x << " " << translations[i].y << std::endl;
-	//}
 
 	//store the instance data in an array buffer
+	glGenBuffers(1, &instanceVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 
 
 	float quadVertices[] = {
@@ -101,7 +93,6 @@ void instancing_quads::initVertex()
 	//set vao and vbo 
 	glGenVertexArrays(1, &quadVAO);
 	glGenBuffers(1, &quadVBO);
-
 	//bind the vao and vbo
 	glBindVertexArray(quadVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
@@ -123,18 +114,89 @@ void instancing_quads::initVertex()
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);	
 	glVertexAttribDivisor(2, 1); // tell OpenGL this is an instanced vertex attribute.
+	
+	//--------------------------------------------------------------------------------------
+
+	//glGenVertexArrays(1, &quadVAO);
+	//glGenBuffers(1, &quadVBO);
+
+	//glBindVertexArray(quadVAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+	////also set instance data
+	//glEnableVertexAttribArray(2);
+	//glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); // this attribute comes from a different vertex buffer
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glVertexAttribDivisor(2, 1); // tell OpenGL this is an instanced vertex attribute.
+
 
 
 	//unbind the vao and vbo
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindVertexArray(0);
+
+	//
+	//glm::vec2 translations[100];
+	//int index = 0;
+	//float offset = 0.1f;
+	//for (int y = -10; y < 10; y += 2)
+	//{
+	//	for (int x = -10; x < 10; x += 2)
+	//	{
+	//		glm::vec2 translation;
+	//		translation.x = (float)x / 10.0f + offset;
+	//		translation.y = (float)y / 10.0f + offset;
+	//		translations[index++] = translation;
+	//	}
+	//}
+
+	////// store instance data in an array buffer
+	////// --------------------------------------
+	////
+	//glGenBuffers(1, &instanceVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	////// set up vertex data (and buffer(s)) and configure vertex attributes
+	////// ------------------------------------------------------------------
+	//float quadVertices[] = {
+	//	// positions     // colors
+	//	-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+	//	 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+	//	-0.05f, -0.05f,  0.0f, 0.0f, 1.0f,
+
+	//	-0.05f,  0.05f,  1.0f, 0.0f, 0.0f,
+	//	 0.05f, -0.05f,  0.0f, 1.0f, 0.0f,
+	//	 0.05f,  0.05f,  0.0f, 1.0f, 1.0f
+	//};	 
+	//glGenVertexArrays(1, &quadVAO);
+	//glGenBuffers(1, &quadVBO);
+
+	//glBindVertexArray(quadVAO);
+	//glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+	//glEnableVertexAttribArray(0);
+	//glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	//glEnableVertexAttribArray(1);
+	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+	//// also set instance data
+	//glEnableVertexAttribArray(2);
+	//glBindBuffer(GL_ARRAY_BUFFER, instanceVBO); // this attribute comes from a different vertex buffer
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glVertexAttribDivisor(2, 1); // tell OpenGL this is an instanced vertex attribute.
 	
 }
 
 void instancing_quads::run()
 {
 	initOpenGL();
-
 	initVertex();
 
 	//init shader by shader class 
