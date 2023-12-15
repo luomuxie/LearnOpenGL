@@ -24,7 +24,7 @@ void instancing_quads::initOpenGL()
 
 	//create a window
 	window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "instancing_quads", NULL, NULL);
-	glfwSetWindowPos(window, 0, 1000 - SCR_HEIGHT);
+	//glfwSetWindowPos(window, 0, 1000 - SCR_HEIGHT);
 
 
 	//check the window is null
@@ -56,19 +56,30 @@ void instancing_quads::initVertex()
 	// generate a list of 100 quad locations/translation-vectors
 	// ---------------------------------------------------------
 
+
 	glm::vec2 translations[100];
 	int index = 0;
-	float offset = 0.1f;
-	for (int y = -10; y < 10; y += 2)
+	float spacing = 0.2f; // spacing between quads
+	int num_quads_per_row = 10;
+	float start_offset = (num_quads_per_row / 2) * spacing - spacing / 2; // to center the grid of quads
+
+	for (int y = 0; y < num_quads_per_row; y++)
 	{
-		for (int x = -10; x < 10; x += 2)
+		for (int x = 0; x < num_quads_per_row; x++)
 		{
 			glm::vec2 translation;
-			translation.x = (float)x / 10.0f + offset;
-			translation.y = (float)y / 10.0f + offset;
+			translation.x = (x * spacing) - start_offset;
+			translation.y = (y * spacing) - start_offset;
 			translations[index++] = translation;
 		}
 	}
+	
+
+	////print the translations
+	//for (int i = 0; i < 100; i++)
+	//{
+	//	std::cout << translations[i].x << " " << translations[i].y << std::endl;
+	//}
 
 	//store the instance data in an array buffer
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
@@ -108,9 +119,9 @@ void instancing_quads::initVertex()
 	glEnableVertexAttribArray(1);
 
 	//set the instance data attribute pointer
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);	
 	glVertexAttribDivisor(2, 1); // tell OpenGL this is an instanced vertex attribute.
 
 
@@ -129,6 +140,8 @@ void instancing_quads::run()
 	//init shader by shader class 
 	Shader shader((SHADER_PATH + "instancing.vs").c_str(), (SHADER_PATH + "instancing.fs").c_str());
 
+	//open deth test
+	//glEnable(GL_DEPTH_TEST);
 	
 	//main loop 
 	while (!glfwWindowShouldClose(window))

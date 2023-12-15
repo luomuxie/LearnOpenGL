@@ -8,7 +8,7 @@ class instancing_quads
 
 	//create val window's width and height
 
-	float scale = 1.0f;
+	float scale = 4.0f;
 	int SCR_WIDTH = 800 * scale;
 	int SCR_HEIGHT = 600 * scale;
 
