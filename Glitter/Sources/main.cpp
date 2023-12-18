@@ -169,6 +169,10 @@ int main() {
     anti_aliasing_multisampling aam;
 	aam.run();
 
+    //instancing_quads iq;
+	//iq.run();
+
+
 
 	//return 0;
 }
