@@ -70,10 +70,13 @@ void geometry_shader_exploding::run()
 		shader.use();
 
 		//create a model matrix
-		glm::mat4 model = glm::mat4(0.1f);
+		glm::mat4 model = glm::mat4(0.05f);
 
 		//move the model to far
-		model = glm::translate(model, glm::vec3(0.0f, -12.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -12.0f, -24.0f));
+		//rotate the model by loop with a speed
+		model = glm::rotate(model, (float)glfwGetTime() * glm::radians(30.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		
 
 		//create a view matrix
 		glm::mat4 view = camera.GetViewMatrix();

@@ -11,7 +11,7 @@ class geometry_shader_exploding
 	GLFWwindow* window;
 	//create the window width and height
 	//create a scale for the window
-	float scale = 3.0f;
+	float scale = 4.0f;
 	int WIDTH = 800*scale;
 	int HEIGHT = 600*scale;
 
@@ -24,7 +24,7 @@ class geometry_shader_exploding
 	//unsigned int skyboxVAO, skyboxVBO;
 
 	//create a camera
-	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+	Camera camera = Camera(glm::vec3(0.0f, -3.0f, -12.0f));
 
 	////create a public func to run
 	//	//create mouse callback

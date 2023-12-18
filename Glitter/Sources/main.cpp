@@ -34,6 +34,9 @@
 #include "geometry_shader_normals.h"
 #include "star_eff.h"
 #include "instancing_quads.h""
+#include "dynamic_exploding_eff.h"
+#include "anti_aliasing_multisampling.h"
+
 
 
 int main() {
@@ -157,8 +160,14 @@ int main() {
 
 	//system("pause");
     
-    instancing_quads iq;
-	iq.run();
+ //   instancing_quads iq;
+	//iq.run();
+
+ //   dynamic_exploding_eff dee;
+	//dee.run();
+
+    anti_aliasing_multisampling aam;
+	aam.run();
 
 
 	//return 0;

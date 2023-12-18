@@ -34,8 +34,6 @@ vec3 move_vertex(vec3 vertex, vec3 normal)
 }
 
 
-
-
 //create a main function for the geometry shader
 void main()
 {
