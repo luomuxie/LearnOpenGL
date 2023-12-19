@@ -23,6 +23,22 @@ class anti_aliasing_multisampling
 	// create a camera
 	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
+	//create a func to initFrameBuffer
+	void initFrameBuffer();
+	//create a framebuffer
+	unsigned int framebuffer;	
+	//create a colorbuffer
+	unsigned int texColorBuffer;
+
+	//creaet a screenTexture
+	unsigned int screenTexture;
+
+	//create a framebuffer for the screen
+	unsigned int intermediateFBO;
+
+	
+
+
 
 	//create a func to run
 public :

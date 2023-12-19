@@ -18,7 +18,7 @@ void anti_aliasing_multisampling::initOpengl()
 	//set the window can be resizable
 	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
 	//open opengl samper for 4
-	glfwWindowHint(GLFW_SAMPLES, 4);
+	//glfwWindowHint(GLFW_SAMPLES, 4);
 	
 
 	//create a window
@@ -109,6 +109,50 @@ void anti_aliasing_multisampling::setVertexData()
     glBindVertexArray(0);    
 }
 
+void anti_aliasing_multisampling::initFrameBuffer()
+{	
+	//create a renderbuffer
+	unsigned int rbo;
+
+	//generate the framebuffer
+	glGenFramebuffers(1, &framebuffer);
+	//bind the framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+	//generate the texture
+	glGenTextures(1, &texColorBuffer);
+	//bind the texture
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texColorBuffer);
+	//set the texture data
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, width, height, GL_TRUE);
+	//bind the texture
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+
+	//attach the texture to the framebuffer
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, texColorBuffer, 0);
+
+	//generate the renderbuffer
+	glGenRenderbuffers(1, &rbo);
+	//bind the renderbuffer
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	//set the renderbuffer data
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH24_STENCIL8, width, height);
+	//bind the renderbuffer
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	//attach the renderbuffer to the framebuffer
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	//check the framebuffer is complete or not
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "ERROR::FRAMEBUFFER:: framebuffer is not complete!" << std::endl;
+	}		
+
+	//unbind the framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);		
+}
+
 void anti_aliasing_multisampling::run()
 {
 	//init opengl 
@@ -117,8 +161,12 @@ void anti_aliasing_multisampling::run()
 	//set the vertex data
 	setVertexData();
 
+	//init the framebuffer
+	initFrameBuffer();
+
 	//create the shader
-	Shader shader((SHADER_PATH + "anti_aliasing_multisampling.vs").c_str(), (SHADER_PATH + "anti_aliasing_multisampling.fs").c_str());
+	Shader shader((SHADER_PATH + "anti_aliasing_multisampling.vs").c_str(), (SHADER_PATH + "anti_aliasing_multisampling.fs").c_str());	
+
 
 	//create the projection matrix
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
@@ -127,18 +175,23 @@ void anti_aliasing_multisampling::run()
 	glEnable(GL_DEPTH_TEST);
 
 	//open anti_aliasing_multisampling
-	glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_MULTISAMPLE);
 
 	//create the main loop
     while (!glfwWindowShouldClose(window))
     {
-		
+		//bind the framebuffer
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
 
 		//set the color of the screen
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
 		//clear the color buffer and the depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//open the depth test
+
+		glEnable(GL_DEPTH_TEST);
 
 		//use the shader
 		shader.use();
@@ -156,11 +209,20 @@ void anti_aliasing_multisampling::run()
 		shader.setMat4(shader.PROJECTION, projection);
 		shader.setMat4(shader.MODEL,model);
 
+		//bind the framebuffer texture
+		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, texColorBuffer);
 		//draw the cube
 		glBindVertexArray(cubeVao);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//unbind the VAO
 		glBindVertexArray(0);
 
+		//unbind the framebuffer
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	
 		//swap the buffer
 		glfwSwapBuffers(window);
 		//poll the event
