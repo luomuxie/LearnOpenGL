@@ -36,6 +36,7 @@
 #include "instancing_quads.h""
 #include "dynamic_exploding_eff.h"
 #include "anti_aliasing_multisampling.h"
+#include "shadow_mapping_depth.h"
 
 
 
@@ -166,11 +167,14 @@ int main() {
  //   dynamic_exploding_eff dee;
 	//dee.run();
 
-    anti_aliasing_multisampling aam;
-	aam.run();
+ //   anti_aliasing_multisampling aam;
+	//aam.run();
 
     //instancing_quads iq;
 	//iq.run();
+
+	shadow_mapping_depth smd;
+	smd.run();
 
 
 

@@ -304,7 +304,7 @@ void framebuffers::run()
 		//draw the floor
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		//unbind the framebuffer
+		//unbind the framebuffer----------------------------------------------
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		//close depth test
 		glDisable(GL_DEPTH_TEST);
