@@ -10,10 +10,8 @@ uniform mat4 lightSpaceMatrix;
 out vec2 TexCoord;
 
 
-
-
 void main()
 {
-    gl_Position = lightSpaceMatrix*view*model*vec4(aPos, 1.0);
+    gl_Position = lightSpaceMatrix*model*vec4(aPos, 1.0);
     TexCoord = aTexCoord;
 }
