@@ -3,6 +3,7 @@
 #include <iostream>
 #include <shader_s.h>
 #include "func.h"
+#include "Constants.h"
 
 void shadow_mapping_depth::initOpenGL()
 {
@@ -99,6 +100,14 @@ void shadow_mapping_depth::initVertex()
          -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
     };
 
+    float quadVertices[] = {
+        // positions        // texture Coords
+        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+         1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+    };
+
     //set plane data
     glGenVertexArrays(1, &planeVAO);
     glGenBuffers(1, &planeVBO);
@@ -146,6 +155,26 @@ void shadow_mapping_depth::initVertex()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     //unbind the vao
     glBindVertexArray(0);
+
+    //set quad data---------------------------------------------------------------
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+
+    //bind quad vao and vbo
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    //set quad vbo data
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    //enable the quad pointer
+    glEnableVertexAttribArray(0);
+    //set the quad pointer
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    //enable the quad uv pointer
+    glEnableVertexAttribArray(1);
+    //set the quad uv pointer
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    //unbind the vao
+    glBindVertexArray(0);
      
 }
 
@@ -157,7 +186,6 @@ void shadow_mapping_depth::initFramebuffer()
     glGenBuffers(1, &depthMapFBO);
 
     //create depth map texture
-    unsigned int depthMap;
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
     //set the depth map texture
@@ -187,13 +215,53 @@ void shadow_mapping_depth::initFramebuffer()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void shadow_mapping_depth::renderScene(const Shader& shader)
+{
+    // floor
+    glm::mat4 model = glm::mat4(1.0f);
+    shader.setMat4("model", model);
+    glBindVertexArray(planeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+
+
+    // cubes
+    // render Cube
+    glBindVertexArray(cubeVAO);
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
+    model = glm::scale(model, glm::vec3(0.5f));
+    shader.setMat4(shader.MODEL, model);    
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
+    model = glm::scale(model, glm::vec3(0.5f));
+    shader.setMat4(shader.MODEL, model);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
+    model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+    model = glm::scale(model, glm::vec3(0.25));
+    shader.setMat4(shader.MODEL, model);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    glBindVertexArray(0);
+}
+
 void shadow_mapping_depth::run()
 {
     initOpenGL();
     initVertex();
-    //create shader by shader class 
-    Shader shader("shadow_mapping_depth.vs", "shadow_mapping_depth.fs");
-    Shader simpleDepthShader("shadow_mapping_depth_depth.vs", "shadow_mapping_depth_depth.fs");
+    //create shader by shader class     
+    Shader simpleDepthShader("shadow_mapping_depth.vs", "shadow_mapping_depth.fs");
+    Shader debugDepthQuad("debug_quad_depth.vs", "debug_quad_depth.fs");
+
+    //load texture
+    unsigned int woodTexture = loadTexture((TEXTURE_PATH + "wood.png").c_str());
     
     //create main loop
     while (!glfwWindowShouldClose(window))
@@ -204,15 +272,11 @@ void shadow_mapping_depth::run()
 		//set the background color
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		//clear the color buffer and depth buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		//set the viewport
-		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		
 
         //render depth of scene to texture (from light's perspective)
         // --------------------------------------------------------------
-        //bind the depth map FBO
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        
         //set the viewport
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         
@@ -237,20 +301,37 @@ void shadow_mapping_depth::run()
         //set the value of the uniform
         simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         
-        //draw the plane
-        glBindVertexArray(planeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        //draw the cube
-        glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //unbind the framebuffer
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         //reset the viewport
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        //bind the depth map FBO
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        //clear the buffer
+        glClear(GL_DEPTH_BUFFER_BIT);
+        //bind the depth map texture
+        glActiveTexture(GL_TEXTURE0);
+        //bind the wood texture
+        glBindTexture(GL_TEXTURE_2D, woodTexture);
+        renderScene(simpleDepthShader);
 
 
+        //trun to  defualt buffer and render depth to screen-----------------------------------------------------------
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);      
+       //reset viwport
+        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+       
+        debugDepthQuad.use();
+        debugDepthQuad.setFloat("near_plane", near_plane);
+        debugDepthQuad.setFloat("far_plane", far_plane);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
+        
+        //render quad
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        glBindVertexArray(0);
+
+        
         //render the scene
         glm::mat4 model = glm::mat4(1.0f);
 		//swap the buff

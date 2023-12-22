@@ -127,7 +127,6 @@ void anti_aliasing_multisampling::initFrameBuffer()
 	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, width, height, GL_TRUE);
 	//bind the texture
 	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-
 	//attach the texture to the framebuffer
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, texColorBuffer, 0);
 
