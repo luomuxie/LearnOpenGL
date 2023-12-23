@@ -178,71 +178,27 @@ void shadow_mapping_depth::initVertex()
      
 }
 
-
-
-//void shadow_mapping_depth::initFramebuffer()
-//{
-//    //create depth map FBO
-//    glGenBuffers(1, &depthMapFBO);
-//
-//    //create depth map texture
-//    glGenTextures(1, &depthMap);
-//    glBindTexture(GL_TEXTURE_2D, depthMap);
-//    //set the depth map texture
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT,
-//        		0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-//    //set the depth map texture parameter
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//    //set the depth map texture parameter
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//    //set the depth map texture parameter
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//    //set the depth map texture parameter
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//    //unbind the texture
-//    glBindTexture(GL_TEXTURE_2D, 0);
-//
-//
-//    //bind the depth map FBO
-//    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-//    //attach the depth map texture to the depth map FBO
-//    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-//    //set the draw buffer
-//    glDrawBuffer(GL_NONE);
-//    //set the read buffer
-//    glReadBuffer(GL_NONE);
-//    //unbind the depth map FBO
-//    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//}
 void shadow_mapping_depth::initFramebuffer()
 {
     // create depth map FBO
     glGenFramebuffers(1, &depthMapFBO);
 
-    // create depth map texture
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
-    // set the depth map texture
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    // set the depth map texture parameters
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    // set the border color to white
     float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    // unbind the texture
-    glBindTexture(GL_TEXTURE_2D, 0);
 
-    // bind the depth map FBO
+    // attach depth texture as FBO's depth buffer
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-    // attach the depth map texture to the depth map FBO
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-    // set the draw buffer
     glDrawBuffer(GL_NONE);
-    // set the read buffer
     glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     // check if the framebuffer is complete
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -300,85 +256,66 @@ void shadow_mapping_depth::run()
     //create shader by shader class     
     Shader simpleDepthShader((SHADER_PATH + "shadow_mapping_depth.vs").c_str(), (SHADER_PATH + "shadow_mapping_depth.fs").c_str());
     Shader debugDepthQuad((SHADER_PATH + "debug_quad_depth.vs").c_str(), (SHADER_PATH + "debug_quad_depth.fs").c_str());
+    //Shader basicShader((SHADER_PATH + "BasicShader.vs").c_str(), (SHADER_PATH + "BasicShader.fs").c_str());
 
     //load texture
     unsigned int woodTexture = loadTexture((TEXTURE_PATH + "wood.png").c_str());
+    //basicShader.setInt("ourTexture", 0);    
+    debugDepthQuad.setInt("depthMap", 0);
+    glEnable(GL_DEPTH_TEST);
+    float near_plane = 1.0f, far_plane = 7.5f;
+
+    glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
     
     //create main loop
     while (!glfwWindowShouldClose(window))
     {
 		//set the input
 		processInput(window);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//set the background color
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		//clear the color buffer and depth buffer
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		
-
-        //render depth of scene to texture (from light's perspective)
-        // --------------------------------------------------------------
+        // 渲染深度图
         
-        //set the viewport
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);        
-      
-        //use the simple depth shader
+        //-----------------------------------切换到深度图帧缓冲------------------------------------------
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glClear(GL_DEPTH_BUFFER_BIT);
+
         simpleDepthShader.use();
-        //create a light space matrix
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
-        //set the light projection
-        float near_plane = 1.0f, far_plane = 7.5f;
 
-        //set the light projection
-        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f,
-            				near_plane, far_plane);
-        //set the light view
-        lightView = glm::lookAt(glm::vec3(-2.0f, 4.0f, -1.0f),
-            							glm::vec3(0.0f, 0.0f, 0.0f),
-            							glm::vec3(0.0f, 1.0f, 0.0f));
-
-        //set the light space matrix
+        lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
         lightSpaceMatrix = lightProjection * lightView;
-        //set the value of the uniform
+        // render scene from light's point of view
+        simpleDepthShader.use();
         simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
-                
-        //bind the depth map FBO
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-        //clear the buffer
-        glClear(GL_DEPTH_BUFFER_BIT);
-        //bind the depth map texture
+
+
         glActiveTexture(GL_TEXTURE0);
-        //bind the wood texture
         glBindTexture(GL_TEXTURE_2D, woodTexture);
-        
-        // floor
-        glm::mat4 model = glm::mat4(1.0f);
-        simpleDepthShader.setMat4("model", model);
-        glBindVertexArray(planeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        renderScene(simpleDepthShader);
+        //----------------------------------回到默认帧缓冲----------------------------------------------
 
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        //trun to  defualt buffer and render depth to screen-----------------------------------------------------------
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);      
-       //reset viwport
+        // 使用深度图进行的渲染步骤
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-       
+
         debugDepthQuad.use();
         debugDepthQuad.setFloat("near_plane", near_plane);
         debugDepthQuad.setFloat("far_plane", far_plane);
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        
-        //render quad
         glBindVertexArray(quadVAO);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         glBindVertexArray(0);
 
-
-		//swap the buff
         glfwSwapBuffers(window);
-        //poll the event
         glfwPollEvents();
     }
 
