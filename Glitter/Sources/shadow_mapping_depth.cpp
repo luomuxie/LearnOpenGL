@@ -286,12 +286,23 @@ void shadow_mapping_depth::run()
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
 
+        //create a view matrix by camera
+        glm::mat4 view = camera.GetViewMatrix();
+        //create a projection matrix
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.f);
+
+
         lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+
         lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-        lightSpaceMatrix = lightProjection * lightView;
+
+        lightSpaceMatrix = lightProjection * lightView;        
         // render scene from light's point of view
         simpleDepthShader.use();
         simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        
+        //set the lightSpaceMatrix with camera view and projection
+        //simpleDepthShader.setMat4("lightSpaceMatrix", projection*view);
 
 
         glActiveTexture(GL_TEXTURE0);

@@ -43,7 +43,7 @@ class shadow_mapping_depth
 	void renderScene(const Shader& shader);
 
 	//create a camera
-	Camera camera = Camera(glm::vec3(0.0f, 2.0f, 10.0f));
+	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 10.0f));
 
 
 
