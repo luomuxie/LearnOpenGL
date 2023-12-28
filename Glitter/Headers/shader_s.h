@@ -34,6 +34,8 @@ class Shader
 			// ensure ifstream objects can throw exceptions:
 			vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 			fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+			//print the path
+			std::cout << "Vertex Path: " << vertexPath << std::endl;
 			try
 			{
 				// open files

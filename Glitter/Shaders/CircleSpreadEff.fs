@@ -47,7 +47,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ){
         d = abs(d);
         d = pow(0.01/d,1.2);
 
-
         finalCol += col*d;
 
     }
