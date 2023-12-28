@@ -3,7 +3,7 @@
 int main() {        
 
 	shadow_mapping_depth smd;
-	smd.run();
+	smd.run();	
 }
 
 

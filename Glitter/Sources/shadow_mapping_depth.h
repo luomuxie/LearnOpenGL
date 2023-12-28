@@ -10,7 +10,7 @@ class shadow_mapping_depth
 
 	//create val window's width and height
 
-	float scale = 3.0f;
+	float scale =1.0f;
 	unsigned int SCR_WIDTH = 800 * scale;
 	unsigned int SCR_HEIGHT = 600 * scale;
 
