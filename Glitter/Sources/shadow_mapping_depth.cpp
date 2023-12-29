@@ -256,12 +256,17 @@ void shadow_mapping_depth::run()
     //create shader by shader class     
     Shader simpleDepthShader((SHADER_PATH + "shadow_mapping_depth.vs").c_str(), (SHADER_PATH + "shadow_mapping_depth.fs").c_str());
     Shader debugDepthQuad((SHADER_PATH + "debug_quad_depth.vs").c_str(), (SHADER_PATH + "debug_quad_depth.fs").c_str());
-    //Shader basicShader((SHADER_PATH + "BasicShader.vs").c_str(), (SHADER_PATH + "BasicShader.fs").c_str());
+    //add the shader to render the shadow map
+    Shader shadowMapShader((SHADER_PATH + "shadow_mapping.vs").c_str(), (SHADER_PATH + "shadow_mapping.fs").c_str());
 
     //load texture
     unsigned int woodTexture = loadTexture((TEXTURE_PATH + "wood.png").c_str());
     //basicShader.setInt("ourTexture", 0);    
     debugDepthQuad.setInt("depthMap", 0);
+    //set the texture to the shader
+    shadowMapShader.setInt("diffuseTexture", 0);
+    shadowMapShader.setInt("shadowMap", 1);
+
     glEnable(GL_DEPTH_TEST);
     float near_plane = 1.0f, far_plane = 7.5f;
 
@@ -308,7 +313,7 @@ void shadow_mapping_depth::run()
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         renderScene(simpleDepthShader);
-        //----------------------------------回到默认帧缓冲----------------------------------------------
+        //----------------------------------回到默认帧缓冲区
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -316,15 +321,32 @@ void shadow_mapping_depth::run()
         glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        debugDepthQuad.use();
-        debugDepthQuad.setFloat("near_plane", near_plane);
-        debugDepthQuad.setFloat("far_plane", far_plane);
+        //--------------------------------渲染深度图在场景--------------------------------------
+        //debugDepthQuad.use();
+        //debugDepthQuad.setFloat("near_plane", near_plane);
+        //debugDepthQuad.setFloat("far_plane", far_plane);
 
+        //glActiveTexture(GL_TEXTURE0);
+        //glBindTexture(GL_TEXTURE_2D, depthMap);
+        //glBindVertexArray(quadVAO);
+        //glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+        //glBindVertexArray(0);
+        //-----------------------------------------渲染出阴影--------------------------------------
+
+       //render the scene and add shadow for the scene
+        shadowMapShader.use();
+        shadowMapShader.setMat4("projection", projection);
+        shadowMapShader.setMat4("view", view);
+        shadowMapShader.setVec3("viewPos", camera.Position);
+        shadowMapShader.setVec3("lightPos", lightPos);
+        shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, woodTexture);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-        glBindVertexArray(quadVAO);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-        glBindVertexArray(0);
+
+        //draw the scence
+        renderScene(shadowMapShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
