@@ -14,12 +14,11 @@ uniform mat4 lightSpaceMatrix;
 
 //create interface block
 out VS_OUT {
-	vec2 TexCoord;
-	vec4 FragPos;	
-	//add normal val
-	vec3 Normal
-	//add the fragPosInLightSpace with name like that
-	vac4 FragPosLightSpace;
+	
+	vec3 FragPos;	
+	vec3 Normal;
+	vec2 TexCoords;
+	vec4 FragPosLightSpace;
 	
 } vs_out;
 
@@ -32,15 +31,15 @@ void main()
 	vs_out.Normal = normalMatrix * aNormal;
 
 	//get the Fragpos 
-	vs_out.FragPos = model * vec4(aPos, 1.0);	
+	vs_out.FragPos = vec3( model * vec4(aPos, 1.0));
 
 	//get the texcoord
-	vs_out.TexCoord = aTexCoord;
+	vs_out.TexCoords = aTexCoord;
 
 	//get the gl position
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
 
 	//get the fragPosInLightSpace
-	vs_out.FragPosLightSpace = lightSpaceMatrix * vs_out.FragPos;
+	vs_out.FragPosLightSpace = lightSpaceMatrix *  vec4(vs_out.FragPos,1.0);
    
 }
