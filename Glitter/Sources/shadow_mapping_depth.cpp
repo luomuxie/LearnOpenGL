@@ -188,6 +188,9 @@ void shadow_mapping_depth::initFramebuffer()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+      
 
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
@@ -277,16 +280,17 @@ void shadow_mapping_depth::run()
     //load texture
     unsigned int woodTexture = loadTexture((TEXTURE_PATH + "wood.png").c_str());
     //basicShader.setInt("ourTexture", 0);    
+    debugDepthQuad.use();
     debugDepthQuad.setInt("depthMap", 0);
     //set the texture to the shader
+    shadowMapShader.use();
     shadowMapShader.setInt("diffuseTexture", 0);
-    shadowMapShader.setInt("shadowMap", 1);
+    shadowMapShader.setInt("depthMap", 1);
 
     glEnable(GL_DEPTH_TEST);
     float near_plane = 1.0f, far_plane = 7.5f;
 
-    glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);
-    
+    glm::vec3 lightPos(-2.0f, 4.0f, -1.0f);    
     //create main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -302,11 +306,7 @@ void shadow_mapping_depth::run()
 
         // 渲染深度图
         
-        //-----------------------------------切换到深度图帧缓冲------------------------------------------
-        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        glClear(GL_DEPTH_BUFFER_BIT);
-
+        //-----------------------------------切换到深度图帧缓冲------------------------------------------                        
         simpleDepthShader.use();
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
@@ -329,6 +329,10 @@ void shadow_mapping_depth::run()
         //set the lightSpaceMatrix with camera view and projection
         //simpleDepthShader.setMat4("lightSpaceMatrix", projection*view);
 
+        //这个顺序很重要，如果先设置了视口，再绑定FBO，那么FBO的尺寸就会被设置为视口的尺寸
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glClear(GL_DEPTH_BUFFER_BIT);//这句如果不加，会导致深度图的深度值不正确
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
@@ -358,14 +362,13 @@ void shadow_mapping_depth::run()
         shadowMapShader.setMat4("projection", projection);
         shadowMapShader.setMat4("view", view);
         shadowMapShader.setVec3("viewPos", camera.Position);
+
         shadowMapShader.setVec3("lightPos", lightPos);
         shadowMapShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, depthMap);
-
-        //draw the scence
         renderScene(shadowMapShader);
 
         glfwSwapBuffers(window);
