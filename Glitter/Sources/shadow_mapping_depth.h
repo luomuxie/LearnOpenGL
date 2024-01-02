@@ -10,7 +10,7 @@ class shadow_mapping_depth
 
 	//create val window's width and height
 
-	float scale =1.0f;
+	float scale =3.0f;
 	unsigned int SCR_WIDTH = 800 * scale;
 	unsigned int SCR_HEIGHT = 600 * scale;
 
@@ -43,8 +43,14 @@ class shadow_mapping_depth
 	void renderScene(const Shader& shader);
 
 	//create a camera
-	Camera camera = Camera(glm::vec3(0.0f, 0.0f, 10.0f));
+	Camera camera = Camera(glm::vec3(0.0f, 0.0f,5.0f));
 
+
+	//create a func to processInput
+	void processInput(GLFWwindow* window);
+	//create a float deltaTime
+	float deltaTime = 0.0f;
+	float lastFrame = 0.0f;
 
 
 	//create a func to run 
