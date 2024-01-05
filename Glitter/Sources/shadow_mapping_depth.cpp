@@ -7,6 +7,9 @@
 
 void shadow_mapping_depth::initOpenGL()
 {
+
+    //imgui init
+    
 	//init glfw
 	glfwInit();
 	//set opengl version 
