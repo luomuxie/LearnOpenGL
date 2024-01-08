@@ -309,7 +309,11 @@ void shadow_mapping_depth::run()
 
         // 渲染深度图
         
-        //-----------------------------------切换到深度图帧缓冲------------------------------------------                        
+        //-----------------------------------切换到深度图帧缓冲------------------------------------------     
+
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT); // 剔除正面
+
         simpleDepthShader.use();
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
@@ -332,15 +336,18 @@ void shadow_mapping_depth::run()
         //set the lightSpaceMatrix with camera view and projection
         //simpleDepthShader.setMat4("lightSpaceMatrix", projection*view);
 
-        //这个顺序很重要，如果先设置了视口，再绑定FBO，那么FBO的尺寸就会被设置为视口的尺寸
+        //这个顺序很重要，如果先设置了视口，再绑定FBO，那么FBO的尺寸就会被设置为视口的尺寸        
+
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-        glClear(GL_DEPTH_BUFFER_BIT);//这句如果不加，会导致深度图的深度值不正确
-        glCullFace(GL_FRONT);
+        glClear(GL_DEPTH_BUFFER_BIT);//这句如果不加，会导致深度图的深度值不正确        
 
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, woodTexture);
+        glBindTexture(GL_TEXTURE_2D, woodTexture);        
         renderScene(simpleDepthShader);
+
+        //glCullFace(GL_BACK);
+        glDisable(GL_CULL_FACE);
         //----------------------------------回到默认帧缓冲区
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -361,7 +368,8 @@ void shadow_mapping_depth::run()
         //glBindVertexArray(0);
         //-----------------------------------------渲染出阴影--------------------------------------
 
-       //render the scene and add shadow for the scene
+       //render the scene and add shadow for the scene        
+
         shadowMapShader.use();
         shadowMapShader.setMat4("projection", projection);
         shadowMapShader.setMat4("view", view);
@@ -372,8 +380,7 @@ void shadow_mapping_depth::run()
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, depthMap);
-        glCullFace(GL_BACK);
+        glBindTexture(GL_TEXTURE_2D, depthMap);        
         renderScene(shadowMapShader);
 
         glfwSwapBuffers(window);
