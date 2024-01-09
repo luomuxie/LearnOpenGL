@@ -311,8 +311,8 @@ void shadow_mapping_depth::run()
         
         //-----------------------------------切换到深度图帧缓冲------------------------------------------     
 
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_FRONT); // 剔除正面
+        //glEnable(GL_CULL_FACE);
+        //glCullFace(GL_FRONT); // 剔除正面
 
         simpleDepthShader.use();
         glm::mat4 lightProjection, lightView;
@@ -347,7 +347,7 @@ void shadow_mapping_depth::run()
         renderScene(simpleDepthShader);
 
         //glCullFace(GL_BACK);
-        glDisable(GL_CULL_FACE);
+        //glDisable(GL_CULL_FACE);
         //----------------------------------回到默认帧缓冲区
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

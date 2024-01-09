@@ -29,7 +29,7 @@ class shadow_mapping_depth
 	unsigned int quadVAO, quadVBO;
 
 	//create depth map size
-	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	const unsigned int SHADOW_WIDTH = 1024*2, SHADOW_HEIGHT = 1024*2;
 	//create depth map FBO
 	unsigned int depthMapFBO;
 

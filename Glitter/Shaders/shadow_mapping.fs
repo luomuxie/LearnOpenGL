@@ -43,71 +43,159 @@ uniform vec3 viewPos;
 //在阴影映射的上下文中，透视除法是将片段的坐标从光源视角下的裁剪空间转换到NDC空间，这是与深度贴图进行比较的必要步骤。🦌🌅🖥️
 
 
-////create a func to calculate the shadow
-//float CalcShadow(vec4 fragPosLightSpace)
-//{
-//    //turn to NDC
-//    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
 
-//    float shadow = 0.0;
-//    //transform to [0,1] range
-//    projCoords = projCoords * 0.5 + 0.5;
 
-            
-//    //get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-//    float closestDepth = texture(depthMap, projCoords.xy).r;
-//    //get depth of current fragment from light's perspective
-//    float currentDepth = projCoords.z;
+vec2 uniformDiskSample(float u, float v) {
+    float r = sqrt(u);
+    float theta = 2.0 * 3.14159265359 * v;
 
-//    vec3 normal = normalize(fs_in.Normal);
-//    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
+    return vec2(r * cos(theta), r * sin(theta));
+}
 
-//    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+float getPenumbraSize(float lightSize, float lightDistance, float receiverDistance) {
+    return (lightSize / lightDistance) * (receiverDistance - lightDistance);
+}
 
-//    vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-//    for(int x = -1; x <= 1; ++x)
-//    {
-//        for(int y = -1; y <= 1; ++y)
-//        {
-//            float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r; 
-//            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
-//        }    
-//    }
-//    shadow /= 9.0;
-//    if(projCoords.z > 1.0){
-//        return shadow;
-//    }
+float findBlocker(sampler2D shadowMap, vec2 uv, float zReceiver, vec2 disk[]) {
+    float dBlocker = zReceiver * 0.01; // 初始阻挡物深度
+    const float wLight = 0.006;        // 光源宽度
+    const float c = 100.0;             // 搜索半径比例常数
+    float wBlockerSearch = wLight * zReceiver * c; // 搜索半径
 
-//    //shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+    float sum = 0.01;  // 避免除以零的初始值
+    for(int i = 0; i < 16; ++i) {
+        float depthInShadowmap = texture(shadowMap, uv + disk[i] * wBlockerSearch).r;
+        if(depthInShadowmap < zReceiver) {
+            dBlocker += depthInShadowmap;
+            sum += 1.0;
+        }
+    }
+    return sum > 0.01 ? dBlocker / sum : zReceiver;
+}
 
-//    //check whether current frag pos is in shadow
-//    //float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
-//    return shadow;
-//}
 
+
+
+//create a func to calculate the shadow
 float CalcShadow(vec4 fragPosLightSpace)
-{
-    // perform perspective divide
+{    
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // transform to [0,1] range
+
+    float shadow = 0.0;
+
+    //transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
-    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(depthMap, projCoords.xy).r; 
-    // get depth of current fragment from light's perspective
+                
+    //get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
-    // check whether current frag pos is in shadow
-    float bias = 0;
+    if(projCoords.z > 1.0){
+        return shadow;
+    }
+    float closestDepth = texture(depthMap, projCoords.xy).r; 
+    vec3 normal = normalize(fs_in.Normal);
+    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
+
+    float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+    //shadow = currentDepth-bias > closestDepth  ? 1.0 : 0.0;
+
+    int poissonDiskSamples = 16;
+    vec2 poissonDisk[16] = vec2[](
+        vec2(-0.94201624, -0.39906216),
+        vec2(0.94558609, -0.76890725),
+        vec2(-0.094184101, -0.92938870),
+        vec2(0.34495938, 0.29387760),
+        vec2(-0.91588581, 0.45771432),
+        vec2(-0.81544232, -0.87912464),
+        vec2(-0.38277543, 0.27676845),
+        vec2(0.97484398, 0.75648379),
+        vec2(0.44323325, -0.97511554),
+        vec2(0.53742981, -0.47373420),
+        vec2(-0.26496911, -0.41893023),
+        vec2(0.79197514, 0.19090188),
+        vec2(-0.24188840, 0.99706507),
+        vec2(-0.81409955, 0.91437590),
+        vec2(0.19984126, 0.78641367),
+        vec2(0.14383161, -0.14100790)
+    );
+
+
+    //3x3 kernel PCF---------------------------------------------------------
+
+    //vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+    //for(int x = -1; x <= 1; ++x)
+    //{
+    //    for(int y = -1; y <= 1; ++y)
+    //    {
+    //        float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+    //        shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+    //    }    
+    //}
+    //shadow /= 9.0;
+
+    //uniformDiskSample PCF---------------------------------------------------------
+    //int samples = 16; // 采样数，可调整
+    //float radius = 1.0; // 采样半径，可调整    
+    //vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+    //for(int i = 0; i < samples; ++i) {
+    //    vec2 sampleUv = uniformDiskSample(rand(projCoords.xy), rand(projCoords.xy + 1.0));
+    //    sampleUv = sampleUv * radius / textureSize(depthMap, 0).x + projCoords.xy;
+    //    float sampleDepth = texture(depthMap, sampleUv).r;
+    //    if(currentDepth - bias > sampleDepth)
+    //        shadow += 1.0;
+    //}
+    //return shadow / float(samples);
     
-    //vec3 normal = normalize(fs_in.Normal);
-    //vec3 lightDir = normalize(lightPos - fs_in.FragPos);
 
-    //bias = max(0.09 * (1.0 - dot(normal, lightDir)), 0.005);
+    //poisson disk PCF---------------------------------------------------------
+    //vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+    //for(int i = 0; i < poissonDiskSamples; ++i) {
+    //    vec2 sampleUv = projCoords.xy + poissonDisk[i] * texelSize;
+    //    float sampleDepth = texture(depthMap, sampleUv).r; 
+    //    shadow += currentDepth - bias > sampleDepth ? 1.0 : 0.0;
+    //}
+    //return shadow / float(poissonDiskSamples);
 
-    // check whether current frag pos is in shadow
-    float shadow = currentDepth-bias > closestDepth  ? 1.0 : 0.0;
+    //PCSS 1---------------------------------------------------------
+    //float lightDistance = length(lightPos - fs_in.FragPos);
+    //float receiverDistance = projCoords.z; // 片元深度
+    //float penumbraSize = getPenumbraSize(6, lightDistance, receiverDistance); // 假设光源大小为0.05
+    //vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+    //for(int i = 0; i < poissonDiskSamples; ++i) {
+    //    vec2 sampleUv = projCoords.xy + poissonDisk[i] * texelSize * penumbraSize;
+    //    float sampleDepth = texture(depthMap, sampleUv).r;
+    //    if(receiverDistance - bias > sampleDepth) {
+    //        shadow += 1.0;
+    //    }
+    //}
+    //shadow /= float(poissonDiskSamples);
+
+    //PCSS 2 add findBlocker ---------------------------------------------------------
+
+    // 计算阻挡物平均深度
+    float blockerDepth = findBlocker(depthMap, projCoords.xy, projCoords.z, poissonDisk);
+    // 计算半影区域
+    // 这里可以根据 blockerDepth 和 receiverDepth 的差值来调整半影大小
+    float penumbraRatio = blockerDepth == projCoords.z ? 0.0 : (projCoords.z - blockerDepth) / blockerDepth;
+    penumbraRatio = clamp(penumbraRatio, 0.0, 1.0);
+    // PCF 计算    
+    vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+    for(int i = 0; i < poissonDiskSamples; ++i) {
+        vec2 sampleUv = projCoords.xy + poissonDisk[i] * texelSize * penumbraRatio;
+        float sampleDepth = texture(depthMap, sampleUv).r;
+        if(projCoords.z - bias > sampleDepth) {
+            shadow += 1.0;
+        }
+    }
+    shadow /= float(poissonDiskSamples);
+
+
 
     return shadow;
 }
+
 
 
 void main()
@@ -131,20 +219,14 @@ void main()
     vec3 diffuse = diff * lightColor;
 
     //specular
-    //calculate specular lighting
-    //float specularStrength = 0.5;
-    //vec3 viewDir = normalize(viewPos-fs_in.FragPos);
-    //vec3 reflectDir = reflect(-lightDir, normal);
-    //float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    //vec3 specular = specularStrength * spec * lightColor;  
-
     vec3 viewDir = normalize(viewPos-fs_in.FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);  
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 64.0);
     vec3 specular = spec * lightColor;    
 
     //calculate shadow
-    float shadow = CalcShadow(fs_in.FragPosLightSpace);       
+    float shadow = CalcShadow(fs_in.FragPosLightSpace);
+   //float shadow = PCF(fs_in.TexCoords, GetCurDepth(fs_in.FragPosLightSpace), depthMap, 1024.0);
 
    vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
 
