@@ -59,14 +59,90 @@ float getPenumbraSize(float lightSize, float lightDistance, float receiverDistan
     return (lightSize / lightDistance) * (receiverDistance - lightDistance);
 }
 
-float findBlocker(sampler2D shadowMap, vec2 uv, float zReceiver, vec2 disk[]) {
+const int poissonDiskSamples = 71;
+const  vec2 poissonDisk[poissonDiskSamples] = vec2[](
+        vec2(-0.026062, 0.033525),
+        vec2(0.146411, -0.072178),
+        vec2(-0.206828, 0.123158),
+        vec2(-0.030381, -0.171644),
+        vec2(0.314729, -0.192280),
+        vec2(0.254208, 0.111740),
+        vec2(0.435894, -0.019511),
+        vec2(0.511214, -0.282421),
+        vec2(-0.099841, 0.310326),
+        vec2(-0.403816, 0.284965),
+        vec2(-0.401442, 0.064316),
+        vec2(-0.289044, -0.109352),
+        vec2(-0.598621, 0.147027),
+        vec2(-0.205764, -0.337033),
+        vec2(0.031348, 0.486174),
+        vec2(-0.069751, -0.506044),
+        vec2(-0.282734, -0.531261),
+        vec2(-0.466186, -0.266385),
+        vec2(-0.633478, -0.384917),
+        vec2(-0.631896, -0.124253),
+        vec2(-0.109729, -0.723862),
+        vec2(-0.417079, -0.726224),
+        vec2(-0.503180, -0.545285),
+        vec2(0.153009, 0.663038),
+        vec2(0.218501, 0.399661),
+        vec2(-0.140664, 0.631555),
+        vec2(-0.798268, -0.259232),
+        vec2(-0.777302, -0.552237),
+        vec2(-0.979524, -0.061612),
+        vec2(-0.971645, -0.404976),
+        vec2(0.442545, 0.194019),
+        vec2(-0.877375, 0.134962),
+        vec2(-0.620794, -0.715166),
+        vec2(-0.968601, -0.620978),
+        vec2(0.393572, 0.543278),
+        vec2(-0.743302, 0.324368),
+        vec2(0.322801, 0.828496),
+        vec2(-0.031200, 0.834503),
+        vec2(0.074787, -0.839529),
+        vec2(-0.259665, -0.896391),
+        vec2(0.634114, 0.046211),
+        vec2(0.589242, 0.351141),
+        vec2(0.765226, -0.122908),
+        vec2(-0.663601, 0.514847),
+        vec2(0.268293, -0.779580),
+        vec2(-0.206685, 0.939976),
+        vec2(-0.400520, 0.777466),
+        vec2(-0.333699, 0.514647),
+        vec2(-0.808582, 0.705673),
+        vec2(0.965107, 0.027175),
+        vec2(0.961839, -0.265666),
+        vec2(0.758706, 0.524811),
+        vec2(0.783202, 0.284558),
+        vec2(0.577568, 0.632352),
+        vec2(0.952373, 0.699874),
+        vec2(0.949094, 0.410767),
+        vec2(0.128173, -0.326884),
+        vec2(-0.616279, 0.870106),
+        vec2(-0.981725, 0.568443),
+        vec2(-0.873435, -0.814975),
+        vec2(0.438009, -0.950059),
+        vec2(0.757794, 0.806406),
+        vec2(0.782614, -0.414103),
+        vec2(0.637071, -0.867825),
+        vec2(0.320465, -0.458533),
+        vec2(0.157505, -0.581345),
+        vec2(0.558779, 0.994296),
+        vec2(0.912859, 0.945485),
+        vec2(0.774313, -0.676565),
+        vec2(0.957122, -0.828102),
+        vec2(0.810311, -0.986664)
+    );
+
+
+float findBlocker(sampler2D shadowMap, vec2 uv, float zReceiver, vec2 disk[poissonDiskSamples]) {
     float dBlocker = zReceiver * 0.01; // 初始阻挡物深度
-    const float wLight = 0.006;        // 光源宽度
+    const float wLight = 0.0095;        // 光源宽度
     const float c = 100.0;             // 搜索半径比例常数
     float wBlockerSearch = wLight * zReceiver * c; // 搜索半径
 
     float sum = 0.01;  // 避免除以零的初始值
-    for(int i = 0; i < 16; ++i) {
+    for(int i = 0; i < poissonDiskSamples; ++i) {
         float depthInShadowmap = texture(shadowMap, uv + disk[i] * wBlockerSearch).r;
         if(depthInShadowmap < zReceiver) {
             dBlocker += depthInShadowmap;
@@ -75,6 +151,7 @@ float findBlocker(sampler2D shadowMap, vec2 uv, float zReceiver, vec2 disk[]) {
     }
     return sum > 0.01 ? dBlocker / sum : zReceiver;
 }
+
 
 
 
@@ -100,26 +177,6 @@ float CalcShadow(vec4 fragPosLightSpace)
 
     float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
     //shadow = currentDepth-bias > closestDepth  ? 1.0 : 0.0;
-
-    int poissonDiskSamples = 16;
-    vec2 poissonDisk[16] = vec2[](
-        vec2(-0.94201624, -0.39906216),
-        vec2(0.94558609, -0.76890725),
-        vec2(-0.094184101, -0.92938870),
-        vec2(0.34495938, 0.29387760),
-        vec2(-0.91588581, 0.45771432),
-        vec2(-0.81544232, -0.87912464),
-        vec2(-0.38277543, 0.27676845),
-        vec2(0.97484398, 0.75648379),
-        vec2(0.44323325, -0.97511554),
-        vec2(0.53742981, -0.47373420),
-        vec2(-0.26496911, -0.41893023),
-        vec2(0.79197514, 0.19090188),
-        vec2(-0.24188840, 0.99706507),
-        vec2(-0.81409955, 0.91437590),
-        vec2(0.19984126, 0.78641367),
-        vec2(0.14383161, -0.14100790)
-    );
 
 
     //3x3 kernel PCF---------------------------------------------------------
@@ -158,20 +215,6 @@ float CalcShadow(vec4 fragPosLightSpace)
     //}
     //return shadow / float(poissonDiskSamples);
 
-    //PCSS 1---------------------------------------------------------
-    //float lightDistance = length(lightPos - fs_in.FragPos);
-    //float receiverDistance = projCoords.z; // 片元深度
-    //float penumbraSize = getPenumbraSize(6, lightDistance, receiverDistance); // 假设光源大小为0.05
-    //vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-    //for(int i = 0; i < poissonDiskSamples; ++i) {
-    //    vec2 sampleUv = projCoords.xy + poissonDisk[i] * texelSize * penumbraSize;
-    //    float sampleDepth = texture(depthMap, sampleUv).r;
-    //    if(receiverDistance - bias > sampleDepth) {
-    //        shadow += 1.0;
-    //    }
-    //}
-    //shadow /= float(poissonDiskSamples);
-
     //PCSS 2 add findBlocker ---------------------------------------------------------
 
     // 计算阻挡物平均深度
@@ -180,6 +223,7 @@ float CalcShadow(vec4 fragPosLightSpace)
     // 这里可以根据 blockerDepth 和 receiverDepth 的差值来调整半影大小
     float penumbraRatio = blockerDepth == projCoords.z ? 0.0 : (projCoords.z - blockerDepth) / blockerDepth;
     penumbraRatio = clamp(penumbraRatio, 0.0, 1.0);
+    penumbraRatio *= 8;
     // PCF 计算    
     vec2 texelSize = 1.0 / textureSize(depthMap, 0);
     for(int i = 0; i < poissonDiskSamples; ++i) {
@@ -190,9 +234,6 @@ float CalcShadow(vec4 fragPosLightSpace)
         }
     }
     shadow /= float(poissonDiskSamples);
-
-
-
     return shadow;
 }
 
