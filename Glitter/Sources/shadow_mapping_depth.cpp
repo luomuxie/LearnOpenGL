@@ -360,7 +360,6 @@ void shadow_mapping_depth::run()
         //debugDepthQuad.use();
         //debugDepthQuad.setFloat("near_plane", near_plane);
         //debugDepthQuad.setFloat("far_plane", far_plane);
-
         //glActiveTexture(GL_TEXTURE0);
         //glBindTexture(GL_TEXTURE_2D, depthMap);
         //glBindVertexArray(quadVAO);

@@ -1,9 +1,7 @@
-#include "shadow_mapping_depth.h"
-
+#include "Eff/shadow_mapping.h"
 int main() {        
-
-	shadow_mapping_depth shadow_mapping_depth;
-	shadow_mapping_depth.run();
+	shadow_mapping sm;
+	sm.run();
 }
 
 
