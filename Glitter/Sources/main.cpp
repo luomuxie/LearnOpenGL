@@ -1,7 +1,9 @@
-#include "Eff/shadow_mapping.h"
+
+#include "point_shadows.h"
 int main() {        
-	shadow_mapping sm;
-	sm.run();
+
+	point_shadows ps;
+	ps.run();
 }
 
 
