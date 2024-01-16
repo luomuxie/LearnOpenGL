@@ -1,9 +1,10 @@
-#include "shadow_mapping_depth.h"
+#include "point_shadows.h"
 
 int main() {        
 
-	shadow_mapping_depth shadow_mapping_depth;
-	shadow_mapping_depth.run();
+	point_shadows ps;
+	ps.run();
+
 }
 
 
