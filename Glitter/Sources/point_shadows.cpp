@@ -29,6 +29,31 @@ void point_shadows::init_opengl()
 	//make the window context current
 	glfwMakeContextCurrent(window);
 
+	//set the framebufer resize callback
+	glfwSetFramebufferSizeCallback(window, [](GLFWwindow* window, int width, int height)
+	{
+		glViewport(0, 0, width, height);
+	});
+
+	//set the mouse move callback
+	glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)
+	{
+		if (firstMouse)
+		{
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
+
+		float xoffset = xpos - lastX;
+		float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+		lastX = xpos;
+		lastY = ypos;
+
+		camera.ProcessMouseMovement(xoffset, yoffset);
+	});
+
 	//init glad
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -242,41 +267,55 @@ void point_shadows::init_frame_buffer()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
 }
 
-void point_shadows::renderScene(const Shader& shader)
+
+void point_shadows:: renderScene(const Shader& shader)
 {
-	// floor
-	glm::mat4 model = glm::mat4(1.0f);
-	shader.setMat4("model", model);
-	glBindVertexArray(planeVAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-
-
-	// cubes
 	// render Cube
 	glBindVertexArray(cubeVAO);
-
-	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 1.5f, 0.0));
-	model = glm::scale(model, glm::vec3(0.5f));
-	shader.setMat4(shader.MODEL, model);
+	// room cube
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::scale(model, glm::vec3(5.0f));
+	shader.setMat4("model", model);
+	glDisable(GL_CULL_FACE); // note that we disable culling here since we render 'inside' the cube instead of the usual 'outside' which throws off the normal culling methods.
+	shader.setInt("reverse_normals", 1); // A small little hack to invert normals when drawing cube from the inside so lighting still works.	
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
+	shader.setInt("reverse_normals", 0); // and of course disable it
+	glEnable(GL_CULL_FACE);
+	// cubes
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(2.0f, 0.0f, 1.0));
+	model = glm::translate(model, glm::vec3(4.0f, -3.5f, 0.0));
 	model = glm::scale(model, glm::vec3(0.5f));
-	shader.setMat4(shader.MODEL, model);
+	shader.setMat4("model", model);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
+	
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 2.0));
+	model = glm::translate(model, glm::vec3(2.0f, 3.0f, 1.0));
+	model = glm::scale(model, glm::vec3(0.75f));
+	shader.setMat4("model", model);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(-3.0f, -1.0f, 0.0));
+	model = glm::scale(model, glm::vec3(0.5f));
+	shader.setMat4("model", model);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(-1.5f, 1.0f, 1.5));
+	model = glm::scale(model, glm::vec3(0.5f));
+	shader.setMat4("model", model);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	
+	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(-1.5f, 2.0f, -3.0));
 	model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-	model = glm::scale(model, glm::vec3(0.25));
-	shader.setMat4(shader.MODEL, model);
+	model = glm::scale(model, glm::vec3(0.75f));
+	shader.setMat4("model", model);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
-	glBindVertexArray(0);
+	glBindVertexArray(0);	
 }
 
 void point_shadows::run()
@@ -287,13 +326,23 @@ void point_shadows::run()
 	init_frame_buffer();
 
 	//create shader by shaderclass
-	Shader basicShader((SHADER_PATH + "BasicShader.vs").c_str(), (SHADER_PATH + "BasicShader.fs").c_str());
+	//Shader basicShader((SHADER_PATH + "BasicShader.vs").c_str(), (SHADER_PATH + "BasicShader.fs").c_str());
+	Shader simpleDepthShader((SHADER_PATH + "point_shadows_depth.vs").c_str(), (SHADER_PATH + "point_shadows_depth.fs").c_str(), (SHADER_PATH + "point_shadows_depth.gs").c_str());
+	Shader pointShader((SHADER_PATH + "point_shadows.vs").c_str(), (SHADER_PATH + "point_shadows.fs").c_str());
 
 	//load a texture by texture class
-	unsigned int woodTexture = loadTexture((TEXTURE_PATH + "wood.png").c_str());	
+	unsigned int woodTexture = loadTexture((TEXTURE_PATH + "wood.png").c_str());
+
+	//set the texture to the shader
+	pointShader.use();
+	pointShader.setInt("diffuseTexture", 0);
+	pointShader.setInt("depthMap", 1);
 
 	//open depth
 	glEnable(GL_DEPTH_TEST);
+
+	//create a light position
+	glm::vec3 lightPos(0.0f, 0.0f, 0.0f);	
 
 	//main loop
 	while (!glfwWindowShouldClose(window))
@@ -310,31 +359,55 @@ void point_shadows::run()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//render the depth map ------------------------------------------------
+		
+		//create depth cubemap transformation matrices
+		float near_plane = 1.0f;
+		float far_plane = 25.0f;
+		glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
+		std::vector<glm::mat4> shadowTransforms;
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+		shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
+
+		//render scene to depth cubemap--------------------------------------------
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		simpleDepthShader.use();
+		for (unsigned int i = 0; i < 6; ++i)
+		simpleDepthShader.setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
+		simpleDepthShader.setFloat("far_plane", far_plane);
+		simpleDepthShader.setVec3("lightPos", lightPos);
+		renderScene(simpleDepthShader);
+
+		//render scene as normal--------------------------------------------
 
 
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		//reset the viewport
+		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		pointShader.use();
+		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
+			0.1f, 100.0f);
+		glm::mat4 view = camera.GetViewMatrix();
+		pointShader.setMat4("projection", projection);
+		pointShader.setMat4("view", view);
+		// set lighting uniforms
+		pointShader.setVec3("lightPos", lightPos);
+		pointShader.setVec3("viewPos", camera.Position);
+		//pointShader.setInt("shadows", shadows); // enable/disable shadows by pressing 'SPACE'
+		pointShader.setFloat("far_plane", far_plane);
 
-
-
-
-
-
-
-		//test the scense ------------------------------------------------
-		//basicShader.use();
-		////create view matrix 
-		//glm::mat4 view = camera.GetViewMatrix();
-		////create projection matrix
-		//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.f);
-		////pass the view and projection matrix to shader
-		//basicShader.setMat4(basicShader.VIEW, view);
-		//basicShader.setMat4(basicShader.PROJECTION, projection);
-		////set the texture for the shader
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, woodTexture);
-		//renderScene(basicShader);
-
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, woodTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+		renderScene(pointShader);
 
 
 		//swap buffer and poll event
