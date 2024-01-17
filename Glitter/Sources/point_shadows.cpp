@@ -194,6 +194,54 @@ void point_shadows::init_vertex_data()
 }
 
 
+void point_shadows::init_frame_buffer()
+{
+	// configure depth map FBO
+	// -----------------------
+		
+	glGenFramebuffers(1, &depthMapFBO);	
+	glGenTextures(1, &depthCubemap);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+
+	for (unsigned int i = 0; i < 6; ++i)
+	{
+		//glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0,
+		//	GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT,
+			0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
+	}
+
+	//set the texture parameter
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	//set the texture parameter
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	//set the texture parameter
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	//attach the texture to the framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthCubemap, 0);
+
+	//set the draw buffer
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+
+	//check the framebuffer is complete
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "Framebuffer not complete!" << std::endl;
+	}
+
+	//unbind the framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);	
+}
+
 void point_shadows::renderScene(const Shader& shader)
 {
 	// floor
@@ -235,9 +283,11 @@ void point_shadows::run()
 {
 
 	init_opengl();
+	init_vertex_data();
+	init_frame_buffer();
 
 	//create shader by shaderclass
-	Shader basicShader((SHADER_PATH + "point_shadows.vs").c_str(), (SHADER_PATH + "point_shadows.fs").c_str());
+	Shader basicShader((SHADER_PATH + "BasicShader.vs").c_str(), (SHADER_PATH + "BasicShader.fs").c_str());
 
 	//load a texture by texture class
 	unsigned int woodTexture = loadTexture((TEXTURE_PATH + "wood.png").c_str());	
@@ -260,22 +310,30 @@ void point_shadows::run()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//render the depth map ------------------------------------------------
 
-		basicShader.use();
-		//create view matrix 
-		glm::mat4 view = camera.GetViewMatrix();
-		//create projection matrix
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.f);
 
-		//pass the view and projection matrix to shader
-		basicShader.setMat4(basicShader.VIEW, view);
-		basicShader.setMat4(basicShader.PROJECTION, projection);
 
-		//set the texture for the shader
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, woodTexture);
 
-		renderScene(basicShader);
+
+
+
+
+
+
+		//test the scense ------------------------------------------------
+		//basicShader.use();
+		////create view matrix 
+		//glm::mat4 view = camera.GetViewMatrix();
+		////create projection matrix
+		//glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.f);
+		////pass the view and projection matrix to shader
+		//basicShader.setMat4(basicShader.VIEW, view);
+		//basicShader.setMat4(basicShader.PROJECTION, projection);
+		////set the texture for the shader
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, woodTexture);
+		//renderScene(basicShader);
 
 
 

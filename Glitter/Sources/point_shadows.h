@@ -36,6 +36,16 @@ class point_shadows
 	//create quad VAO, VBO
 	unsigned int quadVAO, quadVBO;
 
+	//create a func to init the frame buffer
+	void init_frame_buffer();
+
+	//create depth map FBO and texture
+	unsigned int depthMapFBO;
+	unsigned int depthCubemap;
+
+	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+
+
 	void renderScene(const Shader& shader);
 
 	
