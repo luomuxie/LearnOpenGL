@@ -30,12 +30,16 @@ vec2 hash22(vec2 p)
 
 void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
+
+    
     //calculate the resolution by the mouse position
     float resolution = 10. * exp2(-3.*iMouse.x/iResolution.x);
     //normalize the fragCoord and multiply the resolution to extend the uv
     vec2 uv = fragCoord.xy / iResolution.y * resolution;
     //Grid Cell Division
     vec2 p0 = floor(uv);
+
+
     //create a vec2 to store the circles's effect
     vec2 circles = vec2(0.);
     for (int j = -MAX_RADIUS; j <= MAX_RADIUS; ++j)
