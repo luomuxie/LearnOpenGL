@@ -36,7 +36,8 @@ void main()
     //cal the position of the vertex
     vec4 pos = vec4(aPos, 1.0);
     vs_out.FragPos = vec3(model*pos);
-    gl_Position = projection*view*pos;
+
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
 
     vs_out.TexCoords = aTexCoord;
 

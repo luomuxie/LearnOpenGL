@@ -35,23 +35,18 @@ void point_shadows::init_opengl()
 		glViewport(0, 0, width, height);
 	});
 
-	//set the mouse move callback
-	glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos)
-	{
-		if (firstMouse)
-		{
-			lastX = xpos;
-			lastY = ypos;
-			firstMouse = false;
-		}
+	//set the callback function for the mouse with the window user pointer
+	glfwSetWindowUserPointer(window, this);
+	//set the callback function for the mouse with the lamd expression
+	glfwSetCursorPosCallback(window, [](GLFWwindow* window, double xpos, double ypos) {
+		point_shadows* instance = static_cast<point_shadows*>(glfwGetWindowUserPointer(window));
+		instance->mouse_callback(xpos, ypos);
+	});
 
-		float xoffset = xpos - lastX;
-		float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
-
-		lastX = xpos;
-		lastY = ypos;
-
-		camera.ProcessMouseMovement(xoffset, yoffset);
+	//set the callback function for the scroll
+	glfwSetScrollCallback(window, [](GLFWwindow* window, double xoffset, double yoffset) {
+		point_shadows* instance = static_cast<point_shadows*>(glfwGetWindowUserPointer(window));
+		instance->scroll_callback(xoffset, yoffset);
 	});
 
 	//init glad
@@ -63,6 +58,36 @@ void point_shadows::init_opengl()
 	//set the viewport
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
+}
+
+void point_shadows::scroll_callback(double xoffset, double yoffset)
+{
+	//process the scroll
+	camera.ProcessMouseScroll(yoffset);
+}
+
+
+void point_shadows::mouse_callback(double xposIn, double yposIn)
+{
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+		//judge if the first mouse
+		if (firstMouse)
+		{
+			//set the last x and y
+			lastX = xposIn;
+			lastY = yposIn;
+			//set the first mouse to false
+			firstMouse = false;
+		}
+		//calculate the offset of x and y	
+		float xoffset = xposIn - lastX;
+		float yoffset = lastY - yposIn;
+		//set the last x and y
+		lastX = xposIn;
+		lastY = yposIn;
+		//process the mouse movement
+		camera.ProcessMouseMovement(xoffset, yoffset);
+	}
 }
 
 void point_shadows::processInput(GLFWwindow* window)
@@ -326,7 +351,7 @@ void point_shadows::run()
 	init_frame_buffer();
 
 	//create shader by shaderclass
-	//Shader basicShader((SHADER_PATH + "BasicShader.vs").c_str(), (SHADER_PATH + "BasicShader.fs").c_str());
+	Shader basicShader((SHADER_PATH + "BasicShader.vs").c_str(), (SHADER_PATH + "BasicShader.fs").c_str());
 	Shader simpleDepthShader((SHADER_PATH + "point_shadows_depth.vs").c_str(), (SHADER_PATH + "point_shadows_depth.fs").c_str(), (SHADER_PATH + "point_shadows_depth.gs").c_str());
 	Shader pointShader((SHADER_PATH + "point_shadows.vs").c_str(), (SHADER_PATH + "point_shadows.fs").c_str());
 
@@ -337,6 +362,9 @@ void point_shadows::run()
 	pointShader.use();
 	pointShader.setInt("diffuseTexture", 0);
 	pointShader.setInt("depthMap", 1);
+
+	basicShader.use();
+	basicShader.setInt("ourTexture", 0);
 
 	//open depth
 	glEnable(GL_DEPTH_TEST);
@@ -359,7 +387,10 @@ void point_shadows::run()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		
+		//move  the light position
+		lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
+
+
 		//create depth cubemap transformation matrices
 		float near_plane = 1.0f;
 		float far_plane = 25.0f;
@@ -387,27 +418,38 @@ void point_shadows::run()
 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 		//reset the viewport
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		pointShader.use();
+
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		
 		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT,
 			0.1f, 100.0f);
 		glm::mat4 view = camera.GetViewMatrix();
+
+		pointShader.use();
 		pointShader.setMat4("projection", projection);
 		pointShader.setMat4("view", view);
+
 		// set lighting uniforms
 		pointShader.setVec3("lightPos", lightPos);
 		pointShader.setVec3("viewPos", camera.Position);
-		//pointShader.setInt("shadows", shadows); // enable/disable shadows by pressing 'SPACE'
+		pointShader.setInt("shadows", shadows); // enable/disable shadows by pressing 'SPACE'
 		pointShader.setFloat("far_plane", far_plane);
-
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, woodTexture);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 		renderScene(pointShader);
+
+		//test---------------------------------------------------------------------------------------------------- -
+		//basicShader.use();
+		//basicShader.setMat4("projection", projection);
+		//basicShader.setMat4("view", view);
+		//
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, woodTexture);
+		//renderScene(basicShader);
 
 
 		//swap buffer and poll event

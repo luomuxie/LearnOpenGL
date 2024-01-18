@@ -11,20 +11,15 @@ out vec4 FragPos;
 
 void main()
 {
-	//loop through the triangles
-	for(int i = 0; i < 3; i++)
-	{
-		//get the position of the vertex
-		FragPos = gl_in[i].gl_Position;
-		//loop through the matrices
-		for(int j = 0; j < 6; j++)
-		{
-			//set the gl_Position to the transformed vertex
-			gl_Position = shadowMatrices[j] * FragPos;
-			//emit the vertex
-			EmitVertex();
-		}
-		//end the primitive
-		EndPrimitive();
+    for(int face = 0; face < 6; ++face)
+    {
+        gl_Layer = face; // built-in variable that specifies to which face we render.
+        for(int i = 0; i < 3; ++i) // for each triangle's vertices
+        {
+            FragPos = gl_in[i].gl_Position;
+            gl_Position = shadowMatrices[face] * FragPos;
+            EmitVertex();
+        }    
+        EndPrimitive();
 	}
 }
