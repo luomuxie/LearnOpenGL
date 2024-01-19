@@ -1,6 +1,7 @@
 // func.h
 #include <iostream>
 #include <vector>
+#include <camera.h>
 #ifndef FUNC_H
 #define FUNC_H
 
