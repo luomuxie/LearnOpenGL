@@ -1,5 +1,4 @@
 
-#include "point_shadows.h"
 #include "normal_mapping.h"
 int main() {        
 
