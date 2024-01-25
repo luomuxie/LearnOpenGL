@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <camera.h>
 
-class InputUtility {
+class InputUtil {
 public:
     static void mouseCallback(GLFWwindow* window, double xposIn, double yposIn, bool& firstMouse, float& lastX, float& lastY, Camera& camera);
     static void processInput(GLFWwindow* window, Camera& camera, float deltaTime);

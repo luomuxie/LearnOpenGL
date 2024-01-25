@@ -1,6 +1,6 @@
 #include "InputUtil.h"
 
-void InputUtility::mouseCallback(GLFWwindow* window, double xposIn, double yposIn, bool& firstMouse, float& lastX, float& lastY, Camera& camera)
+void InputUtil::mouseCallback(GLFWwindow* window, double xposIn, double yposIn, bool& firstMouse, float& lastX, float& lastY, Camera& camera)
 {
 	if (firstMouse)
 	{
@@ -18,7 +18,7 @@ void InputUtility::mouseCallback(GLFWwindow* window, double xposIn, double yposI
 	camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
-void InputUtility::processInput(GLFWwindow* window, Camera& camera, float deltaTime)
+void InputUtil::processInput(GLFWwindow* window, Camera& camera, float deltaTime)
 {
     //check if the escape ,a ,s ,d ,w is pressed
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

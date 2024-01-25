@@ -5,6 +5,10 @@
 //create a class by file name
 class normal_mapping:public GraphicsWindowBase
 {
+	//create a func to init vertex
+	void initVertex();
+	//create  planevao and vbo
+	GLuint planeVAO, planeVBO;
 
 public:
 	void run() override;
