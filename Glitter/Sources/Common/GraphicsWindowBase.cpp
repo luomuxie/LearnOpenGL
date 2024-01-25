@@ -2,7 +2,7 @@
 #include "GraphicsWindowBase.h"
 #include <glad/glad.h>
 #include <iostream>
-#include "../InputUtil.h"
+#include "InputUtil.h"
 
 GraphicsWindowBase::GraphicsWindowBase() {
     

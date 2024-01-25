@@ -4,8 +4,8 @@
 #include <iostream>
 #include <camera.h>
 #include "func.h"
-#include "InputUtil.h"
 #include "Common/GraphicsWindowBase.h"
+#include "Common/InputUtil.h"
 
 void normal_mapping::run()
 {
