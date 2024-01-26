@@ -10,7 +10,6 @@
 #include "func.h"
 
 
-
 void normal_mapping::initVertex()
 {
 	//create a plane vertex
@@ -45,6 +44,9 @@ void normal_mapping::run()
 	initVertex();
 
 	Shader basicShader = CreateShader("normal_mapping", "normal_mapping");
+	Shader lightCubeShader = CreateShader(BASIC_NORMAL_SHADER, BASIC_NORMAL_SHADER);
+	
+
 	//load texture
 	unsigned int brickwall = LoadTexture("brickwall.jpg");
 	unsigned int brickwall_normal = LoadTexture("brickwall_normal.jpg");
@@ -56,6 +58,9 @@ void normal_mapping::run()
 
 	// Light position
 	glm::vec3 lightPos(0.5f, 1.0f, 0.3f);
+
+	//enable depth test
+	glEnable(GL_DEPTH_TEST);
    
 	//main loop 
 	while (!glfwWindowShouldClose(window))
@@ -75,14 +80,33 @@ void normal_mapping::run()
 		//create light pos
 		glm::vec3 lightPos = glm::vec3(0.5f, 1.0f, 0.3f);
 
+		//rotation the light by time x ,y
+		lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+		lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
+		//create lightcuber
+		lightCubeShader.use();
+		lightCubeShader.setMat4(lightCubeShader.VIEW, GetViewMatrix());
+		lightCubeShader.setMat4(lightCubeShader.PROJECTION, GetProjectionMatrix());
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, brickwall);
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.1f));
+		lightCubeShader.setMat4(lightCubeShader.MODEL, model);		
+		RenderCube();
+		
+
 		//draw the plane
 		basicShader.use();		
-		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::mat4(1.0f);
 		basicShader.setMat4(basicShader.VIEW, GetViewMatrix());
 		basicShader.setMat4(basicShader.PROJECTION, GetProjectionMatrix());
 		basicShader.setMat4(basicShader.MODEL, model);
 		//set the light position
 		basicShader.setVec3("lightPos", lightPos);
+		//set the view position
+		basicShader.setVec3("viewPos", camera.Position);
 		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, brickwall);

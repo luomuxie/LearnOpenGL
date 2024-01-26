@@ -11,5 +11,6 @@ const std::string SHADER_Eff_PATH = "..\\Glitter\\Shaders\\Eff\\";
 const std::string TEXTURE_PATH = "..\\Glitter\\resources\\Textures\\";
 const std::string MODEL_PATH = "..\\Glitter\\resources\\Objects\\";
 const std::string BASIC_SHADER = "BasicShader";
+const std::string BASIC_NORMAL_SHADER = "BasicNormalShader";
 
 #endif // CONSTANTS_H

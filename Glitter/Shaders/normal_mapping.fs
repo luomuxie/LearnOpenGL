@@ -16,17 +16,18 @@ uniform sampler2D normalMap;
 
 //lighting
 uniform vec3 lightPos;
+//view pos
+uniform vec3 viewPos;
+
 
 void main()
 {    
     //create a color
-    vec3 color = texture(ourTexture, TexCoords).rgb;
-
+    vec3 color = texture(ourTexture,fs_in.TexCoords).rgb;
     //create ambient light
     vec3 ambient = 0.1 * color;
-
     //create normal vector
-    vec3 normal = normalize(texture(normalMap, texCoord).rgb * 2.0 - 1.0);
+    vec3 normal = normalize(texture(normalMap, fs_in.TexCoords).rgb * 2.0 - 1.0);
 
     //create light direction
     vec3 lightDir = normalize(lightPos - fs_in.FragPos);
