@@ -100,6 +100,8 @@ void normal_mapping::run()
 		//draw the plane
 		basicShader.use();		
 		model = glm::mat4(1.0f);
+		//rotation the plane by x with 90 degree
+		//model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f,0.0f,0.0f));
 		basicShader.setMat4(basicShader.VIEW, GetViewMatrix());
 		basicShader.setMat4(basicShader.PROJECTION, GetProjectionMatrix());
 		basicShader.setMat4(basicShader.MODEL, model);
