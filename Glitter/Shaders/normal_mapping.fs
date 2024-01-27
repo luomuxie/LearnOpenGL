@@ -6,18 +6,19 @@ out vec4 FragColor;
 in VS_OUT
 {
     vec3 FragPos;
-    vec2 TexCoords;    
+    vec2 TexCoords;
+    
+    //add tangentLightPos
+    vec3 TangentLightPos;
+    //add tangentViewPos
+    vec3 TangentViewPos;
+    //add tangent fragPos
+    vec3 TangentFragPos;
 } fs_in;
-
 
 
 uniform sampler2D ourTexture;
 uniform sampler2D normalMap;
-
-//lighting
-uniform vec3 lightPos;
-//view pos
-uniform vec3 viewPos;
 
 
 void main()
@@ -30,15 +31,14 @@ void main()
     vec3 normal = normalize(texture(normalMap, fs_in.TexCoords).rgb * 2.0 - 1.0);
 
     //create light direction
-    vec3 lightDir = normalize(lightPos - fs_in.FragPos);
-
-    //create diffuse shading
-    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 lightDir = normalize(fs_in.TangentLightPos - fs_in.TangentFragPos);
+    //create diffuse
+    float diff = max(dot(lightDir, normal), 0.0);
     vec3 diffuse = diff * color;
 
-
-    //create specular shading
-    vec3 viewDir = normalize(viewPos - fs_in.FragPos);
+    //create view direction
+    vec3 viewDir = normalize(fs_in.TangentViewPos - fs_in.TangentFragPos);
+    //create specular
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
     vec3 specular = vec3(0.2) * spec;

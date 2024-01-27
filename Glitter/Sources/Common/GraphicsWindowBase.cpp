@@ -195,10 +195,17 @@ void GraphicsWindowBase::RenderQuad()
     glBindVertexArray(0);
 }
 
-Shader GraphicsWindowBase::CreateShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource) {
+Shader GraphicsWindowBase::CreateShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource,const std::string& geometryShaderSource) {
     //create a vertexShaderPath str
     std::string vertexPath = SHADER_PATH + vertexShaderSource+".vs";
     std::string fragmentPath = SHADER_PATH + fragmentShaderSource +".fs";
+    //check if geometryShaderSource is empty
+    std::string geometryPath = "";    
+    if (!geometryShaderSource.empty()) {
+		geometryPath = SHADER_PATH + geometryShaderSource + ".gs";
+        Shader shader(vertexPath.c_str(), fragmentPath.c_str(), geometryPath.c_str());
+        return shader;
+	}
     Shader shader(vertexPath.c_str(), fragmentPath.c_str());
     return shader;        
 }

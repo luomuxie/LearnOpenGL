@@ -19,7 +19,7 @@ protected:
     float lastY = 300;
     bool firstMouse = true;
 
-    Shader CreateShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource);
+    Shader CreateShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const std::string& geometryShaderSource = "");
     //create a func to get the camera's projection matrix and set the default zNear and zFar
     glm::mat4 GetProjectionMatrix(float zNear = 0.1f, float zFar = 100.0f);
 
@@ -43,12 +43,7 @@ protected:
 	unsigned int quadVBO = 0;
 	void RenderQuad();
 
-
-
-
-
-
-    
+       
 public:
     GraphicsWindowBase();
     virtual ~GraphicsWindowBase();
