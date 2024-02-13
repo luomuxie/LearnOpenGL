@@ -124,7 +124,7 @@ void normal_mapping::initVertex()
 
 }
 
-void normal_mapping::run()
+void normal_mapping::Run()
 {
 	InitWindow();
 	initVertex();

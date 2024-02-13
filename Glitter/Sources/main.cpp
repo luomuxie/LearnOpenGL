@@ -1,13 +1,11 @@
 
-#include "normal_mapping.h"
-int main() {        
-
-	//point_shadows ps;
-	//ps.run();
-	normal_mapping nm;
-	nm.run();
-
+#include "Bloom.h"
+int main() {
+	
+	Bloom bloom;
+	bloom.Run();
 	return 0;
+
 }
 
 

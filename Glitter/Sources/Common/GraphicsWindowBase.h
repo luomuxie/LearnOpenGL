@@ -20,6 +20,7 @@ protected:
     bool firstMouse = true;
 
     Shader CreateShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const std::string& geometryShaderSource = "");
+    Shader CreateEffShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const std::string& geometryShaderSource = "");
     //create a func to get the camera's projection matrix and set the default zNear and zFar
     glm::mat4 GetProjectionMatrix(float zNear = 0.1f, float zFar = 100.0f);
 
@@ -47,7 +48,7 @@ protected:
 public:
     GraphicsWindowBase();
     virtual ~GraphicsWindowBase();
-    virtual void run() = 0;
+    virtual void Run() = 0;
 };
 
 #endif // GRAPHICSWINDOWBASE_H
