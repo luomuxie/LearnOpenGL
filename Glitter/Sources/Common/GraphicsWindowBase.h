@@ -31,7 +31,7 @@ protected:
     void InitWindow();
     void MouseCallback(double xpos, double ypos);
     void ScrollCallback(double xoffset, double yoffset);
-    void InputProcess(GLFWwindow* window);
+    virtual void InputProcess(GLFWwindow* window);
 
     //creat a func to render cube
     //create cubevao and vbo

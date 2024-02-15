@@ -72,9 +72,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
             d = gradient * (1 - t) * (1 - t);
 
 
-
-
-
             vec3 col = vec3(1.0);
             finalCol += col*d;
 

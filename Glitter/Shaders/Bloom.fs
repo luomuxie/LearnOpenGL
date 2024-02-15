@@ -1,5 +1,6 @@
 #version 330 core
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
 
 //in vec2 texCoord;
 in VS_OUT {
@@ -36,9 +37,8 @@ void main()
 
     //caculate the ligth
     vec3 result = vec3(0.0f);
-    //ambient
-    float ambientStrength = 0.1f;
-    vec3 ambient = ambientStrength*vec3(1.0f);
+    //ambient   
+    vec3 ambient = vec3(0.0f);
     //diffuse
     //create a val to store the diffuse
     vec3 diffuse = vec3(0.0f);
@@ -50,21 +50,32 @@ void main()
         //diffuse
         vec3 lightDir = normalize(lights[i].Position - fs_in.FragPos);
         float diff = max(dot(norm, lightDir), 0.0f);
-        diffuse += diff * lights[i].Color;
+        vec3 result = lights[i].Color * diff;
+        
 
         //attenuation
         float distance = length(lights[i].Position - fs_in.FragPos);
-        float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance));
-        diffuse *= attenuation;      
-
-        //specular
-        //float specularStrength = 0.5f;
-        //vec3 viewDir = normalize(viewPos - fs_in.FragPos);
-        //vec3 reflectDir = reflect(-lightDir, norm);
-        //float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-        //specular += specularStrength * spec * lights[i].Color;
+        float attenuation = 1.0 / (distance * distance);
+        result *= attenuation;
+        diffuse += result;
+                
      }
 
     result = (ambient + diffuse) * color.rgb;
     FragColor = vec4(result, 1.0f);
+
+    //caculate the brightColor
+    //create a val to store the val of dot
+    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    //check if the brightness is greater than 1
+    if(brightness > 1.0)
+    {
+        //set the brightColor to the FragColor
+        BrightColor = vec4(FragColor.rgb, 1.0);
+    }
+    else
+    {
+        //set the brightColor to black
+        BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
 }    

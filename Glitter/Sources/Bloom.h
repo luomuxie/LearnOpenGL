@@ -22,6 +22,35 @@ class Bloom : public GraphicsWindowBase
 	//create a func to init all the light
 	void InitAllLightVal();	
 
+	//create a func to init hdr buffer
+	void InitHDRBuffer();
+	//create a val to store the hdr buffer
+	unsigned int hdrFBO;
+	//a array of color buffer
+	unsigned int colorBuffers[2];
+
+	//create a func to init ping pong buffer
+	void InitPingPongBuffer();
+	//create a val to store the ping pong buffer
+	unsigned int pingpongFBO[2];
+	//create a array of color buffer
+	unsigned int pingpongColorbuffers[2];
+
+	//create a val to store the exposure
+	float exposure = 0.5;
+	//create a val to store the bloom
+	bool bloom = true;
+	//override the InputProcess function
+	void InputProcess(GLFWwindow* window) override;
+
+	//create a  val to store the bloomKeyPressed
+	bool bloomKeyPressed = false;
+	
+
+	  
+
+
+
 	
 	
 
