@@ -8,15 +8,15 @@ uniform mat4 view;
 uniform mat4 projection;
 
 //create a vec2 for texture coordinates
-//out vec2 TexCoords;
+out vec2 TexCoords;
 
-out VS_OUT{ 	
-	vec2 texCoords;
-} vs_out;
+//out VS_OUT{ 	
+//	vec2 texCoords;
+//} vs_out;
 
 void main()
 {
 	gl_Position = projection * view * model * vec4(aPos, 1.0);
-	vs_out.texCoords = aTexCoords;
+	TexCoords = aTexCoords;
 }
 

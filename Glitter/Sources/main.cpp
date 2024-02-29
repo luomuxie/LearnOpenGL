@@ -1,10 +1,10 @@
 
-#include "Eff/water_ripple.h"
+#include "BloomEff.h"
 int main() {	
-	water_ripple water;
-	water.Run();
+	
+	BloomEff bloomEff;
+	bloomEff.Run();
 	return 0;
-
 }
 
 

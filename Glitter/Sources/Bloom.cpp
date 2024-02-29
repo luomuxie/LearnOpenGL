@@ -1,4 +1,6 @@
 #include "Bloom.h"
+#include <model.h>
+#include "Constants.h"
 
 void Bloom::RenderAllContainer(const Shader& shader)
 {   
@@ -115,7 +117,7 @@ void Bloom::InitHDRBuffer()
 
     // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
     unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-    glDrawBuffers(2, attachments);
+    glDrawBuffers(2, attachments);  
     //check the framebuffer
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -172,6 +174,7 @@ void Bloom::InputProcess(GLFWwindow* window)
     {
         exposure += 0.001f;
     }
+        
 }
 
 
@@ -181,6 +184,8 @@ void Bloom::Run()
     scale = 4;
     screenHeight = 600 * scale;
     screenWidth = 800 * scale;
+    //set camera up
+    camera.Position = glm::vec3(-3 ,1, 7);
     InitWindow();
     InitHDRBuffer();
     InitPingPongBuffer();
@@ -194,6 +199,11 @@ void Bloom::Run()
     //create light shader
     Shader shaderLight = CreateShader("Bloom", "BloomLight");
     Shader shaderBlur = CreateShader("BloomBlur", "BloomBlur");
+
+    //load the shader     
+    Shader modelShader = CreateShader("dynamic_exploding_eff", "dynamic_exploding_eff");
+    //use the model to load the model
+    Model ourModel((MODEL_PATH + "nanosuit\\nanosuit.obj").c_str());
 
     //create shader for bloom final
     Shader shaderBloomFinal = CreateShader("BloomBlur", "BloomFinal");
@@ -209,7 +219,7 @@ void Bloom::Run()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         InputProcess(window);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //render the scene to the floating point framebuffer------------------------------------------------------------
@@ -231,8 +241,21 @@ void Bloom::Run()
 
        shaderLight.use();
        shaderLight.setMat4("projection", GetProjectionMatrix());
-       shaderLight.setMat4("view", GetViewMatrix());       
+       shaderLight.setMat4("view", GetViewMatrix());
        RenderAllLight(shaderLight);
+
+       modelShader.use();
+       modelShader.setMat4("projection", GetProjectionMatrix());
+       modelShader.setMat4("view", GetViewMatrix());
+       glm::mat4 model = glm::mat4(1.0f);
+       model = glm::translate(model, glm::vec3(-4.0f, -0.5f, -1));
+       model = glm::scale(model, glm::vec3(0.2f));
+       modelShader.setMat4("model", model);
+       //set the time
+       modelShader.setFloat("time", glfwGetTime());
+
+       ourModel.Draw(modelShader);
+
        
        //blur bright fragments with two-pass Gaussian Blur----------------------------------------
        glBindFramebuffer(GL_FRAMEBUFFER, 0);
