@@ -47,7 +47,7 @@ protected:
 public:
     GraphicsWindowBase();
     virtual ~GraphicsWindowBase();
-    virtual void run() = 0;
+    virtual void Run() = 0;
 };
 
 #endif // GRAPHICSWINDOWBASE_H

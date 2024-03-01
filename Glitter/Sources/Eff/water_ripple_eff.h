@@ -8,7 +8,7 @@ class water_ripple_eff {
 	//create a window
 	GLFWwindow* window;
 	//create window width and height and scale val
-	int scale = 4;
+	int scale = 1;
 	int width = 800 * scale;
 	int height = 800 * scale;
 

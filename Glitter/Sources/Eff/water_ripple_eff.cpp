@@ -70,7 +70,6 @@ void water_ripple_eff::initVertex()
 	//unbind the vao and vbo
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 }
 
 void water_ripple_eff::run()

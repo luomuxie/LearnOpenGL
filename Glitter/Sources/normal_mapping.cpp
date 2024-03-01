@@ -94,7 +94,6 @@ void normal_mapping::initVertex()
 		pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z
 	};
 
-
 	//set plane vertex
 	glGenVertexArrays(1, &planeVAO);
 	glGenBuffers(1, &planeVBO);
@@ -124,7 +123,7 @@ void normal_mapping::initVertex()
 
 }
 
-void normal_mapping::run()
+void normal_mapping::Run()
 {
 	InitWindow();
 	initVertex();

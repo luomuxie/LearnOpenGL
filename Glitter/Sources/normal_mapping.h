@@ -11,5 +11,5 @@ class normal_mapping:public GraphicsWindowBase
 	GLuint planeVAO, planeVBO;
 
 public:
-	void run() override;
+	void Run() override;
 };

@@ -59,7 +59,7 @@ void GraphicsWindowBase::InitWindow() {
     glViewport(0, 0, screenWidth, screenHeight);
 }
 
-void GraphicsWindowBase::run() {
+void GraphicsWindowBase::Run() {
     InitWindow();
     while (!glfwWindowShouldClose(window)) {        
         float currentFrame = glfwGetTime();        
