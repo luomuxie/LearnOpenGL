@@ -210,6 +210,21 @@ Shader GraphicsWindowBase::CreateShader(const std::string& vertexShaderSource, c
     return shader;        
 }
 
+Shader GraphicsWindowBase::CreateEffShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const std::string& geometryShaderSource) {
+    //create a vertexShaderPath str
+    std::string vertexPath = SHADER_Eff_PATH + vertexShaderSource + ".vs";
+    std::string fragmentPath = SHADER_Eff_PATH + fragmentShaderSource + ".fs";
+    //check if geometryShaderSource is empty
+    std::string geometryPath = "";
+    if (!geometryShaderSource.empty()) {
+        geometryPath = SHADER_Eff_PATH + geometryShaderSource + ".gs";
+        Shader shader(vertexPath.c_str(), fragmentPath.c_str(), geometryPath.c_str());
+        return shader;
+    }
+    Shader shader(vertexPath.c_str(), fragmentPath.c_str());
+    return shader;
+}
+
 glm::mat4 GraphicsWindowBase::GetProjectionMatrix(float zNear, float zFar)
 {
     return glm::perspective(glm::radians(camera.Zoom), (float)screenWidth / (float)screenHeight, zNear, zFar);

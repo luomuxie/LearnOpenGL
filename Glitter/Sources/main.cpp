@@ -1,4 +1,3 @@
-
 #include "normal_mapping.h"
 #include "Eff/water_ripple_eff.h"
 #include "Deferred.h"
@@ -26,8 +25,5 @@ int main() {
 		glm::vec3(3.0, -3.0, 3.0),
 	};
 	
-
-	return 0;
-}
 
 

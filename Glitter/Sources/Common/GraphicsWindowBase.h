@@ -20,6 +20,7 @@ protected:
     bool firstMouse = true;
 
     Shader CreateShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const std::string& geometryShaderSource = "");
+    Shader CreateEffShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource, const std::string& geometryShaderSource = "");
     //create a func to get the camera's projection matrix and set the default zNear and zFar
     glm::mat4 GetProjectionMatrix(float zNear = 0.1f, float zFar = 100.0f);
 
@@ -30,7 +31,7 @@ protected:
     void InitWindow();
     void MouseCallback(double xpos, double ypos);
     void ScrollCallback(double xoffset, double yoffset);
-    void InputProcess(GLFWwindow* window);
+    virtual void InputProcess(GLFWwindow* window);
 
     //creat a func to render cube
     //create cubevao and vbo
