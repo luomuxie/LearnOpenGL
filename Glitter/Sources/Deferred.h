@@ -18,7 +18,7 @@ class Deferred:public GraphicsWindowBase
 	};
 
 	//create a func to render the model have two param shader and model
-	void RenderModel(const Shader& shader, Model& modelObj);
+	void RenderModel(Shader &shader, Model& modelObj);
 	
 
 
