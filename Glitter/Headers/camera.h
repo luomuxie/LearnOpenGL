@@ -115,6 +115,16 @@ public:
             Zoom = 45.0f;
     }
 
+    // 让相机朝向一个点
+    void LookAtPoint(const glm::vec3& targetPoint) {
+        glm::vec3 direction = glm::normalize(targetPoint - Position);
+        // 计算新的Yaw和Pitch值
+        Yaw = glm::degrees(atan2(direction.z, direction.x)) - 90.0f;
+        Pitch = glm::degrees(asin(-direction.y));
+
+        updateCameraVectors();
+    }
+
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors()
