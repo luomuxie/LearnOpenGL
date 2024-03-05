@@ -151,24 +151,32 @@ void Deferred::Run()
 			const GLfloat quadratic = 1.8;
 
 			deferredQuadShader.setFloat("lights[" + std::to_string(i) + "].Linear", linear);
-			deferredQuadShader.setFloat("lights[" + std::to_string(i) + "].Quadratic", quadratic);			
+			deferredQuadShader.setFloat("lights[" + std::to_string(i) + "].Quadratic", quadratic);			恨死了中国就我找到他们的那些方式把周慧现在的位置发了
 		}
-		glDisable(GL_DEPTH_TEST);
+		//glDisable(GL_DEPTH_TEST);
 				
-		RenderQuad();		
+		RenderQuad();		过去然后就时间的开始的当天下午工会就给我打电话了说是
 		//render the light-----------------------------------------------------------------
 		lightShader.use();
 		lightShader.setMat4("projection", GetProjectionMatrix());
 		lightShader.setMat4("view", GetViewMatrix());
+
+		//copy depth buffer from gBuffer to default framebuffer
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Write to default framebuffer
+		// blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
+		// The internal formats are implementation defined. This works on all of my systems, but if you require more consistency in your code, you might need to use FBOs.
+		glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 		for (GLuint i = 0; i < NR_LIGHTS; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, lightPositions[i]);
-			model = glm::scale(model, glm::vec3(0.25f));
+			model = glm::scale(model, glm::vec3(0.15f));
 			lightShader.setMat4("model", model);
 			lightShader.setVec3("lightColor", lightColors[i]);
-			//RenderCube();
+			RenderCube();
 		}
 
 
