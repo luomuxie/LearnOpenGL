@@ -3,8 +3,8 @@
 void NeonHeart::Run()
 {
 	//init opengl
-	scale = 1;
-	screenHeight = screenWidth = 800* scale;
+	//scale = 1;
+	//screenHeight = screenWidth = 600* scale;
 	InitWindow();
 
 	//create shader

@@ -79,6 +79,8 @@ float heart(vec2 p) {
                     dot2(p-0.5*max(p.x+p.y,0.0)))) * sign(p.x-p.y);
 }
 
+
+//df: 包装heart函数，对位置进行缩放和偏移处理
 float df(vec2 p) {
     vec2 hp = p;
     const float hz = 1.0;
@@ -88,6 +90,7 @@ float df(vec2 p) {
     return d;
 }
 
+//hf: 根据距离场生成高度信息。
 float hf(vec2 p) {
     float d = df(p);
     float h = (-20.0*d);
@@ -98,6 +101,7 @@ float hf(vec2 p) {
     return h;
 }
 
+//calculate the normal
 vec3 nf(vec2 p) {
     vec2 v;
     vec2 w;
@@ -111,10 +115,12 @@ vec3 nf(vec2 p) {
     return normalize(n);
 }
 
+//hash和noise: 实现噪声函数。
 vec2 hash(vec2 p) {
     p = vec2(dot (p, vec2 (127.1, 311.7)), dot (p, vec2 (269.5, 183.3)));
     return -1. + 2.*fract (sin (p)*43758.5453123);
 }
+
 
 float noise(vec2 p) {
     const float K1 = .366025404;
@@ -134,6 +140,8 @@ float noise(vec2 p) {
     return dot (n, vec3 (70.));
 }
 
+
+//fbm: 生成分形布朗运动，用于创建类似闪电的效果。
 float fbm(vec2 pos, float tm) {
     vec2 offset = vec2(cos(tm), sin(tm*sqrt(0.5)));
     float aggr = 0.0;
@@ -151,6 +159,7 @@ float fbm(vec2 pos, float tm) {
     return f;
 }
 
+//divf: 功能不详，似乎是与闪电效果相关的某种衰减函数。
 float divf(float offset, float f) {
     const float goff = 0.2;
     const float gfloor = 0.001;
@@ -159,6 +168,7 @@ float divf(float offset, float f) {
     return r;
 }
 
+//lightning: 创建一个闪电效果，它可能会随着时间的变化而变化。
 // This way of computing "lightning" I found at shadertoy. Unfortunately I don't remember where.
 vec3 lightning(vec2 pos, vec2 pp, float offset) {
     vec3 sub = 0.03*vec3(0.0, 1.0, 2.0).zyx*length(pp);
@@ -170,61 +180,101 @@ vec3 lightning(vec2 pos, vec2 pp, float offset) {
     const float glow = 0.0125;
     const float goff = 0.2;
     const float gfloor = 0.001;
+
     for (float i = 0.0; i < 3.0; ++i) {
-    vec3 gcol0 = (1.0+cos(0.50*vec3(0.0, 1.0, 2.0) +time+3.0*pos.x-0.33*i));
-    vec3 gcol1 = (1.0+cos(1.25*vec3(0.0, 1.0, 2.0) +2.*time+pos.y+0.25*i));
-    float btime = stime*85.0 + (i);
-    float rtime = stime*75.0 + (i);
-    float div1 = divf(offset, fbm((pos + f) * 3.0, rtime));
-    float div2 = divf(offset, fbm((pos + f) * 2.0, btime));
-    float d1 = offset * glow / div1;
-    float d2 = offset * glow / div2;
-    col += (d1 * gcol0)-sub;
-    col += (d2 * gcol1)-sub;
+
+        vec3 gcol0 = (1.0+cos(0.50*vec3(0.0, 1.0, 2.0) +time+3.0*pos.x-0.33*i));
+        vec3 gcol1 = (1.0+cos(1.25*vec3(0.0, 1.0, 2.0) +2.*time+pos.y+0.25*i));
+        float btime = stime*85.0 + (i);
+        float rtime = stime*75.0 + (i);
+
+        float div1 = divf(offset, fbm((pos + f) * 3.0, rtime));
+        float div2 = divf(offset, fbm((pos + f) * 2.0, btime));
+
+        float d1 = offset * glow / div1;
+        float d2 = offset * glow / div2;
+        col += (d1 * gcol0)-sub;
+        col += (d2 * gcol1)-sub;
     }
     
     return col;
 }
 
-vec3 effect(vec2 p, vec2 pp) {
-    float aa = 4.0/RESOLUTION.y;
+vec3 effect(vec2 p) {
+
+    
+    //包装heart函数，对位置进行缩放和偏移处理
     float d = df(p);
+    
+    //根据距离场生成高度信息
     float h = hf(p);
+
+    //calculate the normal
     vec3 n = nf(p);
+
+    //ligth point
     const vec3 lp = vec3(-4.0, -5.0, 3.0);
+
+    //ro代表的就是相机（或观察者）的位置，通常用于确定视图的原点，即你从哪里看向场景。在这个情境下
+    //相机位于Z轴上，离XY平面10个单位远，朝向原点。这对于计算从相机到场景中任意点的视线（光线）非常重要
     const vec3 ro = vec3(0.0, 0.0, 10.0);
+
+    //h是根据二维坐标p计算得出的，可以被看作是在心形的距离场上的高度或深度值，它为心形图形添加了立体效果。
+    //因此，vec3(p, h)是在将二维屏幕空间的点转换成三维空间中的点，这允许着色器处理像光照这样的三维效果，
+    //因为这需要知道每个点在三维空间中的位置。在这里，p3代表了屏幕上每个像素对应的三维世界中的点，这对于接下来计算光照和渲染效果至关重要。
     vec3 p3 = vec3(p, h); 
+
+    //view direction
     vec3 rd = normalize(p3-ro);
+    //light direction
     vec3 ld = normalize(lp-p3);
+
+    //calculate reflection
     vec3 r = reflect(rd, n);
-    float diff = max(dot(ld, n), 0.0);
+
+    //calculate the diffuse color
+    float diff = max(dot(ld, n), 0.0);        
     vec3 dcol = dbcol*mix(vec3(0.15), vec3(1.0), diff);
+
+    //calculate the specular color
     float spe = pow(max(dot(ld, r), 0.0), 3.0);
     vec3 scol = spe*sbcol;
+
+
     float gd = d+0.0;
     vec2 gp = p;
-    vec3 gcol = lightning(gp, pp, gd);
+    vec3 gcol = lightning(gp, p, gd);
+
     vec3 hcol = dcol;
     hcol += scol;
+
     vec3 col = vec3(0.0);
     col += gbcol/max(0.01*(dot2(p)-0.15), 0.0001);
     col += gcol;
+
+    float aa = 4.0/RESOLUTION.y;
     col = mix(col, hcol, smoothstep(0.0, -aa, d));
     col = mix(col, fbcol, smoothstep(0.0, -aa, abs(d+0.01)-0.01));
-    col *= smoothstep(1.75, 0.5, length(pp));
+    col *= smoothstep(1.75, 0.5, length(p));
 
+    //deal with the gamma:色彩映射
     col = aces_approx(col); 
     col = sqrt(col); 
+
     return col;
 }
 
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+
+//映射到NDC空间：把屏幕坐标（fragCoord）映射到[-1, 1]范围内，这是OpenGL中使用的标准化设备坐标（NDC）空间。
+//在NDC空间中，(0,0)通常是屏幕中心，(-1, -1)是左下角，(1, 1)是右上角。
+//保持宽高比：通过调整x坐标（p.x *= RESOLUTION.x/RESOLUTION.y），它考虑到屏幕宽高比，
+//确保在不同分辨率的屏幕上渲染时保持图形的比例，防止图形拉伸或压缩。
     vec2 q = fragCoord/RESOLUTION.xy;
-    vec2 p = -1. + 2. * q;
-    vec2 pp = p;
+    vec2 p = -1. + 2. * q;    
     p.x *= RESOLUTION.x/RESOLUTION.y;
-    vec3 col = effect(p, pp); 
+    vec3 col = effect(p); 
     fragColor = vec4(col.xyz, 1.0);
 }
 
