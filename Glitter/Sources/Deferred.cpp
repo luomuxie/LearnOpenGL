@@ -3,6 +3,10 @@
 #include "Common/Renderer.cpp"
 #include "Constants.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 
 
 void Deferred::RenderModel(Shader &shader, Model& modelObj)
@@ -50,8 +54,6 @@ void Deferred::Run()
 	camera.Pitch = -80;
 
 	
-
-	
 	InitWindow();
 	//init the light data
 	InitLightData();
@@ -89,6 +91,9 @@ void Deferred::Run()
 	gBuffer = Renderer::createFramebuffer(attachments, screenWidth, screenHeight);
 	//open the depth test
 	glEnable(GL_DEPTH_TEST);
+
+	//init imgui
+	InitImgui();	
 	
 	//main loop
 	//check the window is not closed
@@ -100,15 +105,7 @@ void Deferred::Run()
 
 		//input
 		//process the input
-		InputProcess(window);		
-		//rotation the camera by the time by the radius,and always look at the center
-		float camX = sin(glfwGetTime()) * 30;
-		float camZ = cos(glfwGetTime()) * 30;
-		camera.Position.x = camX;
-		camera.Position.z = camZ;
-		// 始终看向场景中心点
-		camera.Front = glm::normalize(glm::vec3(0.0f, 0.0f, 0.0f) - camera.Position);
-				
+		InputProcess(window);
 
 		//render
 		//set the clear color
@@ -117,6 +114,20 @@ void Deferred::Run()
 		//clear the color buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		//start the imgui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+				
+		//rotation the camera by the time by the radius,and always look at the center
+		float camX = sin(glfwGetTime()) * 30;
+		float camZ = cos(glfwGetTime()) * 30;
+		camera.Position.x = camX;
+		camera.Position.z = camZ;
+		// 始终看向场景中心点
+		camera.Front = glm::normalize(glm::vec3(0.0f, 0.0f, 0.0f) - camera.Position);
+				
 		//use the gbuffer----------------------------------------------------
 		glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -153,23 +164,39 @@ void Deferred::Run()
 			deferredQuadShader.setFloat("lights[" + std::to_string(i) + "].Linear", linear);
 			deferredQuadShader.setFloat("lights[" + std::to_string(i) + "].Quadratic", quadratic);			
 		}
-		glDisable(GL_DEPTH_TEST);
+		//glDisable(GL_DEPTH_TEST);
 				
 		RenderQuad();		
 		//render the light-----------------------------------------------------------------
 		lightShader.use();
 		lightShader.setMat4("projection", GetProjectionMatrix());
 		lightShader.setMat4("view", GetViewMatrix());
+
+		//copy depth buffer from gBuffer to default framebuffer
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0); // Write to default framebuffer
+		// blit to default framebuffer. Note that this may or may not work as the internal formats of both the FBO and default framebuffer have to match.
+		// The internal formats are implementation defined. This works on all of my systems, but if you require more consistency in your code, you might need to use FBOs.
+		glBlitFramebuffer(0, 0, screenWidth, screenHeight, 0, 0, screenWidth, screenHeight, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	
 		for (GLuint i = 0; i < NR_LIGHTS; i++)
 		{
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, lightPositions[i]);
-			model = glm::scale(model, glm::vec3(0.25f));
+			model = glm::scale(model, glm::vec3(0.1f));
 			lightShader.setMat4("model", model);
 			lightShader.setVec3("lightColor", lightColors[i]);
-			//RenderCube();
+			RenderCube();
 		}
+
+		ImGui::Begin("Settings");
+		ImGui::Text("FPS: %f", 1 / deltaTime);
+		ImGui::End();
+
+		// Rendering
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 
 		//swap the buffer
@@ -177,7 +204,6 @@ void Deferred::Run()
 		//poll the event
 		glfwPollEvents();
 	}
-	
-	//exit the program
-	glfwTerminate();
+
+	EndProgram();
 }

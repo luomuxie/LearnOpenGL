@@ -21,7 +21,6 @@ class Deferred:public GraphicsWindowBase
 	//create a func to render the model have two param shader and model
 	void RenderModel(Shader &shader, Model& modelObj);
 
-
 	//create a val to store gbufferID
 	unsigned int gBuffer;
 	//create attchments
