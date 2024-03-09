@@ -6,6 +6,10 @@
 #include <iostream>
 #include <shader_s.h>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 class GraphicsWindowBase {
 protected:
     GLFWwindow* window = nullptr;
@@ -43,6 +47,15 @@ protected:
 	unsigned int quadVAO = 0;
 	unsigned int quadVBO = 0;
 	void RenderQuad();
+
+    //create a func to init the imgui
+    void InitImgui();
+
+    //create a func to end program
+    void EndProgram();
+
+
+
 
        
 public:

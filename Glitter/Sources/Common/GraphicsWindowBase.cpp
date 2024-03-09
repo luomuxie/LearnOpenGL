@@ -195,6 +195,29 @@ void GraphicsWindowBase::RenderQuad()
     glBindVertexArray(0);
 }
 
+void GraphicsWindowBase::InitImgui()
+{
+    // Setup Dear ImGui context
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	// Setup Platform/Renderer bindings
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+	// Setup Style
+	ImGui::StyleColorsDark();
+}
+
+void GraphicsWindowBase::EndProgram()
+{
+    // Cleanup
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+	glfwDestroyWindow(window);
+	glfwTerminate();
+}
+
 Shader GraphicsWindowBase::CreateShader(const std::string& vertexShaderSource, const std::string& fragmentShaderSource,const std::string& geometryShaderSource) {
     //create a vertexShaderPath str
     std::string vertexPath = SHADER_PATH + vertexShaderSource+".vs";
