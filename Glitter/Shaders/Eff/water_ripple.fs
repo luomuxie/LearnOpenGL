@@ -99,10 +99,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     float specular = 5 * pow(clamp(dot(normal, normalize(halfVector)), 0., 1.), 6.);
 
 
-    
-
-
-
     fragColor = vec4(finalCol, 1.0)+specular;
    
 }
