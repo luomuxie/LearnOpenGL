@@ -8,6 +8,16 @@ out vec4 FragColor;
 uniform float iTime;
 //create a uniform for resolution
 uniform vec2 iResolution;
+//create a uniform for the color
+uniform vec3 iHeartColor;
+//create a uniform for the heartEdgeColor
+uniform vec3 iHeartEdgeColor;
+
+//create a int val to sel noise type
+uniform int iNoiseType;
+
+
+
 
 #define TIME            iTime
 #define RESOLUTION      iResolution
@@ -28,10 +38,11 @@ vec3 hsv2rgb(vec3 c) {
 #define HSV2RGB(c)  (c.z * mix(hsv2rgb_K.xxx, clamp(abs(fract(c.xxx + hsv2rgb_K.xyz) * 6.0 - hsv2rgb_K.www) - hsv2rgb_K.xxx, 0.0, 1.0), c.y))
 
 const float hoff = 0.58;
-const vec3 dbcol = HSV2RGB(vec3(hoff+0.96, 0.8, 0.75));
+//const vec3 dbcol = HSV2RGB(vec3(hoff+0.96, 0.8, 0.75));
 const vec3 sbcol = HSV2RGB(vec3(hoff+0.95, 0.4, 1.0));
 const vec3 gbcol = HSV2RGB(vec3(hoff+0.98, 0.9, 0.001));
-const vec3 fbcol = HSV2RGB(vec3(hoff+0.95, 0.7, 2.0));
+//const vec3 fbcol = HSV2RGB(vec3(hoff+0.95, 0.7, 2.0));
+
 
 // License: Unknown, author: Claude Brezinski, found: https://mathr.co.uk/blog/2017-09-06_approximating_hyperbolic_tangent.html
 float tanh_approx(float x) {
@@ -140,18 +151,95 @@ float noise(vec2 p) {
     return dot (n, vec3 (70.));
 }
 
+//-------------------------------------------------------------
+float ghash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
+float rand(vec2 n) { 
+    return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+}
+
+//Generic 1,2,3 Noise
+float gnoise(vec2 x) {
+    vec2 i = floor(x);
+    vec2 f = fract(x);
+
+    // Four corners in 2D of a tile
+    float a = ghash(i);
+    float b = ghash(i + vec2(1.0, 0.0));
+    float c = ghash(i + vec2(0.0, 1.0));
+    float d = ghash(i + vec2(1.0, 1.0));
+
+    // Simple 2D lerp using smoothstep envelope between the values.
+    // return vec3(mix(mix(a, b, smoothstep(0.0, 1.0, f.x)),
+    //			mix(c, d, smoothstep(0.0, 1.0, f.x)),
+    //			smoothstep(0.0, 1.0, f.y)));
+
+    // Same code, with the clamps in smoothstep and common subexpressions
+    // optimized away.
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+//https://en.wikipedia.org/wiki/Simplex_noise
+vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+float snoise(vec2 v){
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+            -0.577350269189626, 0.024390243902439);
+    vec2 i  = floor(v + dot(v, C.yy) );
+    vec2 x0 = v -   i + dot(i, C.xx);
+    vec2 i1;
+    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+    i = mod(i, 289.0);
+    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+    + i.x + vec3(0.0, i1.x, 1.0 ));
+    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+    dot(x12.zw,x12.zw)), 0.0);
+    m = m*m ;
+    m = m*m ;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+    vec3 g;
+    g.x  = a0.x  * x0.x  + h.x  * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
 
 //fbm: 生成分形布朗运动，用于创建类似闪电的效果。
+//https://en.wikipedia.org/wiki/Fractional_Brownian_motion
 float fbm(vec2 pos, float tm) {
     vec2 offset = vec2(cos(tm), sin(tm*sqrt(0.5)));
     float aggr = 0.0;
-    
-    aggr += noise(pos);
-    aggr += noise(pos + offset) * 0.5;
-    aggr += noise(pos + offset.yx) * 0.25;
-    aggr += noise(pos - offset) * 0.125;
-    aggr += noise(pos - offset.yx) * 0.0625;
-    
+
+    //according to the noise type to select the noise
+    if(iNoiseType == 0){
+
+        aggr += noise(pos);
+        aggr += noise(pos + offset) * 0.5;
+        aggr += noise(pos + offset.yx) * 0.25;
+        aggr += noise(pos - offset) * 0.125;
+        aggr += noise(pos - offset.yx) * 0.0625;
+    }else if(iNoiseType == 1) {
+        
+        aggr += snoise(pos);
+        aggr += snoise(pos + offset) * 0.5;
+        aggr += snoise(pos + offset.yx) * 0.25;
+        aggr += snoise(pos - offset) * 0.125;
+        aggr += snoise(pos - offset.yx) * 0.0625;    
+    }else if(iNoiseType == 2) {
+        
+        aggr += gnoise(pos);
+        aggr += gnoise(pos + offset) * 0.5;
+        aggr += gnoise(pos + offset.yx) * 0.25;
+        aggr += gnoise(pos - offset) * 0.125;
+        aggr += gnoise(pos - offset.yx) * 0.0625;    
+    }
+     
+     
     aggr /= 1.0 + 0.5 + 0.25 + 0.125 + 0.0625;
     
     float f = (aggr * 0.5) + 0.5;
@@ -170,41 +258,60 @@ float divf(float offset, float f) {
 
 //lightning: 创建一个闪电效果，它可能会随着时间的变化而变化。
 // This way of computing "lightning" I found at shadertoy. Unfortunately I don't remember where.
-vec3 lightning(vec2 pos, vec2 pp, float offset) {
-    vec3 sub = 0.03*vec3(0.0, 1.0, 2.0).zyx*length(pp);
+vec3 lightning(vec2 pos, float offset) {
+
+    //creaet a color to store the color and name orgcol
+    vec3 orgCol = vec3(0.0, 1.0, 2.0);
+
+    vec3 sub = 0.03*orgCol*length(pos);
 
     float time = TIME+123.4;
     float stime = time/200.0;
+
     vec3 col = vec3(0.0);
     vec2 f = 10.0*cos(vec2(sqrt(0.5), 1.0)*stime)+vec2(0.0, -11.0)*stime;
-    const float glow = 0.0125;
-    const float goff = 0.2;
-    const float gfloor = 0.001;
+    const float glow = 0.0125;    
 
-    for (float i = 0.0; i < 3.0; ++i) {
+    //calculate the the  outside glow
+    for (float i = 0.0; i < 3; ++i) {
 
-        vec3 gcol0 = (1.0+cos(0.50*vec3(0.0, 1.0, 2.0) +time+3.0*pos.x-0.33*i));
-        vec3 gcol1 = (1.0+cos(1.25*vec3(0.0, 1.0, 2.0) +2.*time+pos.y+0.25*i));
-        float btime = stime*85.0 + (i);
+        vec3 gcol0 = (1.0+cos(0.50*orgCol +time+3.0*pos.x-0.33*i));
+
         float rtime = stime*75.0 + (i);
-
         float div1 = divf(offset, fbm((pos + f) * 3.0, rtime));
-        float div2 = divf(offset, fbm((pos + f) * 2.0, btime));
-
         float d1 = offset * glow / div1;
-        float d2 = offset * glow / div2;
-        col += (d1 * gcol0)-sub;
-        col += (d2 * gcol1)-sub;
+        //col += (d1 * gcol0)-sub;
+        col += (d1 * gcol0);
+
+
+        //vec3 gcol1 = (1.0+cos(1.25*vec3(0.0, 1.0, 2.0) +2.*time+pos.y+0.25*i));
+        //float btime = stime*85.0 + (i);               
+        //float div2 = divf(offset, fbm((pos + f) * 2.0, btime));        
+        //float d2 = offset * glow / div2;        
+        //col += (d2 * gcol1)-sub;
     }
     
     return col;
 }
 
-vec3 effect(vec2 p) {
-
+vec3 palette(float a){
     
-    //包装heart函数，对位置进行缩放和偏移处理
-    float d = df(p);
+    return 0.5+0.5*sin(vec3(0,1,2)+a);
+}
+
+vec3 palette2( float t ) {
+    vec3 a = vec3(0.1, 0, 0);
+    vec3 b = vec3(0.5, 0, 0);
+    vec3 c = vec3(1.0, 0, 0);
+    //vec3 d = vec3(0.263,0.416,0.557);
+    //vec3 d = vec3(0.0, 0.5, 1.0);
+    vec3 d = vec3(0.67, 0, 0); // 创建类似彩虹的颜色过渡
+
+    return a + b*cos( 6.28318*(c*t+d) );
+}
+
+
+vec3 effect(vec2 p) {
     
     //根据距离场生成高度信息
     float h = hf(p);
@@ -233,7 +340,21 @@ vec3 effect(vec2 p) {
     vec3 r = reflect(rd, n);
 
     //calculate the diffuse color
-    float diff = max(dot(ld, n), 0.0);        
+    float diff = max(dot(ld, n), 0.0);
+    
+    //包装heart函数，对位置进行缩放和偏移处理
+    float d = df(p);
+
+
+    //calculate the heartColor
+    //float len = length(p);
+    //float s = 0.75 + 0.75*p.x;
+    //s *= 1.0-0.4*len;
+    //s = 0.3 + 0.7*s;
+    //s *= 0.5+0.5*pow( 1.0-clamp(len/d, 0.0, 1.0 ), 0.1 );
+    //vec3 dbcol = vec3(1.0,0.4*len,0.3)*s;
+
+    vec3 dbcol = iHeartColor;    
     vec3 dcol = dbcol*mix(vec3(0.15), vec3(1.0), diff);
 
     //calculate the specular color
@@ -241,25 +362,34 @@ vec3 effect(vec2 p) {
     vec3 scol = spe*sbcol;
 
 
-    float gd = d+0.0;
-    vec2 gp = p;
-    vec3 gcol = lightning(gp, p, gd);
+
 
     vec3 hcol = dcol;
     hcol += scol;
 
+    // draw a circle light
     vec3 col = vec3(0.0);
     col += gbcol/max(0.01*(dot2(p)-0.15), 0.0001);
+
+    //add glow    
+    vec3 gcol = lightning(p, d);
     col += gcol;
 
+    //the heart outside color------------------------------------
+
+    //the 
     float aa = 4.0/RESOLUTION.y;
+
     col = mix(col, hcol, smoothstep(0.0, -aa, d));
-    col = mix(col, fbcol, smoothstep(0.0, -aa, abs(d+0.01)-0.01));
-    col *= smoothstep(1.75, 0.5, length(p));
+
+    vec3 fbcol = iHeartEdgeColor;
+    //the heart edge color
+    col = mix(col, fbcol, smoothstep(0.0, -aa, abs(d+0.01)-0.01));    
+
 
     //deal with the gamma:色彩映射
-    col = aces_approx(col); 
-    col = sqrt(col); 
+    //col = aces_approx(col); 
+    //col = sqrt(col); 
 
     return col;
 }
