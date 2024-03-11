@@ -99,9 +99,5 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord)
 
     }
 
-    col = sqrt(col);
-    
-    //set the fragColor
-    fragColor = vec4(col, 1.0);
-
+    return col = sqrt(col);    
 }

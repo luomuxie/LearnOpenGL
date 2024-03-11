@@ -4,11 +4,12 @@ void NeonHeart::Run()
 {
 	//init opengl
 	scale = 2;
-	screenHeight = screenWidth = 600* scale;
+	screenHeight *= scale;
+	screenWidth *= scale;
 	InitWindow();
 
 	//create shader
-	Shader shader = CreateEffShader("Neonheart", "Neonheart");
+	Shader shader = CreateEffShader("Neonheart", "Neonheart2");
 	
 	InitImgui();
 
@@ -25,9 +26,7 @@ void NeonHeart::Run()
 		//clear the window
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		//start the imgui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
+		
 		
 
 
@@ -44,35 +43,40 @@ void NeonHeart::Run()
 		//create plane
 		RenderQuad();
 
-
-		//const float hoff = 0.58;
-		////const vec3 dbcol = HSV2RGB(vec3(hoff+0.96, 0.8, 0.75));
-
-		////const vec3 fbcol = HSV2RGB(vec3(hoff+0.95, 0.7, 2.0));
-
-
+		//start the imgui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		{
 			ImGui::Begin("NeonHeart");
 			ImGui::Text("Welcome to NeonHeart");
 			//create a color
-			static float color[3] = { 1,0.06, 0 };
+			//vec3 hcol = vec3(1.0, 0.4 * r, 0.3) * s;
+			static float color[3] = { 1,0.4, 0.3 };
 			ImGui::ColorEdit3("clear color", color);
 			//send the color to the shader
 			shader.setVec3("iHeartColor", glm::vec3(color[0], color[1], color[2]));
 
+			//vec3 bgCol = vec3(1.0,0.8,0.7-0.07*p.y)*(1.0-0.25*length(p));
 			//create a color for the heartEdge
-			static float heartEdgeColor[3] = { 0.47, 0.094, 0.35 };
-			ImGui::ColorEdit3("heartEdgeColor", heartEdgeColor);
+			static float heartEdgeColor[3] = { 1.0,0.8,0.7 };
+			ImGui::ColorEdit3("heartBgColor", heartEdgeColor);
 			//send the color to the shader
-			shader.setVec3("iHeartEdgeColor", glm::vec3(heartEdgeColor[0], heartEdgeColor[1], heartEdgeColor[2]));
+			shader.setVec3("iHeartBgColor", glm::vec3(heartEdgeColor[0], heartEdgeColor[1], heartEdgeColor[2]));
 
-			//创建一个下拉选择框，选择不同的noise type
-			static int noiseType = 0;
-			ImGui::Combo("NoiseType", &noiseType, "Perlin\0Simplex\0Generic");
-			//send the noise type to the shader
-			shader.setInt("iNoiseType", noiseType);
+			//create a float for the noise offset
+			static float noiseOffset = 0.085;
+			ImGui::SliderFloat("noiseOffset", &noiseOffset, -1.0, 1.0);
+			//send the noise offset to the shader
+			shader.setFloat("iOffsetNoise", noiseOffset);
 
+			
+			//create a float for  offset the glow effect
+			static float glowOffset = -0.047;
+			ImGui::SliderFloat("glowOffset", &glowOffset, -1, 1.0);
+			//send the glow offset to the shader
+			shader.setFloat("iOffsetGlow", glowOffset);
+		
 
 			ImGui::End();
 		}
