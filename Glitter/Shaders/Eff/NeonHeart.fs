@@ -16,9 +16,6 @@ uniform vec3 iHeartEdgeColor;
 //create a int val to sel noise type
 uniform int iNoiseType;
 
-
-
-
 #define TIME            iTime
 #define RESOLUTION      iResolution
 #define PI              3.141592654
