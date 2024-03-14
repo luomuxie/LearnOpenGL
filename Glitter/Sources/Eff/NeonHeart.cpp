@@ -25,11 +25,7 @@ void NeonHeart::Run()
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		//clear the window
 		glClear(GL_COLOR_BUFFER_BIT);
-
-		
-		
-
-
+				
 		//set the shader
 		shader.use();
 		//set the time

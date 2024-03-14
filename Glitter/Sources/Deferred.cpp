@@ -8,7 +8,6 @@
 #include "imgui_impl_opengl3.h"
 
 
-
 void Deferred::RenderModel(Shader &shader, Model& modelObj)
 {
 	//render the model by the objPos

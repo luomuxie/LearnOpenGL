@@ -236,7 +236,7 @@ vec3 effect(vec2 p) {
     float r = length(p);//[0, sqrt(2)]
 
     // color
-    float s = 0.75 + 0.75*p.x;
+    float s = 0.75 + 0.75*p.x; 
     s *= 1.0-0.4*r;
     s = 0.3 + 0.7*s;
     s *= 0.5+0.5*pow( 1.0-clamp(r/d, 0.0, 1.0 ), 0.1 );
