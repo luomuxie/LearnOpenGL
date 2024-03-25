@@ -3,7 +3,7 @@
 void NeonHeart::Run()
 {
 	//init opengl
-	scale = 2;
+	scale = 1;
 	screenHeight *= scale;
 	screenWidth *= scale;
 	InitWindow();
@@ -61,19 +61,31 @@ void NeonHeart::Run()
 			shader.setVec3("iHeartBgColor", glm::vec3(heartEdgeColor[0], heartEdgeColor[1], heartEdgeColor[2]));
 
 			//create a float for the noise offset
-			static float noiseOffset = 0.085;
+			static float noiseOffset = -0.762;
 			ImGui::SliderFloat("noiseOffset", &noiseOffset, -1.0, 1.0);
 			//send the noise offset to the shader
 			shader.setFloat("iOffsetNoise", noiseOffset);
 
 			
-			//create a float for  offset the glow effect
-			static float glowOffset = -0.047;
-			ImGui::SliderFloat("glowOffset", &glowOffset, -1, 1.0);
-			//send the glow offset to the shader
-			shader.setFloat("iOffsetGlow", glowOffset);
-		
+			// create the min and max for the glow effect
+			static float glowThickness = 0.0125;
+			ImGui::SliderFloat("glowThickness", &glowThickness, 0.01, 0.1);
+			//send the glow thickness to the shader
+			shader.setFloat("iGlowThickness", glowThickness);
 
+			//create int val for the noise scale
+			static int noiseScale = 3;
+			ImGui::SliderInt("noiseScale", &noiseScale, 1, 10);
+			//send the noise scale to the shader
+			shader.setInt("iNoiseScale", noiseScale);
+
+			//create a int val for the fbm octaves
+			static int fbmOctaves = 3;
+			ImGui::SliderInt("fbmOctaves", &fbmOctaves, 1, 10);
+			//send the fbm octaves to the shader
+			shader.setInt("iFbmOctaves", fbmOctaves);
+
+		
 			ImGui::End();
 		}
 

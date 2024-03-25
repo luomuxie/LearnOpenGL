@@ -307,6 +307,11 @@ vec3 palette2( float t ) {
     return a + b*cos( 6.28318*(c*t+d) );
 }
 
+float sdCircle( vec2 p, float r )
+{
+    return length(p) - r;
+}
+
 
 vec3 effect(vec2 p) {
     
@@ -367,6 +372,7 @@ vec3 effect(vec2 p) {
     // draw a circle light
     vec3 col = vec3(0.0);
     col += gbcol/max(0.01*(dot2(p)-0.15), 0.0001);
+
 
     //add glow    
     vec3 gcol = lightning(p, d);
