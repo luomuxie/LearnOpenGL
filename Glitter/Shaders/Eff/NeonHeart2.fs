@@ -26,15 +26,24 @@ uniform float iOffsetGlow;
 #define PI              3.141592654
 #define TAU             (2.0*PI)
 
+//这个是作者变形得出，不是原始的心形函数
+//在使用距离场（Signed Distance Field, SDF）函数时，返回值确实用来区分空间中点的位置相对于图形的边界。SDF为每个空间点提供一个值，该值表示点到最近图形表面的最短距离。对于SDF，约定如下：
 
-// License: MIT, author: Inigo Quilez, found: https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
-float heart(vec2 p) {    
-    // shape    
-    float a = atan(p.x,p.y)/3.141593;
-    float r = length(p);
-    float h = abs(a);
+//当返回值小于0时，这意味着点在图形内部。
+//当返回值大于0时，这意味着点在图形外部。
+//当返回值等于0时，这意味着点恰好在图形的边界上。
+//这种方法允许在渲染时轻松实现复杂形状的高效率光照和阴影计算，以及其他图形效果，如边缘平滑。
+//通过SDF，可以基于点到图形表面的距离，以数学方式定义和操作图形。
+
+float heart(vec2 p) {
+    // shape
+    //float a = atan(p.x,p.y)/PI; 计算点p的角度（在x和y平面上），然后除以π（PI），将角度标准化到[-1, 1]的范围内。
+    //atan函数的输出范围是[-π/2, π/2]（对于atan(y,x)，即atan2，范围是[-π, π]），
+    //因此除以π后，a的范围是[-1, 1]。
+    float a = atan(p.x,p.y)/PI;//a的范围是[-1, 1]
+    //float r = length(p);
+    float h = abs(a);//a的范围是[0, 1]
     float d = (13.0*h - 22.0*h*h + 10.0*h*h*h)/(6.0-5.0*h);
-
     return d;
 }
 
@@ -83,7 +92,8 @@ vec2 hash(vec2 p) {
     return -1. + 2.*fract (sin (p)*43758.5453123);
 }
 
-
+//https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83
+//Simplex
 float noise(vec2 p) {
     const float K1 = .366025404;
     const float K2 = .211324865;
@@ -105,7 +115,6 @@ float noise(vec2 p) {
 float fbm(vec2 pos, float tm) {
     vec2 offset = vec2(cos(tm), sin(tm*sqrt(0.5)));
     float aggr = 0.0;
-
     aggr += noise(pos);
     aggr += noise(pos + offset) * 0.5;
     aggr += noise(pos + offset.yx) * 0.25;
@@ -172,8 +181,7 @@ vec3 effect(vec2 p) {
     p *= vec2(0.5,1.5) + ss*vec2(0.5,-0.5);
     
     // shape
-    //create a val to store the p
-    
+    //create a val to store the p    
     p.y -= 0.25;    
     float r = length(p);    
     
