@@ -14,7 +14,6 @@ uniform vec3 iHeartColor;
 //create a uniform for the heartEdgeColor
 uniform vec3 iHeartBgColor;
 
-
 //create a floate val to offset the noise
 uniform float iOffsetNoise;
 
@@ -22,22 +21,15 @@ uniform float iOffsetNoise;
 uniform float iOffsetGlow;
 
 
-
-
-
-
-
-
-
 #define TIME            iTime
 #define RESOLUTION      iResolution
 #define PI              3.141592654
 #define TAU             (2.0*PI)
 
+
 // License: MIT, author: Inigo Quilez, found: https://iquilezles.org/www/articles/distfunctions2d/distfunctions2d.htm
-float heart(vec2 p) {
-    // shape
-   
+float heart(vec2 p) {    
+    // shape    
     float a = atan(p.x,p.y)/3.141593;
     float r = length(p);
     float h = abs(a);
@@ -46,39 +38,6 @@ float heart(vec2 p) {
     return d;
 }
 
-// License: MIT, author: Inigo Quilez, found: https://www.iquilezles.org/www/articles/smin/smin.htm
-float pmin(float a, float b, float k) {
-    float h = clamp(0.5+0.5*(b-a)/k, 0.0, 1.0);
-    return mix(b, a, h) - k*h*(1.0-h);
-}
-
-// License: CC0, author: Mårten Rånge, found: https://github.com/mrange/glsl-snippets
-float pabs(float a, float k) {
-    return -pmin(a, -a, k);
-}
-
-float dot2(vec2 p) {
-    return dot(p, p);
-}
-
-float heart2(vec2 p) {
-    p.x = pabs(p.x, 0.05);
-
-    if( p.y+p.x>1.0 )
-        return sqrt(dot2(p-vec2(0.25,0.75))) - sqrt(2.0)/4.0;
-    return sqrt(min(dot2(p-vec2(0.00,1.00)),
-                    dot2(p-0.5*max(p.x+p.y,0.0)))) * sign(p.x-p.y);
-}
-
-//df: 包装heart函数，对位置进行缩放和偏移处理
-float df(vec2 p) {
-    vec2 hp = p;
-    const float hz = 1.0;
-    hp /= hz;
-    hp.y -= iOffsetGlow;
-    float d = heart2(hp)*hz;
-    return d;
-}
 
 float ghash(vec2 p) { return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x)))); }
 
@@ -137,10 +96,8 @@ float noise(vec2 p) {
     vec3 h = max (.5 - vec3 (dot (a, a), dot (b, b), dot (c, c) ), .0);
 
     vec3 n = h*h*h*h*vec3 (dot (a, hash (i + .0)),dot (b, hash (i + o)), dot (c, hash (i + 1.)));
-
     return dot (n, vec3 (70.));
 }
-
 
 
 //fbm: 生成分形布朗运动，用于创建类似闪电的效果。
@@ -149,7 +106,6 @@ float fbm(vec2 pos, float tm) {
     vec2 offset = vec2(cos(tm), sin(tm*sqrt(0.5)));
     float aggr = 0.0;
 
-    //according to the noise type to select the noise
     aggr += noise(pos);
     aggr += noise(pos + offset) * 0.5;
     aggr += noise(pos + offset.yx) * 0.25;
@@ -197,14 +153,6 @@ vec3 lightning(vec2 pos, float offset) {
         float div1 = divf(offset, fbm((pos + f) * 3.0, rtime));
         float d1 = offset * glow / div1;
         col += (d1 * gcol0)-sub;
-        //col += (d1 * gcol0);
-
-
-        //vec3 gcol1 = (1.0+cos(1.25*vec3(0.0, 1.0, 2.0) +2.*time+pos.y+0.25*i));
-        //float btime = stime*85.0 + (i);               
-        //float div2 = divf(offset, fbm((pos + f) * 2.0, btime));        
-        //float d2 = offset * glow / div2;        
-        //col += (d2 * gcol1)-sub;
     }
     return col;
 }
@@ -225,30 +173,20 @@ vec3 effect(vec2 p) {
     
     // shape
     //create a val to store the p
-    vec2 pp = p;
-
-
-    p.y -= 0.25;
-    float d = heart(p);
-    float r = length(p);    
-    // color
-    float s = 0.75 + 0.75*p.x;
-    s *= 1.0-0.4*r;
-    s = 0.3 + 0.7*s;
-    s *= 0.5+0.5*pow( 1.0-clamp(r/d, 0.0, 1.0 ), 0.1 );
-    vec3 hcol = vec3(iHeartColor.r,iHeartColor.g*r,iHeartColor.b)*s;
-
-
-    float d2 = df(p);
-    //add glow    
-    vec3 col = lightning(p, d2 - iOffsetNoise);    
-    col+=bgCol;
     
-    //the 
-    float aa = 4.0/RESOLUTION.y;    
+    p.y -= 0.25;    
+    float r = length(p);    
+    
+    float s = 0.75 + 0.75*p.x;    
+    vec3 hcol = vec3(iHeartColor.r,iHeartColor.g*r,iHeartColor.b)*s;
+    
+   
+   //add glow    
+    float d = heart(p);
+    vec3 col = lightning(p, d - iOffsetNoise);
 
-    //col = mix(col, hcol, smoothstep(0.0, -aa, d));
-
+    
+    col+=bgCol;    
     col = mix( col, hcol, smoothstep( -0.01, 0.01, d-r) );
 
     col = aces_approx(col); 
