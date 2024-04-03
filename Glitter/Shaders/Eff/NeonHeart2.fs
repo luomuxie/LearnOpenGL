@@ -3,8 +3,6 @@
 #version 330 core
 out vec4 FragColor;
 
-
-
 //create a uniform for time
 uniform float iTime;
 //create a uniform for resolution
@@ -209,14 +207,15 @@ vec3 effect(vec2 p) {
     col += lightColor;
 
     //第五步：add heart-------------------------------
-    col = mix( col, hcol, smoothstep( -0.01, 0.01, d-r) );
+    col = mix(col, hcol, smoothstep( -0.01, 0.01, d-r) );
+
+    //最后一步：应用色调映射
 
     col = aces_approx(col); 
     col = sqrt(col); 
 
     return col;
 }
-
 
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
